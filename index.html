@@ -1146,15 +1146,36 @@ function downloadRpt(){
 
 /* ─── SYNC ─── */
 async function syncSheet(){
-  if(SHEET_URL==="YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL"){showSync("⚠️ Paste your Apps Script Web App URL in SHEET_URL");return;}
-  showSync("⏳ Syncing to Google Sheet…");
+  showSync("⏳ Syncing…");
+
   try{
-    await fetch(SHEET_URL,{method:"POST",body:JSON.stringify({tasks,bugs,scrum,date:dk(),name:localStorage.getItem("qa_name")||""})});
-    showSync("✅ Synced successfully!");
-  }catch{showSync("❌ Sync failed — check your Apps Script URL.");}
-  setTimeout(()=>document.getElementById("syncBar").classList.add("hidden"),3500);
+    const res = await fetch(SHEET_URL,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        type:"getBugs"
+      })
+    });
+
+    const data = await res.json();
+
+    if(data.success){
+      bugs = data.data || [];
+      renderBugs();
+      showSync("✅ Synced successfully!");
+    }else{
+      showSync("❌ Sync failed.");
+    }
+
+  }catch(e){
+    console.error(e);
+    showSync("❌ Sync failed — check URL.");
+  }
+
+  setTimeout(()=>{
+    document.getElementById("syncBar").classList.add("hidden");
+  },3500);
 }
-function showSync(m){const b=document.getElementById("syncBar");b.textContent=m;b.classList.remove("hidden");}
 
 /* ─── MODAL UTILS ─── */
 function closeModal(id){ document.getElementById(id)?.classList.add("hidden"); }
