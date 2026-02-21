@@ -956,48 +956,19 @@ function updScratchCnt(){ const v=document.getElementById("scratchText")?.value|
 function clearScratch(){ if(confirm("Clear all notes?")){ document.getElementById("scratchText").value=""; localStorage.removeItem("qa_scratch"); updScratchCnt(); } }
 
 /* ─── REMINDER ─── */
-// 1️⃣ GLOBAL VARIABLES
-let remInt = null;
-let bugs = [];
-
-// 2️⃣ UTILITY FUNCTIONS
-function showSync(message){
-  const bar = document.getElementById("syncBar");
-  if(!bar) return;
-  bar.textContent = message;
-  bar.classList.remove("hidden");
-}
-
-// 3️⃣ REMINDER
+let remInt=null;
 function scheduleReminder(){
   const val=document.getElementById("reminderTime")?.value||"18:00";
   localStorage.setItem("qa_reminder_time",val);
-
   if(remInt) clearInterval(remInt);
-
   remInt=setInterval(()=>{
-    const now=new Date();
-    const cur=now.getHours().toString().padStart(2,"0")+":"+
-              now.getMinutes().toString().padStart(2,"0");
-
+    const now=new Date(), cur=now.getHours().toString().padStart(2,"0")+":"+now.getMinutes().toString().padStart(2,"0");
     if(cur===val){
-      document.getElementById("reminderBar")?.classList.remove("hidden");
+      document.getElementById("reminderBar").classList.remove("hidden");
+      if(Notification?.permission==="granted") new Notification("🧪 QA Tracker — EOD Time!",{body:"Generate your daily report and send to manager!"});
     }
   },30000);
 }
-
-// 4️⃣ SYNC
-async function syncSheet(){
-  showSync("⏳ Syncing…");
-  // your fetch logic here
-}
-
-// 5️⃣ INIT
-function init(){
-  scheduleReminder();
-}
-
-document.addEventListener("DOMContentLoaded", init);
 
 /* ─── THEME ─── */
 function toggleTheme(){
@@ -1175,36 +1146,15 @@ function downloadRpt(){
 
 /* ─── SYNC ─── */
 async function syncSheet(){
-  showSync("⏳ Syncing…");
-
+  if(SHEET_URL==="YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL"){showSync("⚠️ Paste your Apps Script Web App URL in SHEET_URL");return;}
+  showSync("⏳ Syncing to Google Sheet…");
   try{
-    const res = await fetch(SHEET_URL,{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({
-        type:"getBugs"
-      })
-    });
-
-    const data = await res.json();
-
-    if(data.success){
-      bugs = data.data || [];
-      renderBugs();
-      showSync("✅ Synced successfully!");
-    }else{
-      showSync("❌ Sync failed.");
-    }
-
-  }catch(e){
-    console.error(e);
-    showSync("❌ Sync failed — check URL.");
-  }
-
-  setTimeout(()=>{
-    document.getElementById("syncBar").classList.add("hidden");
-  },3500);
+    await fetch(SHEET_URL,{method:"POST",body:JSON.stringify({tasks,bugs,scrum,date:dk(),name:localStorage.getItem("qa_name")||""})});
+    showSync("✅ Synced successfully!");
+  }catch{showSync("❌ Sync failed — check your Apps Script URL.");}
+  setTimeout(()=>document.getElementById("syncBar").classList.add("hidden"),3500);
 }
+function showSync(m){const b=document.getElementById("syncBar");b.textContent=m;b.classList.remove("hidden");}
 
 /* ─── MODAL UTILS ─── */
 function closeModal(id){ document.getElementById(id)?.classList.add("hidden"); }
