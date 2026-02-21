@@ -956,19 +956,48 @@ function updScratchCnt(){ const v=document.getElementById("scratchText")?.value|
 function clearScratch(){ if(confirm("Clear all notes?")){ document.getElementById("scratchText").value=""; localStorage.removeItem("qa_scratch"); updScratchCnt(); } }
 
 /* ─── REMINDER ─── */
-let remInt=null;
+// 1️⃣ GLOBAL VARIABLES
+let remInt = null;
+let bugs = [];
+
+// 2️⃣ UTILITY FUNCTIONS
+function showSync(message){
+  const bar = document.getElementById("syncBar");
+  if(!bar) return;
+  bar.textContent = message;
+  bar.classList.remove("hidden");
+}
+
+// 3️⃣ REMINDER
 function scheduleReminder(){
   const val=document.getElementById("reminderTime")?.value||"18:00";
   localStorage.setItem("qa_reminder_time",val);
+
   if(remInt) clearInterval(remInt);
+
   remInt=setInterval(()=>{
-    const now=new Date(), cur=now.getHours().toString().padStart(2,"0")+":"+now.getMinutes().toString().padStart(2,"0");
+    const now=new Date();
+    const cur=now.getHours().toString().padStart(2,"0")+":"+
+              now.getMinutes().toString().padStart(2,"0");
+
     if(cur===val){
-      document.getElementById("reminderBar").classList.remove("hidden");
-      if(Notification?.permission==="granted") new Notification("🧪 QA Tracker — EOD Time!",{body:"Generate your daily report and send to manager!"});
+      document.getElementById("reminderBar")?.classList.remove("hidden");
     }
   },30000);
 }
+
+// 4️⃣ SYNC
+async function syncSheet(){
+  showSync("⏳ Syncing…");
+  // your fetch logic here
+}
+
+// 5️⃣ INIT
+function init(){
+  scheduleReminder();
+}
+
+document.addEventListener("DOMContentLoaded", init);
 
 /* ─── THEME ─── */
 function toggleTheme(){
