@@ -59,20 +59,10 @@ td{padding:9px 13px;border-bottom:1px solid var(--border);font-size:13px;vertica
 .cloud-err{background:#dc2626}
 .cloud-sync{background:#d97706;animation:blink .8s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-/* Loading overlay */
-#loadingOverlay{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
-.spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:#3b82f6;border-radius:50%;animation:spin 0.8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
+
 </style>
 </head>
 <body>
-
-<!-- LOADING OVERLAY -->
-<div id="loadingOverlay">
-  <div style="font-size:28px">🧪</div>
-  <div class="spinner"></div>
-  <div id="loadingMsg" style="font-size:13px;color:var(--muted)">Loading QA Tracker…</div>
-</div>
 
 <!-- ═══════════════════ HEADER ═══════════════════ -->
 <div id="hdr" style="background:var(--bg);border-bottom:1px solid var(--border);padding:0 18px;position:sticky;top:0;z-index:100">
@@ -578,7 +568,6 @@ async function loadFromSheet(){
 
   // ✅ Show UI instantly from localStorage - no waiting at all
   renderAll();
-  document.getElementById('loadingOverlay').style.display='none';
 
   // ✅ Background sync - happens silently after page is already visible
   if(SHEET_URL){
