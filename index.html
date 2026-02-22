@@ -317,12 +317,13 @@ const STATUS = {
 const PRI = {HIGH:{c:"#dc2626"},MEDIUM:{c:"#d97706"},LOW:{c:"#059669"}};
 const BSTC = {OPEN:"#dc2626",IN_FIX:"#d97706",FIXED:"#059669",CLOSED:"#6b7280",REOPEN:"#7c3aed"};
 
-let tasks = load("qa_tasks",[]);
-let bugs  = load("qa_bugs",[]);
-let scrum = load("qa_scrum_"+dk(),{yesterday:"",today:"",blockers:"",mood:"😊"});
+let tasks = [];
+let bugs  = [];
+let scrum = {yesterday:"",today:"",blockers:"",mood:"😊"};
 let TM = {};
 let globalInterval = null;
 let autoSyncTimer  = null;
+let autoLoadInterval = null;
 let activeTab      = "board";
 let currentFilter  = "ALL";
 let editingId      = null;
@@ -348,10 +349,10 @@ function setCloud(state,msg){
 
 function scheduleAutoSync(){
   if(autoSyncTimer)clearTimeout(autoSyncTimer);
-  autoSyncTimer=setTimeout(()=>syncSheet(false),3000);
+  autoSyncTimer=setTimeout(()=>syncSheet(false),30000);
 }
 
-// INIT — runs immediately, no waiting
+// FIXED: Initialize with SHEET FIRST, not localStorage
 (function init(){
   if(isLight){document.body.classList.add("light");document.getElementById("themeBtn").textContent="☀️ Light";}
   document.getElementById("todayLabel").textContent=getToday();
@@ -361,11 +362,16 @@ function scheduleAutoSync(){
   document.getElementById("reminderTime").value=localStorage.getItem("qa_reminder_time")||"18:00";
   const ll=localStorage.getItem("qa_last_load");
   if(ll)document.getElementById("lastSyncInfo").textContent="⬇️ Loaded: "+ll;
-  tasks.forEach(t=>{TM[t.id]={elapsed:t.timerTotal||0,state:"idle",startedAt:null};});
+  
   startGlobalTick();
   renderAll();
-  // Load from sheet immediately on page load - NO DELAY
+  
+  // LOAD FROM SHEET FIRST - sheet is source of truth
   loadFromSheet();
+  
+  // Check sheet every 60 seconds for updates from other devices
+  startAutoLoad();
+  
   Notification?.permission==="default"&&Notification?.requestPermission();
 })();
 
@@ -388,6 +394,16 @@ function startGlobalTick(){
       badge.classList.remove("hidden");badge.style.display="flex";
     }else if(badge){badge.classList.add("hidden");}
   },1000);
+}
+
+// NEW: Background auto-load from sheet every 60 seconds
+function startAutoLoad(){
+  if(autoLoadInterval)clearInterval(autoLoadInterval);
+  autoLoadInterval=setInterval(()=>{
+    loadFromSheet().catch(err=>{
+      console.log("Background load failed (normal if offline):",err);
+    });
+  }, 60000);
 }
 
 // TIMER
@@ -863,47 +879,108 @@ function fbCopy(text,ok){const ta=document.createElement("textarea");ta.value=te
 function showManual(text){document.getElementById("manualBox").classList.remove("hidden");document.getElementById("manualText").value=text;document.getElementById("manualText").select();}
 function downloadRpt(){const text=rTab==="email"?buildEmail():buildWA();const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type:"text/plain"}));a.download=`QA_EOD_${dk()}.txt`;a.click();}
 
-// SHEET SYNC - FIXED VERSION
+// FIXED: Load from sheet - sheet is source of truth
 async function loadFromSheet(){
   const btn=document.getElementById("loadBtn");
   if(btn){btn.textContent="⏳ Loading…";btn.disabled=true;}
   setCloud("sync","Loading…");
   try{
-    const url=SHEET_URL+"?date="+dk()+"&t="+Date.now();
-    const resp=await fetch(url);
-    if(!resp.ok)throw new Error("HTTP "+resp.status);
-    const data=await resp.json();
-    if(Array.isArray(data.tasks)){tasks=data.tasks.map(t=>({...t,id:Number(t.id)||t.id,timerTotal:Number(t.timerTotal)||0}));save("qa_tasks",tasks);}
-    if(data.scrum){scrum={...{yesterday:"",today:"",blockers:"",mood:"😊"},...data.scrum};save("qa_scrum_"+dk(),scrum);}
-    if(Array.isArray(data.bugs)){bugs=data.bugs.map(b=>({...b,id:Number(b.id)||b.id}));save("qa_bugs",bugs);}
+    const url=SHEET_URL+"?date="+dk()+"&t="+Date.now()+"&callback=window.QA_CALLBACK";
+    
+    const promise = new Promise((resolve, reject) => {
+      window.QA_CALLBACK = (data) => {
+        resolve(data);
+      };
+      setTimeout(() => {
+        reject(new Error("Request timeout"));
+      }, 10000);
+    });
+    
+    const script = document.createElement('script');
+    script.src = url;
+    script.onerror = () => {
+      reject(new Error("Failed to load script"));
+    };
+    document.head.appendChild(script);
+    
+    const data = await promise;
+    
+    // SHEET DATA IS SOURCE OF TRUTH
+    if(Array.isArray(data.tasks) && data.tasks.length > 0){
+      tasks = data.tasks.map(t=>({...t,id:Number(t.id)||t.id,timerTotal:Number(t.timerTotal)||0}));
+    } else if(Array.isArray(data.tasks) && data.tasks.length === 0 && localStorage.getItem("qa_tasks")){
+      tasks = load("qa_tasks",[]);
+    }
+    
+    if(Array.isArray(data.bugs) && data.bugs.length > 0){
+      bugs = data.bugs.map(b=>({...b,id:Number(b.id)||b.id}));
+    } else if(Array.isArray(data.bugs) && data.bugs.length === 0 && localStorage.getItem("qa_bugs")){
+      bugs = load("qa_bugs",[]);
+    }
+    
+    if(data.scrum && Object.keys(data.scrum).length > 0){
+      scrum = {yesterday:data.scrum.yesterday||"", today:data.scrum.today||"", blockers:data.scrum.blockers||"", mood:data.scrum.mood||"😊"};
+    } else {
+      scrum = load("qa_scrum_"+dk(),{yesterday:"",today:"",blockers:"",mood:"😊"});
+    }
+    
+    save("qa_tasks",tasks);
+    save("qa_bugs",bugs);
+    save("qa_scrum_"+dk(),scrum);
+    
     tasks.forEach(t=>{if(!TM[t.id])TM[t.id]={elapsed:t.timerTotal||0,state:"idle",startedAt:null};});
+    
     const now=new Date().toLocaleTimeString();
     localStorage.setItem("qa_last_load",now);
     document.getElementById("lastSyncInfo").textContent="⬇️ Loaded: "+now;
+    
     renderAll();
-    // AUTO-SYNC BACK TO SHEET after loading (500ms delay to ensure render completes)
     setTimeout(()=>syncSheet(false),500);
+    
     setCloud("ok","Sheet ✓");
+    document.head.removeChild(script);
   }catch(err){
-    setCloud("err","Sheet error");
     console.error("Load error:",err);
+    tasks = load("qa_tasks",[]);
+    bugs = load("qa_bugs",[]);
+    scrum = load("qa_scrum_"+dk(),{yesterday:"",today:"",blockers:"",mood:"😊"});
+    tasks.forEach(t=>{if(!TM[t.id])TM[t.id]={elapsed:t.timerTotal||0,state:"idle",startedAt:null};});
+    renderAll();
+    setCloud("err","Using local data");
   }finally{
     if(btn){btn.textContent="⬇️ Load";btn.disabled=false;}
   }
 }
 
+// FIXED: Sync with no-cors mode
 async function syncSheet(manual=true){
   if(manual){const btn=document.getElementById("syncBtn");if(btn){btn.textContent="⏳ Syncing…";btn.disabled=true;}}
   setCloud("sync","Syncing…");
   try{
-    await fetch(SHEET_URL,{method:"POST",body:JSON.stringify({tasks,bugs,scrum,date:dk(),name:localStorage.getItem("qa_name")||""})});
+    const response = await fetch(SHEET_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        tasks: tasks,
+        bugs: bugs,
+        scrum: scrum,
+        date: dk(),
+        name: localStorage.getItem("qa_name")||""
+      }),
+      mode: 'no-cors'
+    });
+    
     const now=new Date().toLocaleTimeString();
     document.getElementById("lastSyncInfo").textContent="☁️ Synced: "+now;
     setCloud("ok","Synced ✓");
-    if(manual)showSync("✅ Synced to Google Sheet!");
+    if(manual)showSync("✅ Data synced to sheet!");
+    
+    if(manual){
+      setTimeout(()=>loadFromSheet(),1000);
+    }
   }catch(e){
     setCloud("err","Sync failed");
-    if(manual)showSync("❌ Sync failed. Check connection.");
+    if(manual)showSync("❌ Sync failed. Using local data.");
+    console.error("Sync error:",e);
   }finally{
     if(manual){const btn=document.getElementById("syncBtn");if(btn){btn.textContent="☁️ Sync";btn.disabled=false;}setTimeout(()=>document.getElementById("syncBar").classList.add("hidden"),3000);}
   }
@@ -918,7 +995,6 @@ document.addEventListener("keydown",e=>{
   if(e.key==="Enter"&&document.activeElement?.id==="f_title")saveTask();
 });
 
-// Start reminder check
 scheduleReminder();
 </script>
 </body>
