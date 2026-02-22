@@ -305,7 +305,7 @@ td{padding:9px 13px;border-bottom:1px solid var(--border);font-size:13px;vertica
 </div>
 
 <script>
-const SHEET_URL = "https://script.google.com/macros/s/AKfycby-O-2GsmLU77-ZkQIWFsWSATyjlz2XWB2vrlV4h2_PHTN94nzE9o4FzNJ17C-lkT9_aw/exec";
+const SHEET_URL = "https://script.google.com/macros/s/AKfycby-O-2GsmLU77-ZkQIWFsWSATyjlz2XWB2vrlV4h2_PHTN94nzE9o4FzNJ17C-lkT9_aw/execc";
 
 const STATUS = {
   TODO:{label:"To Do",color:"#6b7280",bg:"#f3f4f6"},
@@ -364,8 +364,8 @@ function scheduleAutoSync(){
   tasks.forEach(t=>{TM[t.id]={elapsed:t.timerTotal||0,state:"idle",startedAt:null};});
   startGlobalTick();
   renderAll();
-  // Background sheet load after UI is visible
-  setTimeout(()=>loadFromSheet(),300);
+  // Load from sheet immediately on page load - NO DELAY
+  loadFromSheet();
   Notification?.permission==="default"&&Notification?.requestPermission();
 })();
 
@@ -863,7 +863,7 @@ function fbCopy(text,ok){const ta=document.createElement("textarea");ta.value=te
 function showManual(text){document.getElementById("manualBox").classList.remove("hidden");document.getElementById("manualText").value=text;document.getElementById("manualText").select();}
 function downloadRpt(){const text=rTab==="email"?buildEmail():buildWA();const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type:"text/plain"}));a.download=`QA_EOD_${dk()}.txt`;a.click();}
 
-// SHEET SYNC
+// SHEET SYNC - FIXED VERSION
 async function loadFromSheet(){
   const btn=document.getElementById("loadBtn");
   if(btn){btn.textContent="⏳ Loading…";btn.disabled=true;}
@@ -880,8 +880,10 @@ async function loadFromSheet(){
     const now=new Date().toLocaleTimeString();
     localStorage.setItem("qa_last_load",now);
     document.getElementById("lastSyncInfo").textContent="⬇️ Loaded: "+now;
-    setCloud("ok","Sheet ✓");
     renderAll();
+    // AUTO-SYNC BACK TO SHEET after loading (500ms delay to ensure render completes)
+    setTimeout(()=>syncSheet(false),500);
+    setCloud("ok","Sheet ✓");
   }catch(err){
     setCloud("err","Sheet error");
     console.error("Load error:",err);
