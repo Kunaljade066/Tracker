@@ -117,7 +117,7 @@ td{padding:9px 13px;border-bottom:1px solid var(--border);font-size:13px;vertica
       <div style="font-weight:700;font-size:13px;color:#fbbf24;margin-bottom:3px">☁️ Connect Google Sheet for Cross-Device Sync</div>
       <div style="font-size:11px;color:#94a3b8">Paste your Apps Script Web App URL below to sync data across all your devices.</div>
     </div>
-    <input id="sheetUrlInput" class="inp" style="width:320px;font-size:12px;padding:6px 10px" placeholder="https://script.google.com/macros/s/AKfycbxDACPmq1ywBn0tfNYhtUJiQKbSUUacCvk4ZuXWdg7j2oVHp-GuMprgZKRx1-gsPYBpvw/exec"/>
+    <input id="sheetUrlInput" class="inp" style="width:320px;font-size:12px;padding:6px 10px" placeholder="https://script.google.com/macros/s/.../exec"/>
     <button class="btn" onclick="saveSheetUrl()" style="background:#f59e0b;color:#000;padding:7px 14px;font-size:12px;font-weight:700">Save URL</button>
     <button class="btn" onclick="document.getElementById('sheetUrlBanner').classList.add('hidden')" style="background:#334155;color:#e2e8f0;padding:7px 10px;font-size:12px">✕</button>
   </div>
@@ -553,39 +553,36 @@ async function loadFromSheet(){
 }
 
 /* ─── INIT ─── */
-(async function init(){
+(function init(){
   if(isLight){ document.body.classList.add("light"); document.getElementById("themeBtn").textContent="☀️ Light"; }
   document.getElementById("todayLabel").textContent   = getToday();
   document.getElementById("myNameInput").value        = localStorage.getItem("qa_name")||"";
   document.getElementById("sprintInput").value        = localStorage.getItem("qa_sprint")||"";
   document.getElementById("releaseInput").value       = localStorage.getItem("qa_release")||"";
-  const rt = localStorage.getItem("qa_reminder_time")||"18:00";
-  document.getElementById("reminderTime").value = rt;
+  document.getElementById("reminderTime").value       = localStorage.getItem("qa_reminder_time")||"18:00";
 
   const lastLoad = localStorage.getItem('qa_last_load');
   if(lastLoad) document.getElementById('lastSyncInfo').textContent = '⬇️ Last load: '+lastLoad;
 
-  // Show sheet URL banner if not configured
   if(!SHEET_URL){
     document.getElementById('sheetUrlBanner').classList.remove('hidden');
     setCloud('err','Not connected');
   } else {
-    setCloud('ok','Connecting…');
+    setCloud('ok','Sheet linked');
   }
 
-  // Rebuild timers from saved data
   tasks.forEach(t=>{ TM[t.id]={elapsed:t.timerTotal||0,state:"idle",startedAt:null}; });
 
   scheduleReminder();
   startGlobalTick();
 
-  // Show UI immediately with local data
+  // ✅ Show UI instantly from localStorage - no waiting at all
   renderAll();
   document.getElementById('loadingOverlay').style.display='none';
 
-  // Then try to load fresh from sheet if URL exists
+  // ✅ Background sync - happens silently after page is already visible
   if(SHEET_URL){
-    await loadFromSheet();
+    setTimeout(()=>loadFromSheet(), 500);
   }
 
   Notification?.permission==="default" && Notification?.requestPermission();
