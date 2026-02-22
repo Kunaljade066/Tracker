@@ -7,7 +7,7 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#0f172a;--surface:#1e293b;--surface2:#162032;--border:#334155;--text:#e2e8f0;--muted:#94a3b8;--dim:#64748b;--accent:#3b82f6}
+:root{--bg:#0f172a;--surface:#1e293b;--surface2:#162032;--border:#334155;--text:#e2e8f0;--muted:#94a3b8;--dim:#64748b}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .25s,color .25s}
 body.light{--bg:#f1f5f9;--surface:#ffffff;--surface2:#f8fafc;--border:#e2e8f0;--text:#1e293b;--muted:#475569;--dim:#94a3b8}
 ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--surface)}::-webkit-scrollbar-thumb{background:#475569;border-radius:3px}
@@ -43,49 +43,42 @@ td{padding:9px 13px;border-bottom:1px solid var(--border);font-size:13px;vertica
 @keyframes glow{0%,100%{box-shadow:0 0 8px #f59e0b55}50%{box-shadow:0 0 22px #f59e0baa}}
 .eod-glow{animation:glow 2.5s infinite}
 .rpt-pre{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;font-family:'Courier New',monospace;font-size:11.5px;line-height:1.9;white-space:pre-wrap;word-break:break-word;max-height:360px;overflow-y:auto;color:var(--muted)}
-.sev-CRITICAL{color:#dc2626;font-weight:700}
-.sev-HIGH{color:#f97316;font-weight:700}
-.sev-MEDIUM{color:#d97706;font-weight:700}
-.sev-LOW{color:#059669;font-weight:700}
+.sev-CRITICAL{color:#dc2626;font-weight:700}.sev-HIGH{color:#f97316;font-weight:700}.sev-MEDIUM{color:#d97706;font-weight:700}.sev-LOW{color:#059669;font-weight:700}
 .wday{background:var(--surface);border-radius:10px;padding:12px;border:1px solid var(--border);min-height:90px}
 .wday.today-col{border-color:#3b82f6;box-shadow:0 0 0 1px #3b82f655}
 .scratchpad{background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;padding:14px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);resize:vertical;min-height:160px;width:100%;line-height:1.75}
 .rtab{cursor:pointer;padding:7px 18px;border-radius:7px;font-size:13px;font-weight:600;border:none;font-family:inherit;transition:all .15s}
 .badge{display:inline-block;padding:1px 7px;border-radius:4px;font-size:10px;font-weight:500}
-.chart-wrap{position:relative;width:100%;overflow:hidden}
-/* Cloud sync indicator */
 .cloud-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:4px}
-.cloud-ok{background:#059669}
-.cloud-err{background:#dc2626}
+.cloud-ok{background:#059669}.cloud-err{background:#dc2626}
 .cloud-sync{background:#d97706;animation:blink .8s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-
 </style>
 </head>
 <body>
 
-<!-- ═══════════════════ HEADER ═══════════════════ -->
-<div id="hdr" style="background:var(--bg);border-bottom:1px solid var(--border);padding:0 18px;position:sticky;top:0;z-index:100">
+<!-- HEADER -->
+<div style="background:var(--bg);border-bottom:1px solid var(--border);padding:0 18px;position:sticky;top:0;z-index:100">
   <div style="max-width:1340px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:58px;gap:8px;flex-wrap:wrap">
     <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
       <div style="background:linear-gradient(135deg,#3b82f6,#06b6d4);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:18px">🧪</div>
       <div>
-        <div style="font-family:'Space Grotesk';font-weight:700;font-size:15px;color:var(--text)"><h2>QA Tracker — Kunal Jade</h2></div>
+        <div style="font-family:'Space Grotesk';font-weight:700;font-size:15px;color:var(--text)">QA Tracker — Kunal Jade</div>
         <div style="display:flex;align-items:center;gap:6px">
-          <div id="todayLabel" style="font-size:12px;color:var(--text)"></div>
-          <span id="cloudStatus" style="font-size:11px;color:var(--dim);display:flex;align-items:center">
-            <span class="cloud-dot cloud-ok"></span><span id="cloudLabel">Local</span>
+          <div id="todayLabel" style="font-size:12px;color:var(--muted)"></div>
+          <span style="font-size:11px;color:var(--dim);display:flex;align-items:center">
+            <span class="cloud-dot cloud-ok" id="cloudDot"></span><span id="cloudLabel">Connecting…</span>
           </span>
         </div>
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
       <input id="myNameInput" class="inp" style="width:115px;font-size:12px;padding:5px 9px" placeholder="Your name…" oninput="localStorage.setItem('qa_name',this.value)"/>
-      <button class="btn" onclick="openScrum()"      style="background:#7c3aed;color:#fff;padding:7px 11px;font-size:12px">📋 Scrum</button>
-      <button class="btn" onclick="openBugModal()"   style="background:#dc2626;color:#fff;padding:7px 11px;font-size:12px">🐛 Bugs</button>
-      <button class="btn" onclick="openScratch()"    style="background:#0369a1;color:#fff;padding:7px 11px;font-size:12px">📝 Notes</button>
-      <button class="btn" onclick="syncSheet(true)"  style="background:#059669;color:#fff;padding:7px 11px;font-size:12px" id="syncBtn">☁️ Sync</button>
-      <button class="btn" onclick="loadFromSheet()"  style="background:#0e7490;color:#fff;padding:7px 11px;font-size:12px" id="loadBtn">⬇️ Load</button>
+      <button class="btn" onclick="openScrum()" style="background:#7c3aed;color:#fff;padding:7px 11px;font-size:12px">📋 Scrum</button>
+      <button class="btn" onclick="openBugModal()" style="background:#dc2626;color:#fff;padding:7px 11px;font-size:12px">🐛 Bugs</button>
+      <button class="btn" onclick="openScratch()" style="background:#0369a1;color:#fff;padding:7px 11px;font-size:12px">📝 Notes</button>
+      <button class="btn" onclick="syncSheet(true)" style="background:#059669;color:#fff;padding:7px 11px;font-size:12px" id="syncBtn">☁️ Sync</button>
+      <button class="btn" onclick="loadFromSheet()" style="background:#0e7490;color:#fff;padding:7px 11px;font-size:12px" id="loadBtn">⬇️ Load</button>
       <button class="btn" id="themeBtn" onclick="toggleTheme()" style="background:var(--surface);color:var(--text);padding:7px 11px;font-size:12px;border:1px solid var(--border)">🌙 Dark</button>
       <button class="btn" onclick="openTaskForm(null)" style="background:#1e40af;color:#fff;padding:7px 12px;font-size:12px">+ Task</button>
       <button class="btn eod-glow" onclick="openEOD()" style="background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;padding:8px 15px;font-size:13px;border-radius:10px;font-weight:700">📤 EOD</button>
@@ -93,33 +86,16 @@ td{padding:9px 13px;border-bottom:1px solid var(--border);font-size:13px;vertica
   </div>
 </div>
 
-<div id="syncBar"     class="hidden" style="background:var(--surface);padding:6px 20px;text-align:center;font-size:13px;color:var(--muted);border-bottom:1px solid var(--border)"></div>
-<div id="reminderBar" class="hidden" onclick="openEOD();this.classList.add('hidden')"
-     style="background:linear-gradient(90deg,#f59e0b,#ef4444);padding:10px 20px;text-align:center;font-size:13px;color:#fff;font-weight:700;cursor:pointer;letter-spacing:.3px">
-  ⏰ EOD Reminder — Tap to generate your daily report and send to your manager!
-</div>
+<div id="syncBar" class="hidden" style="background:var(--surface);padding:6px 20px;text-align:center;font-size:13px;color:var(--muted);border-bottom:1px solid var(--border)"></div>
+<div id="reminderBar" class="hidden" onclick="openEOD();this.classList.add('hidden')" style="background:linear-gradient(90deg,#f59e0b,#ef4444);padding:10px 20px;text-align:center;font-size:13px;color:#fff;font-weight:700;cursor:pointer">⏰ EOD Reminder — Tap to generate your daily report!</div>
 
 <div style="max-width:1340px;margin:0 auto;padding:18px 18px 30px">
-
-  <!-- SHEET URL CONFIG (shown if not set) -->
-  <div id="sheetUrlBanner" class="hidden" style="background:#1e293b;border:1.5px solid #f59e0b;border-radius:11px;padding:14px 18px;margin-bottom:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-    <div style="flex:1">
-      <div style="font-weight:700;font-size:13px;color:#fbbf24;margin-bottom:3px">☁️ Connect Google Sheet for Cross-Device Sync</div>
-      <div style="font-size:11px;color:#94a3b8">Paste your Apps Script Web App URL below to sync data across all your devices.</div>
-    </div>
-    <input id="sheetUrlInput" class="inp" style="width:320px;font-size:12px;padding:6px 10px" placeholder="https://script.google.com/macros/s/AKfycbxDACPmq1ywBn0tfNYhtUJiQKbSUUacCvk4ZuXWdg7j2oVHp-GuMprgZKRx1-gsPYBpvw/exec"/>
-    <button class="btn" onclick="saveSheetUrl()" style="background:#f59e0b;color:#000;padding:7px 14px;font-size:12px;font-weight:700">Save URL</button>
-    <button class="btn" onclick="document.getElementById('sheetUrlBanner').classList.add('hidden')" style="background:#334155;color:#e2e8f0;padding:7px 10px;font-size:12px">✕</button>
-  </div>
-
-  <!-- STATS ROW -->
   <div id="statsRow" style="display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:16px"></div>
 
-  <!-- SPRINT / RELEASE / REMINDER -->
   <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">
     <div style="display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:5px 12px">
       <span style="font-size:11px;color:var(--dim)">🏷️ Sprint</span>
-      <input id="sprintInput"  class="inp" style="width:110px;font-size:11px;padding:3px 8px" placeholder="Sprint 24" oninput="localStorage.setItem('qa_sprint',this.value)"/>
+      <input id="sprintInput" class="inp" style="width:110px;font-size:11px;padding:3px 8px" placeholder="Sprint 24" oninput="localStorage.setItem('qa_sprint',this.value)"/>
     </div>
     <div style="display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:5px 12px">
       <span style="font-size:11px;color:var(--dim)">🚀 Release</span>
@@ -133,42 +109,34 @@ td{padding:9px 13px;border-bottom:1px solid var(--border);font-size:13px;vertica
       <span style="font-size:11px;color:#059669;font-weight:700">⏱ Active:</span>
       <span id="activeTimerLabel" style="font-size:11px;color:#059669;font-family:'Space Grotesk';font-weight:700"></span>
     </div>
-    <!-- Last sync info -->
     <div id="lastSyncInfo" style="font-size:11px;color:var(--dim);padding:5px 12px;background:var(--surface);border:1px solid var(--border);border-radius:9px"></div>
   </div>
 
-  <!-- TABS + SEARCH -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
     <div style="display:flex;gap:3px;background:var(--surface);border-radius:10px;padding:3px;flex-wrap:wrap">
-      <button class="tab-btn active" id="tab-board"   onclick="switchTab('board')">🗂 Board</button>
-      <button class="tab-btn"        id="tab-list"    onclick="switchTab('list')">📋 List</button>
-      <button class="tab-btn"        id="tab-weekly"  onclick="switchTab('weekly')">📅 Weekly</button>
-      <button class="tab-btn"        id="tab-bugs"    onclick="switchTab('bugs')">🐛 Bugs</button>
-      <button class="tab-btn"        id="tab-charts"  onclick="switchTab('charts')">📊 Charts</button>
-      <button class="tab-btn"        id="tab-report"  onclick="switchTab('report')">📈 Report</button>
+      <button class="tab-btn active" id="tab-board"  onclick="switchTab('board')">🗂 Board</button>
+      <button class="tab-btn" id="tab-list"   onclick="switchTab('list')">📋 List</button>
+      <button class="tab-btn" id="tab-weekly" onclick="switchTab('weekly')">📅 Weekly</button>
+      <button class="tab-btn" id="tab-bugs"   onclick="switchTab('bugs')">🐛 Bugs</button>
+      <button class="tab-btn" id="tab-charts" onclick="switchTab('charts')">📊 Charts</button>
+      <button class="tab-btn" id="tab-report" onclick="switchTab('report')">📈 Report</button>
     </div>
     <div style="display:flex;gap:6px;align-items:center">
       <input class="inp" id="searchInput" style="width:175px;font-size:12px;padding:6px 10px" placeholder="🔍 Search tasks…" oninput="renderCurrent()"/>
       <select class="inp" id="filterSel" style="width:130px;font-size:12px;padding:6px 9px" onchange="currentFilter=this.value;renderCurrent()">
-        <option value="ALL">All Status</option>
-        <option value="TODO">To Do</option>
-        <option value="IN_PROGRESS">In Progress</option>
-        <option value="TESTING">Testing</option>
-        <option value="BLOCKED">Blocked</option>
-        <option value="DONE">Done</option>
+        <option value="ALL">All Status</option><option value="TODO">To Do</option><option value="IN_PROGRESS">In Progress</option>
+        <option value="TESTING">Testing</option><option value="BLOCKED">Blocked</option><option value="DONE">Done</option>
       </select>
     </div>
   </div>
 
-  <!-- VIEWS -->
   <div id="view-board"></div>
-  <div id="view-list"   class="hidden"></div>
+  <div id="view-list" class="hidden"></div>
   <div id="view-weekly" class="hidden"></div>
-  <div id="view-bugs"   class="hidden"></div>
+  <div id="view-bugs" class="hidden"></div>
   <div id="view-charts" class="hidden"></div>
   <div id="view-report" class="hidden"></div>
 
-  <!-- EOD BANNER -->
   <div style="margin-top:20px;background:linear-gradient(135deg,#1c1917,#1e1b4b);border:1px solid #f59e0b44;border-radius:13px;padding:16px 22px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
     <div>
       <div style="font-family:'Space Grotesk';font-weight:700;font-size:16px;color:#fbbf24">📤 Ready to wrap up?</div>
@@ -176,96 +144,15 @@ td{padding:9px 13px;border-bottom:1px solid var(--border);font-size:13px;vertica
     </div>
     <button class="btn eod-glow" onclick="openEOD()" style="background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;padding:11px 24px;font-size:14px;border-radius:11px;font-weight:700">📤 Generate EOD Report</button>
   </div>
-
-  <!-- APPS SCRIPT SETUP -->
-  <div style="background:var(--surface);border-radius:11px;padding:14px;border:1px solid var(--border);margin-top:12px">
-    <div style="font-family:'Space Grotesk';font-weight:700;font-size:12px;color:var(--text);margin-bottom:8px">☁️ Cross-Device Sync — Updated Apps Script</div>
-    <div style="font-size:11px;color:var(--muted);line-height:1.9;margin-bottom:8px">
-      Replace your existing Apps Script with the code below to enable cross-device loading. <b>Deploy → New deployment → Web App → Execute as Me → Anyone.</b>
-    </div>
-    <pre id="appsScriptCode" style="background:var(--bg);border-radius:7px;padding:11px;font-size:10.5px;color:#7dd3fc;margin-top:8px;overflow-x:auto;border:1px solid var(--border);max-height:200px;overflow-y:auto">function doGet(e) {
-  const date = e.parameter.date || new Date().toISOString().split('T')[0];
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-
-  // Load tasks
-  const sh = ss.getSheetByName(date);
-  let tasks = [];
-  if (sh && sh.getLastRow() > 1) {
-    const rows = sh.getRange(2, 1, sh.getLastRow()-1, 14).getValues();
-    tasks = rows.filter(r => r[0]).map(r => ({
-      id: r[0], title: r[1], type: r[2], priority: r[3], status: r[4],
-      env: r[5], estimate: r[6], actual: r[7], sprint: r[8], release: r[9],
-      blocker: r[10], notes: r[11], timerTotal: r[12]||0, createdAt: r[13]
-    }));
-  }
-
-  // Load scrum for date
-  const s2 = ss.getSheetByName('Scrum');
-  let scrum = {yesterday:'', today:'', blockers:'', mood:'😊'};
-  if (s2 && s2.getLastRow() > 1) {
-    const srows = s2.getDataRange().getValues();
-    const row = srows.find(r => r[0] === date);
-    if (row) scrum = {yesterday: row[2]||'', today: row[3]||'', blockers: row[4]||'', mood: row[5]||'😊'};
-  }
-
-  // Load bugs
-  const s3 = ss.getSheetByName('Bugs');
-  let bugs = [];
-  if (s3 && s3.getLastRow() > 1) {
-    const brows = s3.getRange(2, 1, s3.getLastRow()-1, 6).getValues();
-    bugs = brows.filter(r => r[0]).map(r => ({
-      id: r[0], title: r[1], severity: r[2], status: r[3], steps: r[4], date: r[5]
-    }));
-  }
-
-  const out = ContentService.createTextOutput(JSON.stringify({tasks, scrum, bugs}));
-  out.setMimeType(ContentService.MimeType.JSON);
-  return out;
-}
-
-function doPost(e) {
-  const d = JSON.parse(e.postData.contents);
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-
-  // Tasks — clear and rewrite for the day
-  let sh = ss.getSheetByName(d.date) || ss.insertSheet(d.date);
-  sh.clearContents();
-  sh.appendRow(["ID","Title","Type","Priority","Status","Env","Estimate","Actual","Sprint","Release","Blocker","Notes","Timer(s)","Created"]);
-  d.tasks.forEach(t => sh.appendRow([t.id,t.title,t.type,t.priority,t.status,t.env||'',t.estimate||'',t.actual||'',t.sprint||'',t.release||'',t.blocker||'',t.notes||'',t.timerTotal||0,t.createdAt||'']));
-
-  // Scrum — find & update row for today, or append
-  let s2 = ss.getSheetByName("Scrum") || ss.insertSheet("Scrum");
-  if (!s2.getLastRow()) s2.appendRow(["Date","Name","Yesterday","Today","Blockers","Mood"]);
-  const sData = s2.getDataRange().getValues();
-  const sIdx = sData.findIndex(r => r[0] === d.date);
-  const sRow = [d.date, d.name||'', d.scrum.yesterday||'', d.scrum.today||'', d.scrum.blockers||'', d.scrum.mood||'😊'];
-  if (sIdx > 0) {
-    s2.getRange(sIdx+1, 1, 1, sRow.length).setValues([sRow]);
-  } else {
-    s2.appendRow(sRow);
-  }
-
-  // Bugs — clear and rewrite ALL bugs
-  let s3 = ss.getSheetByName("Bugs") || ss.insertSheet("Bugs");
-  s3.clearContents();
-  s3.appendRow(["ID","Title","Severity","Status","Steps","Date"]);
-  d.bugs.forEach(b => s3.appendRow([b.id,b.title,b.severity,b.status,b.steps||'',b.date||'']));
-
-  return ContentService.createTextOutput("OK");
-}</pre>
-    <button class="btn" onclick="copyAppsScript()" style="background:#1e40af;color:#fff;padding:6px 14px;font-size:11px;margin-top:8px">📋 Copy Apps Script</button>
-  </div>
 </div>
 
-<!-- ═══════════ TASK FORM MODAL ═══════════ -->
+<!-- TASK MODAL -->
 <div id="taskModal" class="modal-bg hidden">
   <div class="modal">
     <div id="taskModalTitle" style="font-family:'Space Grotesk';font-weight:700;font-size:17px;color:var(--text);margin-bottom:16px">➕ New Task</div>
     <div style="display:flex;flex-direction:column;gap:12px">
-      <div>
-        <label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Task Title *</label>
-        <input id="f_title" class="inp" placeholder="e.g. Test login flow on Chrome"/>
-      </div>
+      <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Task Title *</label>
+        <input id="f_title" class="inp" placeholder="e.g. Test login flow on Chrome"/></div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px">
         <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Type</label>
           <select id="f_type" class="inp"><option>Bug</option><option>Test Case</option><option>Regression</option><option>Smoke</option><option>UAT</option><option>Automation</option><option>Review</option><option>Other</option></select></div>
@@ -281,14 +168,10 @@ function doPost(e) {
           <input id="f_assignee" class="inp" placeholder="Self / Dev Team"/></div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:9px">
-        <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Estimate</label>
-          <input id="f_est" class="inp" placeholder="2h"/></div>
-        <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Actual</label>
-          <input id="f_actual" class="inp" placeholder="1.5h"/></div>
-        <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Sprint</label>
-          <input id="f_sprint" class="inp" placeholder="Sprint 24"/></div>
-        <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Release</label>
-          <input id="f_release" class="inp" placeholder="v2.4.1"/></div>
+        <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Estimate</label><input id="f_est" class="inp" placeholder="2h"/></div>
+        <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Actual</label><input id="f_actual" class="inp" placeholder="1.5h"/></div>
+        <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Sprint</label><input id="f_sprint" class="inp" placeholder="Sprint 24"/></div>
+        <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Release</label><input id="f_release" class="inp" placeholder="v2.4.1"/></div>
       </div>
       <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">🚧 Blocker</label>
         <input id="f_blocker" class="inp" placeholder="e.g. Waiting for dev fix JIRA-123"/></div>
@@ -302,18 +185,18 @@ function doPost(e) {
   </div>
 </div>
 
-<!-- ═══════════ SCRUM MODAL ═══════════ -->
+<!-- SCRUM MODAL -->
 <div id="scrumModal" class="modal-bg hidden">
   <div class="modal">
     <div style="font-family:'Space Grotesk';font-weight:700;font-size:17px;color:var(--text);margin-bottom:3px">📋 Daily Scrum Notes</div>
     <div id="scrumDate" style="font-size:11px;color:var(--dim);margin-bottom:16px"></div>
     <div style="display:flex;flex-direction:column;gap:13px">
       <div><label style="font-size:11px;color:#059669;font-weight:700;display:block;margin-bottom:5px">✅ What did you do YESTERDAY?</label>
-        <textarea id="s_yesterday" class="inp" rows="3" placeholder="e.g. Completed regression testing for login module…"></textarea></div>
+        <textarea id="s_yesterday" class="inp" rows="3" placeholder="e.g. Completed regression testing…"></textarea></div>
       <div><label style="font-size:11px;color:#3b82f6;font-weight:700;display:block;margin-bottom:5px">🚀 What will you do TODAY?</label>
-        <textarea id="s_today" class="inp" rows="3" placeholder="e.g. Test payment gateway, write test cases…"></textarea></div>
+        <textarea id="s_today" class="inp" rows="3" placeholder="e.g. Test payment gateway…"></textarea></div>
       <div><label style="font-size:11px;color:#dc2626;font-weight:700;display:block;margin-bottom:5px">🚧 Any BLOCKERS?</label>
-        <textarea id="s_blockers" class="inp" rows="2" placeholder="e.g. API not ready, need credentials…"></textarea></div>
+        <textarea id="s_blockers" class="inp" rows="2" placeholder="e.g. API not ready…"></textarea></div>
       <div><label style="font-size:11px;color:var(--dim);font-weight:700;display:block;margin-bottom:7px">😊 How's your day?</label>
         <div id="moodRow" style="display:flex;gap:8px">
           <button class="mood-btn" onclick="setMood('😫')">😫</button>
@@ -331,7 +214,7 @@ function doPost(e) {
   </div>
 </div>
 
-<!-- ═══════════ BUG MODAL ═══════════ -->
+<!-- BUG MODAL -->
 <div id="bugModal" class="modal-bg hidden">
   <div class="modal" style="max-width:720px">
     <div style="font-family:'Space Grotesk';font-weight:700;font-size:17px;color:var(--text);margin-bottom:16px">🐛 Bug Log</div>
@@ -344,7 +227,7 @@ function doPost(e) {
         <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Status</label>
           <select id="b_status" class="inp"><option value="OPEN">Open</option><option value="IN_FIX">In Fix</option><option value="FIXED">Fixed</option><option value="CLOSED">Closed</option><option value="REOPEN">Reopened</option></select></div>
       </div>
-      <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Steps to Reproduce / Notes</label>
+      <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Steps to Reproduce</label>
         <textarea id="b_steps" class="inp" rows="3" placeholder="1. Go to login page&#10;2. Enter credentials&#10;3. Click Login → Error appears"></textarea></div>
       <div style="display:flex;justify-content:flex-end">
         <button class="btn" onclick="addBug()" style="background:#dc2626;color:#fff;padding:8px 18px">+ Log Bug</button>
@@ -357,12 +240,12 @@ function doPost(e) {
   </div>
 </div>
 
-<!-- ═══════════ SCRATCH PAD ═══════════ -->
+<!-- SCRATCH PAD -->
 <div id="scratchModal" class="modal-bg hidden">
   <div class="modal" style="max-width:700px">
-    <div style="font-family:'Space Grotesk';font-weight:700;font-size:17px;color:var(--text);margin-bottom:3px">📝 Quick Notes / Scratch Pad</div>
-    <div style="font-size:11px;color:var(--dim);margin-bottom:12px">Auto-saved locally. Use for quick thoughts, JIRA IDs, URLs, anything.</div>
-    <textarea id="scratchText" class="scratchpad" rows="14" placeholder="Type anything here — saves automatically…" oninput="onScratchInput()"></textarea>
+    <div style="font-family:'Space Grotesk';font-weight:700;font-size:17px;color:var(--text);margin-bottom:3px">📝 Quick Notes</div>
+    <div style="font-size:11px;color:var(--dim);margin-bottom:12px">Auto-saved locally.</div>
+    <textarea id="scratchText" class="scratchpad" rows="14" oninput="onScratchInput()"></textarea>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px">
       <span id="scratchCount" style="font-size:11px;color:var(--dim)"></span>
       <div style="display:flex;gap:8px">
@@ -373,7 +256,7 @@ function doPost(e) {
   </div>
 </div>
 
-<!-- ═══════════ EOD REPORT MODAL ═══════════ -->
+<!-- EOD MODAL -->
 <div id="eodModal" class="modal-bg hidden">
   <div class="eod-modal">
     <div style="background:linear-gradient(135deg,#1c1917,#1e1b4b);border-bottom:1px solid #f59e0b44;padding:20px 24px">
@@ -389,20 +272,20 @@ function doPost(e) {
     <div style="padding:20px 24px;display:flex;flex-direction:column;gap:14px">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px">
         <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">👤 Your Name</label>
-          <input id="eod_name" class="inp" placeholder="e.g. Amit Kumar" oninput="localStorage.setItem('qa_name',this.value);updateEOD()"/></div>
+          <input id="eod_name" class="inp" placeholder="e.g. Kunal Jade" oninput="localStorage.setItem('qa_name',this.value);updateEOD()"/></div>
         <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">👔 Manager Name</label>
           <input id="eod_mgr" class="inp" placeholder="e.g. Rahul, Team…" oninput="localStorage.setItem('qa_mgr',this.value);updateEOD()"/></div>
       </div>
-      <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">📝 Additional Notes (optional)</label>
-        <textarea id="eod_notes" class="inp" rows="2" placeholder="e.g. On leave tomorrow, need review on X…" oninput="updateEOD()"></textarea></div>
+      <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">📝 Additional Notes</label>
+        <textarea id="eod_notes" class="inp" rows="2" oninput="updateEOD()"></textarea></div>
       <div style="display:flex;gap:5px;background:var(--bg);border-radius:9px;padding:4px;width:fit-content">
-        <button class="rtab" id="rtab-email"    onclick="setRTab('email')"    style="background:#1e40af;color:#fff">📧 Email</button>
+        <button class="rtab" id="rtab-email" onclick="setRTab('email')" style="background:#1e40af;color:#fff">📧 Email</button>
         <button class="rtab" id="rtab-whatsapp" onclick="setRTab('whatsapp')" style="background:transparent;color:var(--dim)">💬 WhatsApp</button>
       </div>
       <div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px">
           <div id="rFmtLabel" style="font-size:11px;color:var(--dim)">📧 Paste into Gmail / Outlook</div>
-          <button class="btn" id="copyBtn" onclick="copyReport()" style="background:#1e40af;color:#fff;padding:7px 16px;font-size:12px;min-width:110px">📋 Copy</button>
+          <button class="btn" id="copyBtn" onclick="copyReport()" style="background:#1e40af;color:#fff;padding:7px 16px;font-size:12px">📋 Copy</button>
         </div>
         <pre id="rptPreview" class="rpt-pre"></pre>
       </div>
@@ -410,14 +293,11 @@ function doPost(e) {
         <button class="btn" id="copyBtn2" onclick="copyReport()" style="background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;padding:12px 0;font-size:14px;flex:1;font-weight:700;border-radius:10px;justify-content:center">📋 Copy &amp; Send to Manager</button>
         <button class="btn" onclick="downloadRpt()" style="background:#334155;color:#e2e8f0;padding:12px 18px;font-size:13px;border-radius:10px">⬇️ .txt</button>
       </div>
-      <div style="background:var(--bg);border-radius:9px;padding:11px 14px;font-size:11px;color:var(--dim);border:1px solid var(--border);line-height:1.8">
-        <b style="color:var(--muted)">💡 Send in 3 steps:</b> Click Copy → Open Gmail / WhatsApp → Paste (Ctrl+V) → Send!
-      </div>
       <div id="manualBox" class="hidden">
         <div style="background:#fef3c7;border:1.5px solid #f59e0b;border-radius:9px;padding:12px">
-          <div style="font-size:12px;color:#92400e;font-weight:700;margin-bottom:6px">📋 Browser blocked auto-copy — click inside box → Ctrl+A → Ctrl+C</div>
+          <div style="font-size:12px;color:#92400e;font-weight:700;margin-bottom:6px">📋 Click inside → Ctrl+A → Ctrl+C</div>
           <textarea id="manualText" onclick="this.select()" style="width:100%;height:170px;background:#fff;color:#1e293b;border:1px solid #d97706;border-radius:7px;padding:10px;font-family:'Courier New',monospace;font-size:11px;line-height:1.7;resize:vertical"></textarea>
-          <button class="btn" onclick="document.getElementById('manualBox').classList.add('hidden')" style="background:#334155;color:#e2e8f0;padding:4px 11px;font-size:11px;margin-top:6px">✕ Close</button>
+          <button class="btn" onclick="document.getElementById('manualBox').classList.add('hidden')" style="background:#334155;color:#e2e8f0;padding:4px 11px;font-size:11px;margin-top:6px">✕</button>
         </div>
       </div>
     </div>
@@ -425,251 +305,139 @@ function doPost(e) {
 </div>
 
 <script>
-/* ─── CONFIG ─── */
-// Your sheet URL — will be overridden by user input below
-let SHEET_URL = localStorage.getItem('qa_sheet_url') || "";
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbxDACPmq1ywBn0tfNYhtUJiQKbSUUacCvk4ZuXWdg7j2oVHp-GuMprgZKRx1-gsPYBpvw/exec";
 
-/* ─── CONSTANTS ─── */
 const STATUS = {
-  TODO:        {label:"To Do",       color:"#6b7280", bg:"#f3f4f6"},
-  IN_PROGRESS: {label:"In Progress", color:"#d97706", bg:"#fef3c7"},
-  TESTING:     {label:"Testing",     color:"#7c3aed", bg:"#ede9fe"},
-  BLOCKED:     {label:"Blocked",     color:"#dc2626", bg:"#fee2e2"},
-  DONE:        {label:"Done",        color:"#059669", bg:"#d1fae5"},
+  TODO:{label:"To Do",color:"#6b7280",bg:"#f3f4f6"},
+  IN_PROGRESS:{label:"In Progress",color:"#d97706",bg:"#fef3c7"},
+  TESTING:{label:"Testing",color:"#7c3aed",bg:"#ede9fe"},
+  BLOCKED:{label:"Blocked",color:"#dc2626",bg:"#fee2e2"},
+  DONE:{label:"Done",color:"#059669",bg:"#d1fae5"},
 };
-const PRI   = {HIGH:{c:"#dc2626"},MEDIUM:{c:"#d97706"},LOW:{c:"#059669"}};
-const BSEV  = {CRITICAL:"#dc2626",HIGH:"#f97316",MEDIUM:"#d97706",LOW:"#059669"};
-const BSTC  = {OPEN:"#dc2626",IN_FIX:"#d97706",FIXED:"#059669",CLOSED:"#6b7280",REOPEN:"#7c3aed"};
+const PRI = {HIGH:{c:"#dc2626"},MEDIUM:{c:"#d97706"},LOW:{c:"#059669"}};
+const BSTC = {OPEN:"#dc2626",IN_FIX:"#d97706",FIXED:"#059669",CLOSED:"#6b7280",REOPEN:"#7c3aed"};
 
-/* ─── STATE ─── */
-let tasks  = load("qa_tasks",  []);
-let bugs   = load("qa_bugs",   []);
-let scrum  = load("qa_scrum_"+dk(), {yesterday:"",today:"",blockers:"",mood:"😊"});
-
+let tasks = load("qa_tasks",[]);
+let bugs  = load("qa_bugs",[]);
+let scrum = load("qa_scrum_"+dk(),{yesterday:"",today:"",blockers:"",mood:"😊"});
 let TM = {};
 let globalInterval = null;
-let activeTab     = "board";
-let currentFilter = "ALL";
-let editingId     = null;
-let rTab          = "email";
-let isLight       = localStorage.getItem("qa_theme")==="light";
-let autoSyncTimer = null;
+let autoSyncTimer  = null;
+let activeTab      = "board";
+let currentFilter  = "ALL";
+let editingId      = null;
+let rTab           = "email";
+let isLight        = localStorage.getItem("qa_theme")==="light";
 
-/* ─── HELPERS ─── */
-function load(k,def){ try{ return JSON.parse(localStorage.getItem(k)||"null")||def; }catch{return def;} }
-function save(k,v){ localStorage.setItem(k,JSON.stringify(v)); }
-function dk(){ return new Date().toISOString().split("T")[0]; }
-function getToday(){ return new Date().toLocaleDateString("en-IN",{weekday:"long",year:"numeric",month:"long",day:"numeric"}); }
-function getTime(){  return new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"}); }
-function esc(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
-function fmtT(sec){
-  if(!sec||sec<0) return "0:00";
-  const h=Math.floor(sec/3600), m=Math.floor((sec%3600)/60), s=sec%60;
-  return h>0 ? `${h}h ${m}m` : `${m}:${String(s).padStart(2,"0")}`;
+function load(k,def){try{return JSON.parse(localStorage.getItem(k)||"null")||def;}catch{return def;}}
+function save(k,v){localStorage.setItem(k,JSON.stringify(v));}
+function dk(){return new Date().toISOString().split("T")[0];}
+function getToday(){return new Date().toLocaleDateString("en-IN",{weekday:"long",year:"numeric",month:"long",day:"numeric"});}
+function getTime(){return new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"});}
+function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function fmtT(sec){if(!sec||sec<0)return"0:00";const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=sec%60;return h>0?`${h}h ${m}m`:`${m}:${String(s).padStart(2,"0")}`;}
+function saveTasks(){save("qa_tasks",tasks);scheduleAutoSync();}
+function saveBugs(){save("qa_bugs",bugs);scheduleAutoSync();}
+
+function setCloud(state,msg){
+  const dot=document.getElementById("cloudDot"),lbl=document.getElementById("cloudLabel");
+  if(!dot||!lbl)return;
+  dot.className="cloud-dot "+(state==="ok"?"cloud-ok":state==="err"?"cloud-err":"cloud-sync");
+  lbl.textContent=msg;
 }
-function saveTasks(){ save("qa_tasks",tasks); scheduleAutoSync(); }
-function saveBugs(){  save("qa_bugs",bugs);   scheduleAutoSync(); }
 
-/* ─── AUTO-SYNC: debounce sync 3s after changes ─── */
 function scheduleAutoSync(){
-  if(!SHEET_URL) return;
-  if(autoSyncTimer) clearTimeout(autoSyncTimer);
-  autoSyncTimer = setTimeout(()=>syncSheet(false), 3000);
+  if(autoSyncTimer)clearTimeout(autoSyncTimer);
+  autoSyncTimer=setTimeout(()=>syncSheet(false),3000);
 }
 
-/* ─── CLOUD STATUS UI ─── */
-function setCloud(state, msg){
-  const dot = document.querySelector('.cloud-dot');
-  const lbl = document.getElementById('cloudLabel');
-  if(!dot||!lbl) return;
-  dot.className = 'cloud-dot ' + (state==='ok'?'cloud-ok':state==='err'?'cloud-err':'cloud-sync');
-  lbl.textContent = msg;
-}
-
-/* ─── SHEET URL SAVE ─── */
-function saveSheetUrl(){
-  const url = document.getElementById('sheetUrlInput').value.trim();
-  if(!url.startsWith('https://')){ alert('Please enter a valid https:// URL'); return; }
-  SHEET_URL = url;
-  localStorage.setItem('qa_sheet_url', url);
-  document.getElementById('sheetUrlBanner').classList.add('hidden');
-  showSync('✅ Sheet URL saved! Loading data from sheet…');
-  loadFromSheet();
-}
-
-/* ─── LOAD FROM SHEET (cross-device) ─── */
-async function loadFromSheet(){
-  if(!SHEET_URL){ showSync('⚠️ No sheet URL configured. Click the yellow banner to add your Apps Script URL.'); return; }
-  const btn = document.getElementById('loadBtn');
-  if(btn){ btn.textContent='⏳ Loading…'; btn.disabled=true; }
-  setCloud('sync','Syncing…');
-  showSync('⏳ Loading data from Google Sheet…');
-  try{
-    const url = SHEET_URL + '?date=' + dk() + '&t=' + Date.now();
-    const resp = await fetch(url);
-    if(!resp.ok) throw new Error('HTTP '+resp.status);
-    const data = await resp.json();
-
-    if(Array.isArray(data.tasks) && data.tasks.length >= 0){
-      tasks = data.tasks.map(t=>({...t, id: Number(t.id)||t.id, timerTotal: Number(t.timerTotal)||0}));
-      save("qa_tasks", tasks);
-    }
-    if(data.scrum){
-      scrum = {...{yesterday:"",today:"",blockers:"",mood:"😊"}, ...data.scrum};
-      save("qa_scrum_"+dk(), scrum);
-    }
-    if(Array.isArray(data.bugs)){
-      bugs = data.bugs.map(b=>({...b, id: Number(b.id)||b.id}));
-      save("qa_bugs", bugs);
-    }
-
-    // Rebuild TM from loaded timerTotal
-    tasks.forEach(t=>{ if(!TM[t.id]) TM[t.id]={elapsed:t.timerTotal||0,state:"idle",startedAt:null}; });
-
-    const now = new Date().toLocaleTimeString();
-    localStorage.setItem('qa_last_load', now);
-    document.getElementById('lastSyncInfo').textContent = '⬇️ Loaded: '+now;
-    setCloud('ok', 'Sheet ✓');
-    showSync('✅ Data loaded from Google Sheet!');
-    renderAll();
-  }catch(err){
-    console.error('Load error:', err);
-    setCloud('err','Load failed');
-    showSync('❌ Failed to load from sheet. Check your Apps Script URL & deployment.');
-  }finally{
-    if(btn){ btn.textContent='⬇️ Load'; btn.disabled=false; }
-    setTimeout(()=>document.getElementById("syncBar").classList.add("hidden"),4000);
-  }
-}
-
-/* ─── INIT ─── */
+// INIT — runs immediately, no waiting
 (function init(){
-  if(isLight){ document.body.classList.add("light"); document.getElementById("themeBtn").textContent="☀️ Light"; }
-  document.getElementById("todayLabel").textContent   = getToday();
-  document.getElementById("myNameInput").value        = localStorage.getItem("qa_name")||"";
-  document.getElementById("sprintInput").value        = localStorage.getItem("qa_sprint")||"";
-  document.getElementById("releaseInput").value       = localStorage.getItem("qa_release")||"";
-  document.getElementById("reminderTime").value       = localStorage.getItem("qa_reminder_time")||"18:00";
-
-  const lastLoad = localStorage.getItem('qa_last_load');
-  if(lastLoad) document.getElementById('lastSyncInfo').textContent = '⬇️ Last load: '+lastLoad;
-
-  if(!SHEET_URL){
-    document.getElementById('sheetUrlBanner').classList.remove('hidden');
-    setCloud('err','Not connected');
-  } else {
-    setCloud('ok','Sheet linked');
-  }
-
-  tasks.forEach(t=>{ TM[t.id]={elapsed:t.timerTotal||0,state:"idle",startedAt:null}; });
-
-  scheduleReminder();
+  if(isLight){document.body.classList.add("light");document.getElementById("themeBtn").textContent="☀️ Light";}
+  document.getElementById("todayLabel").textContent=getToday();
+  document.getElementById("myNameInput").value=localStorage.getItem("qa_name")||"";
+  document.getElementById("sprintInput").value=localStorage.getItem("qa_sprint")||"";
+  document.getElementById("releaseInput").value=localStorage.getItem("qa_release")||"";
+  document.getElementById("reminderTime").value=localStorage.getItem("qa_reminder_time")||"18:00";
+  const ll=localStorage.getItem("qa_last_load");
+  if(ll)document.getElementById("lastSyncInfo").textContent="⬇️ Loaded: "+ll;
+  tasks.forEach(t=>{TM[t.id]={elapsed:t.timerTotal||0,state:"idle",startedAt:null};});
   startGlobalTick();
-
-  // ✅ Show UI instantly from localStorage - no waiting at all
   renderAll();
-
-  // ✅ Background sync - happens silently after page is already visible
-  if(SHEET_URL){
-    setTimeout(()=>loadFromSheet(), 500);
-  }
-
-  Notification?.permission==="default" && Notification?.requestPermission();
+  // Background sheet load after UI is visible
+  setTimeout(()=>loadFromSheet(),300);
+  Notification?.permission==="default"&&Notification?.requestPermission();
 })();
 
-/* ─── GLOBAL TICK ─── */
 function startGlobalTick(){
-  if(globalInterval) clearInterval(globalInterval);
-  globalInterval = setInterval(()=>{
+  if(globalInterval)clearInterval(globalInterval);
+  globalInterval=setInterval(()=>{
     Object.keys(TM).forEach(id=>{
-      const tm=TM[id];
-      if(tm.state!=="running") return;
-      const el=Math.floor((Date.now()-tm.startedAt)/1000);
-      const total=tm.elapsed+el;
+      const tm=TM[id];if(tm.state!=="running")return;
+      const total=tm.elapsed+Math.floor((Date.now()-tm.startedAt)/1000);
       const pill=document.getElementById("tpill_"+id);
-      if(pill){ pill.textContent="⏱ "+fmtT(total); pill.className="tpill tpill-run"; }
+      if(pill){pill.textContent="⏱ "+fmtT(total);pill.className="tpill tpill-run";}
     });
     const runId=Object.keys(TM).find(id=>TM[id].state==="running");
     const badge=document.getElementById("activeTimerBadge");
     const label=document.getElementById("activeTimerLabel");
     if(runId&&badge&&label){
-      const t=tasks.find(t=>t.id==runId);
-      const tm=TM[runId];
+      const t=tasks.find(t=>t.id==runId),tm=TM[runId];
       const total=tm.elapsed+Math.floor((Date.now()-tm.startedAt)/1000);
       label.textContent=(t?t.title.substring(0,22)+"…":"Task")+" | "+fmtT(total);
-      badge.classList.remove("hidden"); badge.style.display="flex";
-    } else if(badge){ badge.classList.add("hidden"); }
+      badge.classList.remove("hidden");badge.style.display="flex";
+    }else if(badge){badge.classList.add("hidden");}
   },1000);
 }
 
-/* ─── TIMER CONTROLS ─── */
+// TIMER
 function timerStart(id){
-  Object.keys(TM).forEach(oid=>{ if(oid!=id && TM[oid].state==="running") timerPause(oid); });
-  if(!TM[id]) TM[id]={elapsed: tasks.find(t=>t.id==id)?.timerTotal||0, state:"idle", startedAt:null};
-  TM[id].state="running"; TM[id].startedAt=Date.now();
-  refreshTimerBtn(id);
+  Object.keys(TM).forEach(oid=>{if(oid!=id&&TM[oid].state==="running")timerPause(oid);});
+  if(!TM[id])TM[id]={elapsed:tasks.find(t=>t.id==id)?.timerTotal||0,state:"idle",startedAt:null};
+  TM[id].state="running";TM[id].startedAt=Date.now();refreshTimerBtn(id);
 }
 function timerPause(id){
-  if(!TM[id]||TM[id].state!=="running") return;
+  if(!TM[id]||TM[id].state!=="running")return;
   TM[id].elapsed+=Math.floor((Date.now()-TM[id].startedAt)/1000);
-  TM[id].state="paused"; TM[id].startedAt=null;
-  tasks=tasks.map(t=>t.id==id?{...t,timerTotal:TM[id].elapsed}:t); saveTasks();
-  refreshTimerBtn(id);
+  TM[id].state="paused";TM[id].startedAt=null;
+  tasks=tasks.map(t=>t.id==id?{...t,timerTotal:TM[id].elapsed}:t);saveTasks();refreshTimerBtn(id);
 }
 function timerReset(id){
   TM[id]={elapsed:0,state:"idle",startedAt:null};
-  tasks=tasks.map(t=>t.id==id?{...t,timerTotal:0}:t); saveTasks();
+  tasks=tasks.map(t=>t.id==id?{...t,timerTotal:0}:t);saveTasks();
   const pill=document.getElementById("tpill_"+id);
-  if(pill){ pill.textContent="⏱ 0:00"; pill.className="tpill tpill-idle"; }
+  if(pill){pill.textContent="⏱ 0:00";pill.className="tpill tpill-idle";}
   refreshTimerBtn(id);
 }
 function timerStop(id){
   timerPause(id);
   const pill=document.getElementById("tpill_"+id);
-  if(pill&&TM[id]){ pill.textContent="⏱ "+fmtT(TM[id].elapsed); pill.className="tpill tpill-idle"; }
+  if(pill&&TM[id]){pill.textContent="⏱ "+fmtT(TM[id].elapsed);pill.className="tpill tpill-idle";}
   refreshTimerBtn(id);
 }
 function getTimerElapsed(id){
-  const tm=TM[id]; if(!tm) return tasks.find(t=>t.id==id)?.timerTotal||0;
-  if(tm.state==="running") return tm.elapsed+Math.floor((Date.now()-tm.startedAt)/1000);
+  const tm=TM[id];if(!tm)return tasks.find(t=>t.id==id)?.timerTotal||0;
+  if(tm.state==="running")return tm.elapsed+Math.floor((Date.now()-tm.startedAt)/1000);
   return tm.elapsed;
 }
 function refreshTimerBtn(id){
-  const wrap=document.getElementById("tbwrap_"+id); if(!wrap) return;
+  const wrap=document.getElementById("tbwrap_"+id);if(!wrap)return;
   const tm=TM[id]||{state:"idle",elapsed:tasks.find(t=>t.id==id)?.timerTotal||0};
-  const state=tm.state;
   const el=getTimerElapsed(id);
   const pill=document.getElementById("tpill_"+id);
-  if(pill){
-    pill.textContent="⏱ "+fmtT(el);
-    pill.className="tpill "+(state==="running"?"tpill-run":state==="paused"?"tpill-pause":"tpill-idle");
-  }
-  wrap.innerHTML=timerBtnsHTML(id,state);
+  if(pill){pill.textContent="⏱ "+fmtT(el);pill.className="tpill "+(tm.state==="running"?"tpill-run":tm.state==="paused"?"tpill-pause":"tpill-idle");}
+  wrap.innerHTML=timerBtnsHTML(id,tm.state);
 }
 function timerBtnsHTML(id,state){
-  if(state==="running") return `
-    <button class="tbtn" onclick="timerPause(${id})" style="background:#d9770622;color:#d97706">⏸ Pause</button>
-    <button class="tbtn" onclick="timerReset(${id})" style="background:#dc262622;color:#f87171">↺</button>`;
-  if(state==="paused") return `
-    <button class="tbtn" onclick="timerStart(${id})" style="background:#05966922;color:#34d399">▶ Resume</button>
-    <button class="tbtn" onclick="timerStop(${id})"  style="background:#64748b22;color:#94a3b8">⏹</button>
-    <button class="tbtn" onclick="timerReset(${id})" style="background:#dc262622;color:#f87171">↺</button>`;
-  return `<button class="tbtn" onclick="timerStart(${id})" style="background:#05966922;color:#34d399">▶ Start</button>`;
+  if(state==="running")return`<button class="tbtn" onclick="timerPause(${id})" style="background:#d9770622;color:#d97706">⏸ Pause</button><button class="tbtn" onclick="timerReset(${id})" style="background:#dc262622;color:#f87171">↺</button>`;
+  if(state==="paused")return`<button class="tbtn" onclick="timerStart(${id})" style="background:#05966922;color:#34d399">▶ Resume</button><button class="tbtn" onclick="timerStop(${id})" style="background:#64748b22;color:#94a3b8">⏹</button><button class="tbtn" onclick="timerReset(${id})" style="background:#dc262622;color:#f87171">↺</button>`;
+  return`<button class="tbtn" onclick="timerStart(${id})" style="background:#05966922;color:#34d399">▶ Start</button>`;
 }
 
-/* ─── STATS ─── */
-function getStats(){
-  return {
-    total:tasks.length,
-    done:tasks.filter(t=>t.status==="DONE").length,
-    prog:tasks.filter(t=>t.status==="IN_PROGRESS"||t.status==="TESTING").length,
-    blocked:tasks.filter(t=>t.blocker&&t.status!=="DONE").length,
-    remaining:tasks.filter(t=>t.status!=="DONE").length,
-    openBugs:bugs.filter(b=>b.status==="OPEN"||b.status==="REOPEN").length,
-  };
-}
+// STATS
+function getStats(){return{total:tasks.length,done:tasks.filter(t=>t.status==="DONE").length,prog:tasks.filter(t=>t.status==="IN_PROGRESS"||t.status==="TESTING").length,blocked:tasks.filter(t=>t.blocker&&t.status!=="DONE").length,remaining:tasks.filter(t=>t.status!=="DONE").length,openBugs:bugs.filter(b=>b.status==="OPEN"||b.status==="REOPEN").length};}
 function renderStats(){
-  const s=getStats(), pct=s.total?Math.round(s.done/s.total*100):0;
+  const s=getStats(),pct=s.total?Math.round(s.done/s.total*100):0;
   document.getElementById("statsRow").innerHTML=[
     {l:"Total",v:s.total,icon:"📝",c:"#3b82f6"},
     {l:"In Progress",v:s.prog,icon:"⚡",c:"#d97706"},
@@ -685,27 +453,20 @@ function renderStats(){
   </div>`).join("");
 }
 
-/* ─── FILTERED TASKS ─── */
 function getFiltered(){
   const q=(document.getElementById("searchInput")?.value||"").toLowerCase();
-  return tasks.filter(t=>{
-    const mf=currentFilter==="ALL"||t.status===currentFilter;
-    const ms=t.title.toLowerCase().includes(q)||(t.notes||"").toLowerCase().includes(q);
-    return mf&&ms;
-  });
+  return tasks.filter(t=>(currentFilter==="ALL"||t.status===currentFilter)&&(t.title.toLowerCase().includes(q)||(t.notes||"").toLowerCase().includes(q)));
 }
 
-/* ─── TASK CARD HTML ─── */
 function cardHTML(t){
-  const state=(TM[t.id]||{state:"idle"}).state;
-  const elapsed=getTimerElapsed(t.id);
+  const state=(TM[t.id]||{state:"idle"}).state,elapsed=getTimerElapsed(t.id);
   const pillCls=state==="running"?"tpill-run":state==="paused"?"tpill-pause":"tpill-idle";
-  return `<div class="tcard" id="card_${t.id}">
+  return`<div class="tcard" id="card_${t.id}">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
       <span style="font-size:12px;font-weight:600;color:var(--text);flex:1;line-height:1.4">${esc(t.title)}</span>
       <div style="display:flex;gap:3px;margin-left:5px;flex-shrink:0">
         <button class="btn" onclick="openTaskForm(${t.id})" style="background:#1e40af22;color:#60a5fa;padding:2px 6px;font-size:10px">✏️</button>
-        <button class="btn" onclick="delTask(${t.id})"      style="background:#dc262622;color:#f87171;padding:2px 6px;font-size:10px">🗑</button>
+        <button class="btn" onclick="delTask(${t.id})" style="background:#dc262622;color:#f87171;padding:2px 6px;font-size:10px">🗑</button>
       </div>
     </div>
     <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:${t.blocker||t.notes?6:0}px">
@@ -720,109 +481,73 @@ function cardHTML(t){
       <span id="tpill_${t.id}" class="tpill ${pillCls}">⏱ ${fmtT(elapsed)}</span>
       <span id="tbwrap_${t.id}" style="display:flex;gap:3px">${timerBtnsHTML(t.id,state)}</span>
     </div>
-    <select onchange="updateStatus(${t.id},this.value)"
-      style="width:100%;background:${STATUS[t.status]?.bg}33;color:${STATUS[t.status]?.color};border:1px solid ${STATUS[t.status]?.color}55;border-radius:6px;padding:5px 8px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">
+    <select onchange="updateStatus(${t.id},this.value)" style="width:100%;background:${STATUS[t.status]?.bg}33;color:${STATUS[t.status]?.color};border:1px solid ${STATUS[t.status]?.color}55;border-radius:6px;padding:5px 8px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">
       ${Object.entries(STATUS).map(([k,v])=>`<option value="${k}" ${t.status===k?"selected":""}>${v.label}</option>`).join("")}
     </select>
     <div style="font-size:9px;color:var(--border);margin-top:4px">${t.createdAt||""}</div>
   </div>`;
 }
 
-/* ─── BOARD ─── */
 function renderBoard(){
   const f=getFiltered();
-  document.getElementById("view-board").innerHTML=`
-    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px">
-      ${Object.entries(STATUS).map(([k,s])=>{
-        const col=f.filter(t=>t.status===k);
-        return `<div style="background:var(--surface);border-radius:11px;padding:12px;border:1px solid var(--border)">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-            <span style="font-weight:700;font-size:12px;color:${s.color}">${s.label}</span>
-            <span style="background:${s.bg}33;color:${s.color};border-radius:20px;padding:1px 8px;font-size:11px;font-weight:700">${col.length}</span>
-          </div>
-          ${col.map(t=>cardHTML(t)).join("")}
-          ${!col.length?`<div style="color:var(--border);font-size:11px;text-align:center;padding:14px 0">Empty</div>`:""}
-        </div>`;
-      }).join("")}
-    </div>`;
+  document.getElementById("view-board").innerHTML=`<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px">
+    ${Object.entries(STATUS).map(([k,s])=>{
+      const col=f.filter(t=>t.status===k);
+      return`<div style="background:var(--surface);border-radius:11px;padding:12px;border:1px solid var(--border)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <span style="font-weight:700;font-size:12px;color:${s.color}">${s.label}</span>
+          <span style="background:${s.bg}33;color:${s.color};border-radius:20px;padding:1px 8px;font-size:11px;font-weight:700">${col.length}</span>
+        </div>
+        ${col.map(t=>cardHTML(t)).join("")}
+        ${!col.length?`<div style="color:var(--border);font-size:11px;text-align:center;padding:14px 0">Empty</div>`:""}
+      </div>`;
+    }).join("")}
+  </div>`;
 }
 
-/* ─── LIST ─── */
 function renderList(){
   const f=getFiltered();
-  document.getElementById("view-list").innerHTML=`
-    <div style="background:var(--surface);border-radius:11px;border:1px solid var(--border);overflow:auto">
-      <table>
-        <thead><tr>${["Task","Type","Pri","Status","Sprint","Env","Est/Act","⏱ Timer","Blocker","Actions"].map(h=>`<th>${h}</th>`).join("")}</tr></thead>
-        <tbody>${!f.length?`<tr><td colspan="10" style="padding:34px;text-align:center;color:var(--dim)">No tasks yet. Click + Task!</td></tr>`:
-          f.map(t=>{
-            const state=(TM[t.id]||{state:"idle"}).state;
-            const elapsed=getTimerElapsed(t.id);
-            const pillCls=state==="running"?"tpill-run":state==="paused"?"tpill-pause":"tpill-idle";
-            return `<tr>
-              <td style="max-width:180px">
-                <div style="font-weight:500;color:var(--text)">${esc(t.title)}</div>
-                ${t.notes?`<div style="font-size:10px;color:var(--dim)">${esc(t.notes.substring(0,50))}</div>`:""}
-              </td>
-              <td style="color:var(--muted);font-size:11px">${t.type}</td>
-              <td><span style="color:${PRI[t.priority]?.c};font-size:11px;font-weight:700">${t.priority}</span></td>
-              <td><select onchange="updateStatus(${t.id},this.value)"
-                style="background:${STATUS[t.status]?.bg}33;color:${STATUS[t.status]?.color};border:1px solid ${STATUS[t.status]?.color}55;border-radius:6px;padding:3px 7px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">
-                ${Object.entries(STATUS).map(([k,v])=>`<option value="${k}" ${t.status===k?"selected":""}>${v.label}</option>`).join("")}
-              </select></td>
-              <td style="font-size:11px;color:var(--dim)">${t.sprint||"—"}</td>
-              <td style="font-size:11px;color:var(--muted)">${t.env||"—"}</td>
-              <td style="font-size:11px;color:var(--muted)">${t.estimate||"—"} / ${t.actual||"—"}</td>
-              <td>
-                <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
-                  <span id="tpill_${t.id}" class="tpill ${pillCls}">⏱ ${fmtT(elapsed)}</span>
-                  <span id="tbwrap_${t.id}" style="display:flex;gap:3px">${timerBtnsHTML(t.id,state)}</span>
-                </div>
-              </td>
-              <td>${t.blocker?`<span style="color:#f87171;font-size:10px">🚧 ${esc(t.blocker)}</span>`:`<span style="color:var(--border)">—</span>`}</td>
-              <td><div style="display:flex;gap:4px">
-                <button class="btn" onclick="openTaskForm(${t.id})" style="background:#1e40af22;color:#60a5fa;padding:3px 8px;font-size:11px">Edit</button>
-                <button class="btn" onclick="delTask(${t.id})"      style="background:#dc262622;color:#f87171;padding:3px 8px;font-size:11px">Del</button>
-              </div></td>
-            </tr>`;
-          }).join("")}</tbody>
-      </table>
-    </div>`;
+  document.getElementById("view-list").innerHTML=`<div style="background:var(--surface);border-radius:11px;border:1px solid var(--border);overflow:auto">
+    <table><thead><tr>${["Task","Type","Pri","Status","Sprint","Env","Est/Act","⏱ Timer","Blocker","Actions"].map(h=>`<th>${h}</th>`).join("")}</tr></thead>
+    <tbody>${!f.length?`<tr><td colspan="10" style="padding:34px;text-align:center;color:var(--dim)">No tasks yet. Click + Task!</td></tr>`:
+      f.map(t=>{
+        const state=(TM[t.id]||{state:"idle"}).state,elapsed=getTimerElapsed(t.id);
+        const pillCls=state==="running"?"tpill-run":state==="paused"?"tpill-pause":"tpill-idle";
+        return`<tr>
+          <td style="max-width:180px"><div style="font-weight:500;color:var(--text)">${esc(t.title)}</div>${t.notes?`<div style="font-size:10px;color:var(--dim)">${esc(t.notes.substring(0,50))}</div>`:""}</td>
+          <td style="color:var(--muted);font-size:11px">${t.type}</td>
+          <td><span style="color:${PRI[t.priority]?.c};font-size:11px;font-weight:700">${t.priority}</span></td>
+          <td><select onchange="updateStatus(${t.id},this.value)" style="background:${STATUS[t.status]?.bg}33;color:${STATUS[t.status]?.color};border:1px solid ${STATUS[t.status]?.color}55;border-radius:6px;padding:3px 7px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">${Object.entries(STATUS).map(([k,v])=>`<option value="${k}" ${t.status===k?"selected":""}>${v.label}</option>`).join("")}</select></td>
+          <td style="font-size:11px;color:var(--dim)">${t.sprint||"—"}</td>
+          <td style="font-size:11px;color:var(--muted)">${t.env||"—"}</td>
+          <td style="font-size:11px;color:var(--muted)">${t.estimate||"—"} / ${t.actual||"—"}</td>
+          <td><div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap"><span id="tpill_${t.id}" class="tpill ${pillCls}">⏱ ${fmtT(elapsed)}</span><span id="tbwrap_${t.id}" style="display:flex;gap:3px">${timerBtnsHTML(t.id,state)}</span></div></td>
+          <td>${t.blocker?`<span style="color:#f87171;font-size:10px">🚧 ${esc(t.blocker)}</span>`:`<span style="color:var(--border)">—</span>`}</td>
+          <td><div style="display:flex;gap:4px"><button class="btn" onclick="openTaskForm(${t.id})" style="background:#1e40af22;color:#60a5fa;padding:3px 8px;font-size:11px">Edit</button><button class="btn" onclick="delTask(${t.id})" style="background:#dc262622;color:#f87171;padding:3px 8px;font-size:11px">Del</button></div></td>
+        </tr>`;
+      }).join("")}</tbody></table></div>`;
 }
 
-/* ─── WEEKLY ─── */
 function renderWeekly(){
-  const today=new Date(), day=today.getDay();
-  const mon=new Date(today); mon.setDate(today.getDate()-(day===0?6:day-1));
-  const days=[]; for(let i=0;i<7;i++){const d=new Date(mon);d.setDate(mon.getDate()+i);days.push(d);}
+  const today=new Date(),day=today.getDay(),mon=new Date(today);
+  mon.setDate(today.getDate()-(day===0?6:day-1));
+  const days=[];for(let i=0;i<7;i++){const d=new Date(mon);d.setDate(mon.getDate()+i);days.push(d);}
   const todayStr=dk();
   document.getElementById("view-weekly").innerHTML=`
     <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:14px">
       ${days.map(d=>{
-        const key=d.toISOString().split("T")[0];
-        const isT=key===todayStr;
+        const key=d.toISOString().split("T")[0],isT=key===todayStr;
         const saved=isT?tasks:load("qa_tasks_"+key,[]);
-        const done=saved.filter(t=>t.status==="DONE").length, tot=saved.length;
-        const pct=tot?Math.round(done/tot*100):0;
-        return `<div class="wday ${isT?"today-col":""}">
+        const done=saved.filter(t=>t.status==="DONE").length,tot=saved.length,pct=tot?Math.round(done/tot*100):0;
+        return`<div class="wday ${isT?"today-col":""}">
           <div style="font-weight:700;font-size:12px;color:${isT?"#3b82f6":"var(--muted)"}">${d.toLocaleDateString("en-IN",{weekday:"short"})}</div>
           <div style="font-size:10px;color:var(--dim);margin-bottom:8px">${d.toLocaleDateString("en-IN",{day:"numeric",month:"short"})}</div>
-          ${isT?`
-            <div style="font-size:12px;color:var(--text);font-weight:600">${tot} tasks</div>
-            <div style="font-size:10px;color:#059669;margin-top:2px">✅ ${done} done</div>
-            <div style="font-size:10px;color:#d97706">⚡ ${tasks.filter(t=>t.status==="IN_PROGRESS").length} active</div>
-            <div style="font-size:10px;color:#dc2626">🚧 ${tasks.filter(t=>t.blocker&&t.status!=="DONE").length} blocked</div>
-            <div class="pb" style="margin-top:6px"><div class="pb-fill" style="background:#059669;width:${pct}%"></div></div>
-          `:tot>0?`
-            <div style="font-size:11px;color:var(--muted)">${tot} tasks</div>
-            <div style="font-size:10px;color:#059669">✅ ${done} done</div>
-            <div class="pb" style="margin-top:6px"><div class="pb-fill" style="background:#3b82f6;width:${pct}%"></div></div>
-          `:`<div style="font-size:10px;color:var(--border);margin-top:4px">No data</div>`}
+          ${isT?`<div style="font-size:12px;color:var(--text);font-weight:600">${tot} tasks</div><div style="font-size:10px;color:#059669;margin-top:2px">✅ ${done} done</div><div style="font-size:10px;color:#d97706">⚡ ${tasks.filter(t=>t.status==="IN_PROGRESS").length} active</div><div style="font-size:10px;color:#dc2626">🚧 ${tasks.filter(t=>t.blocker&&t.status!=="DONE").length} blocked</div><div class="pb" style="margin-top:6px"><div class="pb-fill" style="background:#059669;width:${pct}%"></div></div>`:tot>0?`<div style="font-size:11px;color:var(--muted)">${tot} tasks</div><div style="font-size:10px;color:#059669">✅ ${done} done</div><div class="pb" style="margin-top:6px"><div class="pb-fill" style="background:#3b82f6;width:${pct}%"></div></div>`:`<div style="font-size:10px;color:var(--border);margin-top:4px">No data</div>`}
         </div>`;
       }).join("")}
     </div>
     <div style="background:var(--surface);border-radius:11px;padding:16px;border:1px solid var(--border)">
-      <div style="font-family:'Space Grotesk';font-weight:700;font-size:13px;margin-bottom:12px;color:var(--text)">📅 Today's Full Task List</div>
+      <div style="font-family:'Space Grotesk';font-weight:700;font-size:13px;margin-bottom:12px;color:var(--text)">📅 Today's Tasks</div>
       ${!tasks.length?`<div style="color:var(--dim);text-align:center;padding:18px">No tasks today.</div>`:
         tasks.map(t=>`<div style="display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--border)">
           <span style="font-size:15px">${t.status==="DONE"?"✅":t.status==="BLOCKED"?"🚧":t.status==="IN_PROGRESS"?"⚡":"📋"}</span>
@@ -833,7 +558,6 @@ function renderWeekly(){
     </div>`;
 }
 
-/* ─── BUGS VIEW ─── */
 function renderBugsView(){
   document.getElementById("view-bugs").innerHTML=`
     <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
@@ -841,152 +565,90 @@ function renderBugsView(){
     </div>
     ${!bugs.length?`<div style="background:var(--surface);border-radius:11px;padding:38px;text-align:center;border:1px solid var(--border);color:var(--dim)">🎉 No bugs logged yet!</div>`:`
     <div style="background:var(--surface);border-radius:11px;border:1px solid var(--border);overflow:auto">
-      <table>
-        <thead><tr>${["Bug / ID","Severity","Status","Steps","Date","Del"].map(h=>`<th>${h}</th>`).join("")}</tr></thead>
-        <tbody>${bugs.map(b=>`<tr>
-          <td style="font-weight:500;color:var(--text);max-width:200px">${esc(b.title)}</td>
-          <td><span class="sev-${b.severity}" style="font-size:11px">${b.severity}</span></td>
-          <td><select onchange="updBugSt(${b.id},this.value)"
-            style="background:${BSTC[b.status]}22;color:${BSTC[b.status]};border:1px solid ${BSTC[b.status]}55;border-radius:5px;padding:2px 7px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">
-            ${["OPEN","IN_FIX","FIXED","CLOSED","REOPEN"].map(s=>`<option value="${s}" ${b.status===s?"selected":""}>${s}</option>`).join("")}
-          </select></td>
-          <td style="font-size:11px;color:var(--muted);max-width:200px">${esc((b.steps||"").substring(0,70))}${(b.steps||"").length>70?"…":""}</td>
-          <td style="font-size:10px;color:var(--dim)">${b.date}</td>
-          <td><button class="btn" onclick="delBug(${b.id})" style="background:#dc262622;color:#f87171;padding:2px 7px;font-size:11px">🗑</button></td>
-        </tr>`).join("")}</tbody>
-      </table>
-    </div>`}`;
+      <table><thead><tr>${["Bug / ID","Severity","Status","Steps","Date","Del"].map(h=>`<th>${h}</th>`).join("")}</tr></thead>
+      <tbody>${bugs.map(b=>`<tr>
+        <td style="font-weight:500;color:var(--text);max-width:200px">${esc(b.title)}</td>
+        <td><span class="sev-${b.severity}" style="font-size:11px">${b.severity}</span></td>
+        <td><select onchange="updBugSt(${b.id},this.value)" style="background:${BSTC[b.status]}22;color:${BSTC[b.status]};border:1px solid ${BSTC[b.status]}55;border-radius:5px;padding:2px 7px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">${["OPEN","IN_FIX","FIXED","CLOSED","REOPEN"].map(s=>`<option value="${s}" ${b.status===s?"selected":""}>${s}</option>`).join("")}</select></td>
+        <td style="font-size:11px;color:var(--muted);max-width:200px">${esc((b.steps||"").substring(0,70))}</td>
+        <td style="font-size:10px;color:var(--dim)">${b.date}</td>
+        <td><button class="btn" onclick="delBug(${b.id})" style="background:#dc262622;color:#f87171;padding:2px 7px;font-size:11px">🗑</button></td>
+      </tr>`).join("")}</tbody></table></div>`}`;
 }
 
-/* ─── CHARTS ─── */
 function renderCharts(){
-  document.getElementById("view-charts").innerHTML=`
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-      ${[
-        {id:"cStatus",  title:"📊 Tasks by Status"},
-        {id:"cPriority",title:"🎯 Tasks by Priority"},
-        {id:"cType",    title:"🔧 Tasks by Type"},
-        {id:"cBugs",    title:"🐛 Bug Severity"},
-      ].map(c=>`<div style="background:var(--surface);border-radius:11px;padding:18px;border:1px solid var(--border)">
-        <div style="font-family:'Space Grotesk';font-weight:700;font-size:13px;margin-bottom:14px;color:var(--text)">${c.title}</div>
-        <div class="chart-wrap"><canvas id="${c.id}" height="190"></canvas></div>
-      </div>`).join("")}
-    </div>`;
+  document.getElementById("view-charts").innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    ${[{id:"cStatus",title:"📊 Tasks by Status"},{id:"cPriority",title:"🎯 Tasks by Priority"},{id:"cType",title:"🔧 Tasks by Type"},{id:"cBugs",title:"🐛 Bug Severity"}]
+    .map(c=>`<div style="background:var(--surface);border-radius:11px;padding:18px;border:1px solid var(--border)"><div style="font-family:'Space Grotesk';font-weight:700;font-size:13px;margin-bottom:14px;color:var(--text)">${c.title}</div><div style="position:relative;width:100%"><canvas id="${c.id}" height="190"></canvas></div></div>`).join("")}
+  </div>`;
   setTimeout(()=>{
     const types=["Bug","Test Case","Regression","Smoke","UAT","Automation","Review","Other"];
-    pie("cStatus",  Object.keys(STATUS).map(k=>tasks.filter(t=>t.status===k).length),  Object.values(STATUS).map(s=>s.label), Object.values(STATUS).map(s=>s.color));
-    pie("cPriority",["HIGH","MEDIUM","LOW"].map(p=>tasks.filter(t=>t.priority===p).length), ["High","Medium","Low"],["#dc2626","#d97706","#059669"]);
-    bar("cType",    types.map(tp=>tasks.filter(t=>t.type===tp).length), types, ["#3b82f6","#06b6d4","#7c3aed","#f59e0b","#059669","#f97316","#ec4899","#94a3b8"]);
-    pie("cBugs",    ["OPEN","IN_FIX","FIXED","CLOSED","REOPEN"].map(s=>bugs.filter(b=>b.status===s).length), ["Open","In Fix","Fixed","Closed","Reopened"], Object.values(BSTC));
+    pie("cStatus",Object.keys(STATUS).map(k=>tasks.filter(t=>t.status===k).length),Object.values(STATUS).map(s=>s.label),Object.values(STATUS).map(s=>s.color));
+    pie("cPriority",["HIGH","MEDIUM","LOW"].map(p=>tasks.filter(t=>t.priority===p).length),["High","Medium","Low"],["#dc2626","#d97706","#059669"]);
+    bar("cType",types.map(tp=>tasks.filter(t=>t.type===tp).length),types,["#3b82f6","#06b6d4","#7c3aed","#f59e0b","#059669","#f97316","#ec4899","#94a3b8"]);
+    pie("cBugs",["OPEN","IN_FIX","FIXED","CLOSED","REOPEN"].map(s=>bugs.filter(b=>b.status===s).length),["Open","In Fix","Fixed","Closed","Reopened"],Object.values(BSTC));
   },60);
 }
 function pie(id,data,labels,colors){
-  const cv=document.getElementById(id); if(!cv)return;
-  const ctx=cv.getContext("2d");
-  const W=cv.parentElement.offsetWidth||300; cv.width=W; cv.height=190;
+  const cv=document.getElementById(id);if(!cv)return;
+  const ctx=cv.getContext("2d"),W=cv.parentElement.offsetWidth||300;cv.width=W;cv.height=190;
   const total=data.reduce((a,b)=>a+b,0);
-  const dark=!isLight;
-  if(!total){ctx.fillStyle=dark?"#475569":"#94a3b8";ctx.font="12px DM Sans";ctx.fillText("No data yet",W/2-38,95);return;}
-  const cx=W/2-55,cy=95,r=75; let ang=-Math.PI/2;
-  data.forEach((v,i)=>{
-    if(!v)return;
-    const sw=(v/total)*Math.PI*2;
-    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,ang,ang+sw);
-    ctx.fillStyle=colors[i];ctx.fill();
-    ang+=sw;
-  });
+  if(!total){ctx.fillStyle="#475569";ctx.font="12px DM Sans";ctx.fillText("No data yet",W/2-38,95);return;}
+  const cx=W/2-55,cy=95,r=75;let ang=-Math.PI/2;
+  data.forEach((v,i)=>{if(!v)return;const sw=(v/total)*Math.PI*2;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,ang,ang+sw);ctx.fillStyle=colors[i];ctx.fill();ang+=sw;});
   let ly=18;
-  data.forEach((v,i)=>{
-    if(!v)return;
-    ctx.fillStyle=colors[i];ctx.fillRect(W-115,ly-10,11,11);
-    ctx.fillStyle=dark?"#e2e8f0":"#1e293b";ctx.font="11px DM Sans";
-    ctx.fillText(`${labels[i]} (${v})`,W-98,ly);ly+=17;
-  });
+  data.forEach((v,i)=>{if(!v)return;ctx.fillStyle=colors[i];ctx.fillRect(W-115,ly-10,11,11);ctx.fillStyle=isLight?"#1e293b":"#e2e8f0";ctx.font="11px DM Sans";ctx.fillText(`${labels[i]} (${v})`,W-98,ly);ly+=17;});
 }
 function bar(id,data,labels,colors){
-  const cv=document.getElementById(id); if(!cv)return;
-  const ctx=cv.getContext("2d");
-  const W=cv.parentElement.offsetWidth||300; cv.width=W; cv.height=190;
-  const max=Math.max(...data,1);
-  const bw=Math.max(4,Math.floor((W-40)/data.length)-4);
-  const dark=!isLight;
-  data.forEach((v,i)=>{
-    const x=24+i*(bw+4), h=Math.floor((v/max)*140);
-    ctx.fillStyle=colors[i]; ctx.fillRect(x,158-h,bw,h);
-    ctx.fillStyle=dark?"#e2e8f0":"#1e293b";ctx.font="8px DM Sans";ctx.textAlign="center";
-    ctx.fillText(labels[i].substring(0,5),x+bw/2,174);
-    if(v>0){ctx.fillText(v,x+bw/2,152-h);}
-  });
+  const cv=document.getElementById(id);if(!cv)return;
+  const ctx=cv.getContext("2d"),W=cv.parentElement.offsetWidth||300;cv.width=W;cv.height=190;
+  const max=Math.max(...data,1),bw=Math.max(4,Math.floor((W-40)/data.length)-4);
+  data.forEach((v,i)=>{const x=24+i*(bw+4),h=Math.floor((v/max)*140);ctx.fillStyle=colors[i];ctx.fillRect(x,158-h,bw,h);ctx.fillStyle=isLight?"#1e293b":"#e2e8f0";ctx.font="8px DM Sans";ctx.textAlign="center";ctx.fillText(labels[i].substring(0,5),x+bw/2,174);if(v>0)ctx.fillText(v,x+bw/2,152-h);});
 }
 
-/* ─── REPORT VIEW ─── */
 function renderReport(){
-  const s=getStats(), bl=tasks.filter(t=>t.blocker&&t.status!=="DONE");
+  const s=getStats(),bl=tasks.filter(t=>t.blocker&&t.status!=="DONE");
   const totalTime=tasks.reduce((a,t)=>a+getTimerElapsed(t.id),0);
-  document.getElementById("view-report").innerHTML=`
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-      <div style="background:var(--surface);border-radius:11px;padding:18px;border:1px solid var(--border)">
-        <div style="font-family:'Space Grotesk';font-weight:700;font-size:13px;margin-bottom:14px;color:var(--text)">📊 Progress</div>
-        ${Object.entries(STATUS).map(([k,sv])=>{
-          const c=tasks.filter(t=>t.status===k).length, p=tasks.length?(c/tasks.length)*100:0;
-          return `<div style="margin-bottom:11px">
-            <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-              <span style="font-size:12px;color:${sv.color};font-weight:600">${sv.label}</span>
-              <span style="font-size:11px;color:var(--muted)">${c} (${Math.round(p)}%)</span>
-            </div>
-            <div class="pb"><div class="pb-fill" style="background:${sv.color};width:${p}%"></div></div>
-          </div>`;}).join("")}
-      </div>
-      <div style="background:var(--surface);border-radius:11px;padding:18px;border:1px solid var(--border)">
-        <div style="font-family:'Space Grotesk';font-weight:700;font-size:13px;margin-bottom:14px;color:var(--text)">🚧 Active Blockers</div>
-        ${!bl.length?`<div style="color:#059669;font-size:13px;background:#05966911;border-radius:8px;padding:14px;text-align:center">🎉 No blockers today!</div>`:
-          bl.map(t=>`<div style="background:#dc262611;border:1px solid #dc262633;border-radius:8px;padding:9px;margin-bottom:7px">
-            <div style="font-weight:600;font-size:12px;color:#f87171">${esc(t.title)}</div>
-            <div style="font-size:11px;color:var(--muted);margin-top:2px">🚧 ${esc(t.blocker)}</div>
-          </div>`).join("")}
-      </div>
-      <div style="background:var(--surface);border-radius:11px;padding:18px;border:1px solid var(--border)">
-        <div style="font-family:'Space Grotesk';font-weight:700;font-size:13px;margin-bottom:14px;color:var(--text)">🗣️ Today's Scrum</div>
-        ${[["✅ Yesterday",scrum.yesterday,"#059669"],["🚀 Today",scrum.today,"#3b82f6"],["🚧 Blockers",scrum.blockers,"#dc2626"]].map(([l,v,c])=>`
-          <div style="margin-bottom:10px">
-            <div style="font-size:11px;color:${c};font-weight:700;margin-bottom:3px">${l}</div>
-            <div style="font-size:12px;color:${v?"var(--text)":"var(--dim)"};background:var(--bg);border-radius:7px;padding:8px;min-height:30px">${v||"Not filled"}</div>
-          </div>`).join("")}
-      </div>
-      <div style="background:var(--surface);border-radius:11px;padding:18px;border:1px solid var(--border)">
-        <div style="font-family:'Space Grotesk';font-weight:700;font-size:13px;margin-bottom:14px;color:var(--text)">⏱️ Time Tracked</div>
-        ${tasks.filter(t=>getTimerElapsed(t.id)>0).map(t=>`
-          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)">
-            <span style="font-size:12px;color:var(--text);flex:1">${esc(t.title)}</span>
-            <span style="font-size:12px;color:#06b6d4;font-weight:700;font-family:'Space Grotesk'">${fmtT(getTimerElapsed(t.id))}</span>
-          </div>`).join("")}
-        ${!tasks.filter(t=>getTimerElapsed(t.id)>0).length?`<div style="color:var(--dim);font-size:12px;text-align:center;padding:14px">Use ▶ Start in Board or List view to track time.</div>`:""}
-        <div style="display:flex;justify-content:space-between;padding:10px 0 0">
-          <span style="font-size:13px;font-weight:600;color:var(--text)">Total time logged</span>
-          <span style="font-size:13px;font-weight:700;color:#06b6d4;font-family:'Space Grotesk'">${fmtT(totalTime)}</span>
-        </div>
-      </div>
-    </div>`;
+  document.getElementById("view-report").innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+    <div style="background:var(--surface);border-radius:11px;padding:18px;border:1px solid var(--border)">
+      <div style="font-family:'Space Grotesk';font-weight:700;font-size:13px;margin-bottom:14px;color:var(--text)">📊 Progress</div>
+      ${Object.entries(STATUS).map(([k,sv])=>{const c=tasks.filter(t=>t.status===k).length,p=tasks.length?(c/tasks.length)*100:0;return`<div style="margin-bottom:11px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:12px;color:${sv.color};font-weight:600">${sv.label}</span><span style="font-size:11px;color:var(--muted)">${c} (${Math.round(p)}%)</span></div><div class="pb"><div class="pb-fill" style="background:${sv.color};width:${p}%"></div></div></div>`;}).join("")}
+    </div>
+    <div style="background:var(--surface);border-radius:11px;padding:18px;border:1px solid var(--border)">
+      <div style="font-family:'Space Grotesk';font-weight:700;font-size:13px;margin-bottom:14px;color:var(--text)">🚧 Blockers</div>
+      ${!bl.length?`<div style="color:#059669;font-size:13px;background:#05966911;border-radius:8px;padding:14px;text-align:center">🎉 No blockers!</div>`:bl.map(t=>`<div style="background:#dc262611;border:1px solid #dc262633;border-radius:8px;padding:9px;margin-bottom:7px"><div style="font-weight:600;font-size:12px;color:#f87171">${esc(t.title)}</div><div style="font-size:11px;color:var(--muted);margin-top:2px">🚧 ${esc(t.blocker)}</div></div>`).join("")}
+    </div>
+    <div style="background:var(--surface);border-radius:11px;padding:18px;border:1px solid var(--border)">
+      <div style="font-family:'Space Grotesk';font-weight:700;font-size:13px;margin-bottom:14px;color:var(--text)">🗣️ Scrum Notes</div>
+      ${[["✅ Yesterday",scrum.yesterday,"#059669"],["🚀 Today",scrum.today,"#3b82f6"],["🚧 Blockers",scrum.blockers,"#dc2626"]].map(([l,v,c])=>`<div style="margin-bottom:10px"><div style="font-size:11px;color:${c};font-weight:700;margin-bottom:3px">${l}</div><div style="font-size:12px;color:${v?"var(--text)":"var(--dim)"};background:var(--bg);border-radius:7px;padding:8px;min-height:30px">${v||"Not filled"}</div></div>`).join("")}
+    </div>
+    <div style="background:var(--surface);border-radius:11px;padding:18px;border:1px solid var(--border)">
+      <div style="font-family:'Space Grotesk';font-weight:700;font-size:13px;margin-bottom:14px;color:var(--text)">⏱️ Time Tracked</div>
+      ${tasks.filter(t=>getTimerElapsed(t.id)>0).map(t=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)"><span style="font-size:12px;color:var(--text);flex:1">${esc(t.title)}</span><span style="font-size:12px;color:#06b6d4;font-weight:700;font-family:'Space Grotesk'">${fmtT(getTimerElapsed(t.id))}</span></div>`).join("")}
+      ${!tasks.filter(t=>getTimerElapsed(t.id)>0).length?`<div style="color:var(--dim);font-size:12px;text-align:center;padding:14px">Use ▶ Start to track time.</div>`:""}
+      <div style="display:flex;justify-content:space-between;padding:10px 0 0"><span style="font-size:13px;font-weight:600;color:var(--text)">Total</span><span style="font-size:13px;font-weight:700;color:#06b6d4;font-family:'Space Grotesk'">${fmtT(totalTime)}</span></div>
+    </div>
+  </div>`;
 }
 
-/* ─── TASK CRUD ─── */
+// TASK CRUD
 function openTaskForm(id){
   editingId=id||null;
   document.getElementById("taskModalTitle").textContent=id?"✏️ Edit Task":"➕ New Task";
   document.getElementById("saveTaskBtn").textContent=id?"Update Task":"Add Task";
   const t=id?tasks.find(x=>x.id===id):null;
-  document.getElementById("f_title").value   =t?.title||"";
-  document.getElementById("f_type").value    =t?.type||"Bug";
+  document.getElementById("f_title").value=t?.title||"";
+  document.getElementById("f_type").value=t?.type||"Bug";
   document.getElementById("f_priority").value=t?.priority||"MEDIUM";
-  document.getElementById("f_status").value  =t?.status||"TODO";
-  document.getElementById("f_env").value     =t?.env||"";
+  document.getElementById("f_status").value=t?.status||"TODO";
+  document.getElementById("f_env").value=t?.env||"";
   document.getElementById("f_assignee").value=t?.assignee||"";
-  document.getElementById("f_est").value     =t?.estimate||"";
-  document.getElementById("f_actual").value  =t?.actual||"";
-  document.getElementById("f_sprint").value  =t?.sprint||localStorage.getItem("qa_sprint")||"";
-  document.getElementById("f_release").value =t?.release||localStorage.getItem("qa_release")||"";
-  document.getElementById("f_blocker").value =t?.blocker||"";
-  document.getElementById("f_notes").value   =t?.notes||"";
+  document.getElementById("f_est").value=t?.estimate||"";
+  document.getElementById("f_actual").value=t?.actual||"";
+  document.getElementById("f_sprint").value=t?.sprint||localStorage.getItem("qa_sprint")||"";
+  document.getElementById("f_release").value=t?.release||localStorage.getItem("qa_release")||"";
+  document.getElementById("f_blocker").value=t?.blocker||"";
+  document.getElementById("f_notes").value=t?.notes||"";
   document.getElementById("taskModal").classList.remove("hidden");
   setTimeout(()=>document.getElementById("f_title").focus(),80);
 }
@@ -995,31 +657,15 @@ function saveTask(){
   if(!title){document.getElementById("f_title").style.borderColor="#dc2626";document.getElementById("f_title").focus();return;}
   document.getElementById("f_title").style.borderColor="";
   const ex=editingId?tasks.find(t=>t.id===editingId):null;
-  const task={
-    id:editingId||Date.now(),
-    title,
-    type:document.getElementById("f_type").value,
-    priority:document.getElementById("f_priority").value,
-    status:document.getElementById("f_status").value,
-    env:document.getElementById("f_env").value.trim(),
-    assignee:document.getElementById("f_assignee").value.trim(),
-    estimate:document.getElementById("f_est").value.trim(),
-    actual:document.getElementById("f_actual").value.trim(),
-    sprint:document.getElementById("f_sprint").value.trim(),
-    release:document.getElementById("f_release").value.trim(),
-    blocker:document.getElementById("f_blocker").value.trim(),
-    notes:document.getElementById("f_notes").value.trim(),
-    timerTotal:ex?.timerTotal||0,
-    createdAt:ex?.createdAt||new Date().toLocaleTimeString(),
-  };
+  const task={id:editingId||Date.now(),title,type:document.getElementById("f_type").value,priority:document.getElementById("f_priority").value,status:document.getElementById("f_status").value,env:document.getElementById("f_env").value.trim(),assignee:document.getElementById("f_assignee").value.trim(),estimate:document.getElementById("f_est").value.trim(),actual:document.getElementById("f_actual").value.trim(),sprint:document.getElementById("f_sprint").value.trim(),release:document.getElementById("f_release").value.trim(),blocker:document.getElementById("f_blocker").value.trim(),notes:document.getElementById("f_notes").value.trim(),timerTotal:ex?.timerTotal||0,createdAt:ex?.createdAt||new Date().toLocaleTimeString()};
   tasks=editingId?tasks.map(t=>t.id===editingId?task:t):[...tasks,task];
-  if(!TM[task.id]) TM[task.id]={elapsed:task.timerTotal,state:"idle",startedAt:null};
-  saveTasks(); closeModal("taskModal"); renderAll();
+  if(!TM[task.id])TM[task.id]={elapsed:task.timerTotal,state:"idle",startedAt:null};
+  saveTasks();closeModal("taskModal");renderAll();
 }
-function delTask(id){ if(confirm("Delete this task?")){ tasks=tasks.filter(t=>t.id!==id); saveTasks(); renderAll(); } }
-function updateStatus(id,status){ tasks=tasks.map(t=>t.id==id?{...t,status}:t); saveTasks(); renderCurrent(); }
+function delTask(id){if(confirm("Delete this task?")){tasks=tasks.filter(t=>t.id!==id);saveTasks();renderAll();}}
+function updateStatus(id,status){tasks=tasks.map(t=>t.id==id?{...t,status}:t);saveTasks();renderCurrent();}
 
-/* ─── TABS ─── */
+// TABS
 function switchTab(tab){
   activeTab=tab;
   ["board","list","weekly","bugs","charts","report"].forEach(t=>{
@@ -1028,18 +674,10 @@ function switchTab(tab){
   });
   renderCurrent();
 }
-function renderCurrent(){
-  renderStats();
-  if(activeTab==="board")   renderBoard();
-  else if(activeTab==="list")   renderList();
-  else if(activeTab==="weekly") renderWeekly();
-  else if(activeTab==="bugs")   renderBugsView();
-  else if(activeTab==="charts") renderCharts();
-  else if(activeTab==="report") renderReport();
-}
-function renderAll(){ renderCurrent(); }
+function renderCurrent(){renderStats();if(activeTab==="board")renderBoard();else if(activeTab==="list")renderList();else if(activeTab==="weekly")renderWeekly();else if(activeTab==="bugs")renderBugsView();else if(activeTab==="charts")renderCharts();else if(activeTab==="report")renderReport();}
+function renderAll(){renderCurrent();}
 
-/* ─── SCRUM ─── */
+// SCRUM
 function openScrum(){
   document.getElementById("scrumDate").textContent=getToday();
   document.getElementById("s_yesterday").value=scrum.yesterday;
@@ -1052,94 +690,68 @@ function saveScrumData(){
   scrum.yesterday=document.getElementById("s_yesterday").value;
   scrum.today=document.getElementById("s_today").value;
   scrum.blockers=document.getElementById("s_blockers").value;
-  save("qa_scrum_"+dk(),scrum);
-  closeModal("scrumModal");
-  renderCurrent();
-  scheduleAutoSync(); // sync after scrum save
+  save("qa_scrum_"+dk(),scrum);closeModal("scrumModal");renderCurrent();scheduleAutoSync();
 }
-function setMood(m){ scrum.mood=m; document.querySelectorAll(".mood-btn").forEach(b=>b.classList.toggle("active",b.textContent===m)); }
+function setMood(m){scrum.mood=m;document.querySelectorAll(".mood-btn").forEach(b=>b.classList.toggle("active",b.textContent===m));}
 
-/* ─── BUGS ─── */
-function openBugModal(){ renderBugListModal(); document.getElementById("bugModal").classList.remove("hidden"); }
+// BUGS
+function openBugModal(){renderBugListModal();document.getElementById("bugModal").classList.remove("hidden");}
 function renderBugListModal(){
-  const el=document.getElementById("bugListInModal"); if(!el)return;
-  if(!bugs.length){el.innerHTML=`<div style="color:var(--dim);text-align:center;padding:18px">No bugs yet. Use the form above.</div>`;return;}
+  const el=document.getElementById("bugListInModal");if(!el)return;
+  if(!bugs.length){el.innerHTML=`<div style="color:var(--dim);text-align:center;padding:18px">No bugs yet.</div>`;return;}
   el.innerHTML=`<div style="background:var(--bg);border-radius:9px;border:1px solid var(--border);overflow:auto">
-    <table>
-      <thead><tr>${["Bug","Severity","Status","Steps","Date","✕"].map(h=>`<th>${h}</th>`).join("")}</tr></thead>
-      <tbody>${bugs.map(b=>`<tr>
-        <td style="color:var(--text);font-weight:500">${esc(b.title)}</td>
-        <td><span class="sev-${b.severity}" style="font-size:11px">${b.severity}</span></td>
-        <td><select onchange="updBugSt(${b.id},this.value)"
-          style="background:${BSTC[b.status]}22;color:${BSTC[b.status]};border:1px solid ${BSTC[b.status]}55;border-radius:5px;padding:2px 6px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">
-          ${["OPEN","IN_FIX","FIXED","CLOSED","REOPEN"].map(s=>`<option value="${s}" ${b.status===s?"selected":""}>${s}</option>`).join("")}
-        </select></td>
-        <td style="font-size:10px;color:var(--muted);max-width:160px">${esc((b.steps||"").substring(0,60))}</td>
-        <td style="font-size:10px;color:var(--dim)">${b.date}</td>
-        <td><button class="btn" onclick="delBug(${b.id})" style="background:#dc262622;color:#f87171;padding:2px 7px;font-size:10px">🗑</button></td>
-      </tr>`).join("")}</tbody>
-    </table>
-  </div>`;
+    <table><thead><tr>${["Bug","Severity","Status","Steps","Date","✕"].map(h=>`<th>${h}</th>`).join("")}</tr></thead>
+    <tbody>${bugs.map(b=>`<tr>
+      <td style="color:var(--text);font-weight:500">${esc(b.title)}</td>
+      <td><span class="sev-${b.severity}" style="font-size:11px">${b.severity}</span></td>
+      <td><select onchange="updBugSt(${b.id},this.value)" style="background:${BSTC[b.status]}22;color:${BSTC[b.status]};border:1px solid ${BSTC[b.status]}55;border-radius:5px;padding:2px 6px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">${["OPEN","IN_FIX","FIXED","CLOSED","REOPEN"].map(s=>`<option value="${s}" ${b.status===s?"selected":""}>${s}</option>`).join("")}</select></td>
+      <td style="font-size:10px;color:var(--muted);max-width:160px">${esc((b.steps||"").substring(0,60))}</td>
+      <td style="font-size:10px;color:var(--dim)">${b.date}</td>
+      <td><button class="btn" onclick="delBug(${b.id})" style="background:#dc262622;color:#f87171;padding:2px 7px;font-size:10px">🗑</button></td>
+    </tr>`).join("")}</tbody></table></div>`;
 }
 function addBug(){
-  const title=document.getElementById("b_title").value.trim(); if(!title){document.getElementById("b_title").focus();return;}
+  const title=document.getElementById("b_title").value.trim();if(!title){document.getElementById("b_title").focus();return;}
   bugs.push({id:Date.now(),title,severity:document.getElementById("b_severity").value,status:document.getElementById("b_status").value,steps:document.getElementById("b_steps").value.trim(),date:new Date().toLocaleDateString("en-IN")});
   saveBugs();
   ["b_title","b_steps"].forEach(id=>{document.getElementById(id).value="";});
-  document.getElementById("b_severity").value="MEDIUM"; document.getElementById("b_status").value="OPEN";
-  renderBugListModal(); renderCurrent();
+  document.getElementById("b_severity").value="MEDIUM";document.getElementById("b_status").value="OPEN";
+  renderBugListModal();renderCurrent();
 }
-function delBug(id){ if(confirm("Delete bug?")){ bugs=bugs.filter(b=>b.id!==id); saveBugs(); renderBugListModal(); renderCurrent(); } }
-function updBugSt(id,st){ bugs=bugs.map(b=>b.id==id?{...b,status:st}:b); saveBugs(); renderCurrent(); }
+function delBug(id){if(confirm("Delete bug?")){bugs=bugs.filter(b=>b.id!==id);saveBugs();renderBugListModal();renderCurrent();}}
+function updBugSt(id,st){bugs=bugs.map(b=>b.id==id?{...b,status:st}:b);saveBugs();renderCurrent();}
 
-/* ─── SCRATCH PAD ─── */
-function openScratch(){
-  document.getElementById("scratchText").value=localStorage.getItem("qa_scratch")||"";
-  updScratchCnt(); document.getElementById("scratchModal").classList.remove("hidden");
-}
-function onScratchInput(){ localStorage.setItem("qa_scratch",document.getElementById("scratchText").value); updScratchCnt(); }
-function updScratchCnt(){ const v=document.getElementById("scratchText")?.value||""; const el=document.getElementById("scratchCount"); if(el)el.textContent=`${v.length} chars · ${v.split("\n").filter(l=>l.trim()).length} lines`; }
-function clearScratch(){ if(confirm("Clear all notes?")){ document.getElementById("scratchText").value=""; localStorage.removeItem("qa_scratch"); updScratchCnt(); } }
+// SCRATCH
+function openScratch(){document.getElementById("scratchText").value=localStorage.getItem("qa_scratch")||"";updScratchCnt();document.getElementById("scratchModal").classList.remove("hidden");}
+function onScratchInput(){localStorage.setItem("qa_scratch",document.getElementById("scratchText").value);updScratchCnt();}
+function updScratchCnt(){const v=document.getElementById("scratchText")?.value||"";const el=document.getElementById("scratchCount");if(el)el.textContent=`${v.length} chars`;}
+function clearScratch(){if(confirm("Clear notes?")){document.getElementById("scratchText").value="";localStorage.removeItem("qa_scratch");updScratchCnt();}}
 
-/* ─── REMINDER ─── */
-let remInt=null;
+// REMINDER
+var remInt=null;
 function scheduleReminder(){
   const val=document.getElementById("reminderTime")?.value||"18:00";
   localStorage.setItem("qa_reminder_time",val);
-  if(remInt) clearInterval(remInt);
+  if(remInt)clearInterval(remInt);
   remInt=setInterval(()=>{
-    const now=new Date(), cur=now.getHours().toString().padStart(2,"0")+":"+now.getMinutes().toString().padStart(2,"0");
-    if(cur===val){
-      document.getElementById("reminderBar").classList.remove("hidden");
-      if(Notification?.permission==="granted") new Notification("🧪 QA Tracker — EOD Time!",{body:"Generate your daily report and send to manager!"});
-    }
+    const now=new Date(),cur=now.getHours().toString().padStart(2,"0")+":"+now.getMinutes().toString().padStart(2,"0");
+    if(cur===val){document.getElementById("reminderBar").classList.remove("hidden");if(Notification?.permission==="granted")new Notification("🧪 QA Tracker — EOD Time!",{body:"Generate your daily report!"});}
   },30000);
 }
 
-/* ─── THEME ─── */
-function toggleTheme(){
-  isLight=!isLight; localStorage.setItem("qa_theme",isLight?"light":"dark");
-  document.body.classList.toggle("light",isLight);
-  document.getElementById("themeBtn").textContent=isLight?"☀️ Light":"🌙 Dark";
-}
+// THEME
+function toggleTheme(){isLight=!isLight;localStorage.setItem("qa_theme",isLight?"light":"dark");document.body.classList.toggle("light",isLight);document.getElementById("themeBtn").textContent=isLight?"☀️ Light":"🌙 Dark";}
 
-/* ─── EOD REPORT ─── */
+// EOD
 function openEOD(){
-  const s=getStats(), pct=s.total?Math.round(s.done/s.total*100):0;
+  const s=getStats(),pct=s.total?Math.round(s.done/s.total*100):0;
   document.getElementById("eodDateTime").textContent=`${getToday()} · ${getTime()}`;
   document.getElementById("eod_name").value=localStorage.getItem("qa_name")||"";
   document.getElementById("eod_mgr").value=localStorage.getItem("qa_mgr")||"";
   document.getElementById("eod_notes").value="";
-  document.getElementById("eodStats").innerHTML=[
-    {l:"✅ Done",v:s.done,c:"#059669"},{l:"⚡ Progress",v:s.prog,c:"#d97706"},
-    {l:"📋 Remaining",v:s.remaining,c:"#7c3aed"},{l:"🚧 Blocked",v:s.blocked,c:"#dc2626"},
-    {l:"🐛 Open Bugs",v:s.openBugs,c:"#f97316"},{l:"📊 Complete",v:pct+"%",c:"#3b82f6"},
-  ].map(x=>`<div style="background:#0f172a66;border-radius:9px;padding:8px 15px;border:1px solid #334155;text-align:center">
-    <div style="font-size:17px;font-weight:700;color:${x.c};font-family:'Space Grotesk'">${x.v}</div>
-    <div style="font-size:10px;color:#64748b;margin-top:1px">${x.l}</div>
-  </div>`).join("");
-  updateEOD();
-  document.getElementById("eodModal").classList.remove("hidden");
+  document.getElementById("eodStats").innerHTML=[{l:"✅ Done",v:s.done,c:"#059669"},{l:"⚡ Progress",v:s.prog,c:"#d97706"},{l:"📋 Remaining",v:s.remaining,c:"#7c3aed"},{l:"🚧 Blocked",v:s.blocked,c:"#dc2626"},{l:"🐛 Bugs",v:s.openBugs,c:"#f97316"},{l:"📊 Complete",v:pct+"%",c:"#3b82f6"}]
+    .map(x=>`<div style="background:#0f172a66;border-radius:9px;padding:8px 15px;border:1px solid #334155;text-align:center"><div style="font-size:17px;font-weight:700;color:${x.c};font-family:'Space Grotesk'">${x.v}</div><div style="font-size:10px;color:#64748b;margin-top:1px">${x.l}</div></div>`).join("");
+  updateEOD();document.getElementById("eodModal").classList.remove("hidden");
 }
 function setRTab(t){
   rTab=t;
@@ -1147,27 +759,17 @@ function setRTab(t){
   document.getElementById("rtab-email").style.color=t==="email"?"#fff":"var(--dim)";
   document.getElementById("rtab-whatsapp").style.background=t==="whatsapp"?"#059669":"transparent";
   document.getElementById("rtab-whatsapp").style.color=t==="whatsapp"?"#fff":"var(--dim)";
-  document.getElementById("rFmtLabel").textContent=t==="email"?"📧 Paste into Gmail / Outlook":"💬 Paste into WhatsApp / Slack / Teams";
+  document.getElementById("rFmtLabel").textContent=t==="email"?"📧 Paste into Gmail / Outlook":"💬 Paste into WhatsApp / Slack";
   updateEOD();
 }
-function updateEOD(){
-  const el=document.getElementById("rptPreview"); if(!el)return;
-  el.textContent=rTab==="email"?buildEmail():buildWA();
-}
+function updateEOD(){const el=document.getElementById("rptPreview");if(!el)return;el.textContent=rTab==="email"?buildEmail():buildWA();}
 function buildEmail(){
-  const name=document.getElementById("eod_name")?.value||localStorage.getItem("qa_name")||"QA Engineer";
-  const mgr= document.getElementById("eod_mgr")?.value||"Team";
-  const note=document.getElementById("eod_notes")?.value||"";
-  const sp=localStorage.getItem("qa_sprint")||"", rl=localStorage.getItem("qa_release")||"";
-  const done=tasks.filter(t=>t.status==="DONE");
-  const prog=tasks.filter(t=>t.status==="IN_PROGRESS"||t.status==="TESTING");
-  const todo=tasks.filter(t=>t.status==="TODO");
-  const blk= tasks.filter(t=>t.blocker&&t.status!=="DONE");
-  const ob=  bugs.filter(b=>b.status==="OPEN"||b.status==="REOPEN");
-  const tot=tasks.length, pct=tot?Math.round(done.length/tot*100):0;
-  const totalTime=fmtT(tasks.reduce((a,t)=>a+getTimerElapsed(t.id),0));
+  const name=document.getElementById("eod_name")?.value||"QA Engineer",mgr=document.getElementById("eod_mgr")?.value||"Team",note=document.getElementById("eod_notes")?.value||"";
+  const sp=localStorage.getItem("qa_sprint")||"",rl=localStorage.getItem("qa_release")||"";
+  const done=tasks.filter(t=>t.status==="DONE"),prog=tasks.filter(t=>t.status==="IN_PROGRESS"||t.status==="TESTING"),todo=tasks.filter(t=>t.status==="TODO"),blk=tasks.filter(t=>t.blocker&&t.status!=="DONE"),ob=bugs.filter(b=>b.status==="OPEN"||b.status==="REOPEN");
+  const tot=tasks.length,pct=tot?Math.round(done.length/tot*100):0,totalTime=fmtT(tasks.reduce((a,t)=>a+getTimerElapsed(t.id),0));
   const tl=t=>`  • [${t.type}] ${t.title}${t.env?" ("+t.env+")":""}${t.actual?" — "+t.actual:""}${getTimerElapsed(t.id)>0?" ⏱ "+fmtT(getTimerElapsed(t.id)):""}${t.notes?"\n      └ "+t.notes:""}`;
-  return `Subject: EOD Report — QA Update | ${getToday()}${sp?" | "+sp:""}${rl?" | "+rl:""}
+  return`Subject: EOD Report — QA Update | ${getToday()}${sp?" | "+sp:""}${rl?" | "+rl:""}
 
 Hi ${mgr},
 
@@ -1200,7 +802,7 @@ ${prog.length?prog.map(tl).join("\n"):"  — None in progress"}
 ${todo.length?todo.map(tl).join("\n"):"  — All tasks addressed!"}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🚧 BLOCKERS & DEPENDENCIES
+🚧 BLOCKERS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ${blk.length?blk.map(t=>`  • ${t.title}\n      └ ${t.blocker}`).join("\n"):"  ✅ No blockers today!"}
 
@@ -1212,26 +814,20 @@ ${ob.length?ob.map(b=>`  • [${b.severity}] ${b.title}`).join("\n"):"  ✅ No o
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🗣️ SCRUM NOTES
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    Today     : ${scrum.today||"—"}
+  Today     : ${scrum.today||"—"}
   Blockers  : ${scrum.blockers||"None"}
-${note?`\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n📝 ADDITIONAL NOTES\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n${note}\n`:""}
+${note?`\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n📝 NOTES\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n${note}\n`:""}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Thanks & Regards,
 ${name}
-Generated at ${getTime()} | Good Day`;
+Generated at ${getTime()}`;
 }
 function buildWA(){
-  const name=document.getElementById("eod_name")?.value||localStorage.getItem("qa_name")||"QA Engineer";
-  const note=document.getElementById("eod_notes")?.value||"";
-  const sp=localStorage.getItem("qa_sprint")||"";
+  const name=document.getElementById("eod_name")?.value||"QA Engineer",note=document.getElementById("eod_notes")?.value||"",sp=localStorage.getItem("qa_sprint")||"";
   const date=new Date().toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"});
-  const done=tasks.filter(t=>t.status==="DONE");
-  const prog=tasks.filter(t=>t.status==="IN_PROGRESS"||t.status==="TESTING");
-  const todo=tasks.filter(t=>t.status==="TODO");
-  const blk= tasks.filter(t=>t.blocker&&t.status!=="DONE");
-  const ob=  bugs.filter(b=>b.status==="OPEN"||b.status==="REOPEN");
-  const tot=tasks.length, pct=tot?Math.round(done.length/tot*100):0;
-  return `*📋 EOD QA Report — ${date}*${sp?" | *"+sp+"*":""}
+  const done=tasks.filter(t=>t.status==="DONE"),prog=tasks.filter(t=>t.status==="IN_PROGRESS"||t.status==="TESTING"),todo=tasks.filter(t=>t.status==="TODO"),blk=tasks.filter(t=>t.blocker&&t.status!=="DONE"),ob=bugs.filter(b=>b.status==="OPEN"||b.status==="REOPEN");
+  const tot=tasks.length,pct=tot?Math.round(done.length/tot*100):0;
+  return`*📋 EOD QA Report — ${date}*${sp?" | *"+sp+"*":""}
 *QA:* ${name}
 
 *📊 Summary*
@@ -1241,7 +837,7 @@ function buildWA(){
 ⏱ Time: ${fmtT(tasks.reduce((a,t)=>a+getTimerElapsed(t.id),0))}
 
 *✅ Completed*
-${done.length?done.map(t=>`• [${t.type}] ${t.title}${t.notes?" — "+t.notes:""}`).join("\n"):"• None"}
+${done.length?done.map(t=>`• [${t.type}] ${t.title}`).join("\n"):"• None"}
 
 *⚡ In Progress*
 ${prog.length?prog.map(t=>`• ${t.title}`).join("\n"):"• None"}
@@ -1258,90 +854,70 @@ ${note?`\n*📝 Notes*\n${note}`:""}
 ${getTime()} | Good Day`;
 }
 
-/* ─── COPY ─── */
 function copyReport(){
   const text=rTab==="email"?buildEmail():buildWA();
-  const ok=()=>{
-    ["copyBtn","copyBtn2"].forEach(id=>{
-      const b=document.getElementById(id); if(!b)return;
-      b.textContent="✅ Copied! Paste in email/chat (Ctrl+V)"; b.style.background="#059669";
-      setTimeout(()=>{b.textContent=id==="copyBtn"?"📋 Copy":"📋 Copy & Send to Manager"; b.style.background=id==="copyBtn"?"#1e40af":"linear-gradient(135deg,#f59e0b,#ef4444)";},3000);
-    });
-  };
-  if(navigator.clipboard?.writeText){ navigator.clipboard.writeText(text).then(ok).catch(()=>fbCopy(text,ok)); }
-  else fbCopy(text,ok);
+  const ok=()=>{["copyBtn","copyBtn2"].forEach(id=>{const b=document.getElementById(id);if(!b)return;b.textContent="✅ Copied!";b.style.background="#059669";setTimeout(()=>{b.textContent=id==="copyBtn"?"📋 Copy":"📋 Copy & Send to Manager";b.style.background=id==="copyBtn"?"#1e40af":"linear-gradient(135deg,#f59e0b,#ef4444)";},3000);});};
+  if(navigator.clipboard?.writeText){navigator.clipboard.writeText(text).then(ok).catch(()=>fbCopy(text,ok));}else fbCopy(text,ok);
 }
-function fbCopy(text,ok){
-  const ta=document.createElement("textarea");
-  ta.value=text; ta.style.cssText="position:fixed;top:0;left:0;width:2px;height:2px;opacity:0";
-  document.body.appendChild(ta); ta.focus(); ta.select(); ta.setSelectionRange(0,999999);
-  try{ const r=document.execCommand("copy"); document.body.removeChild(ta); r?ok():showManual(text); }
-  catch(e){ document.body.removeChild(ta); showManual(text); }
-}
-function showManual(text){
-  document.getElementById("manualBox").classList.remove("hidden");
-  document.getElementById("manualText").value=text;
-  document.getElementById("manualText").select();
-}
-function downloadRpt(){
-  const text=rTab==="email"?buildEmail():buildWA();
-  const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([text],{type:"text/plain"}));
-  a.download=`QA_EOD_${dk()}.txt`; a.click();
+function fbCopy(text,ok){const ta=document.createElement("textarea");ta.value=text;ta.style.cssText="position:fixed;top:0;left:0;width:2px;height:2px;opacity:0";document.body.appendChild(ta);ta.focus();ta.select();ta.setSelectionRange(0,999999);try{const r=document.execCommand("copy");document.body.removeChild(ta);r?ok():showManual(text);}catch(e){document.body.removeChild(ta);showManual(text);}}
+function showManual(text){document.getElementById("manualBox").classList.remove("hidden");document.getElementById("manualText").value=text;document.getElementById("manualText").select();}
+function downloadRpt(){const text=rTab==="email"?buildEmail():buildWA();const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type:"text/plain"}));a.download=`QA_EOD_${dk()}.txt`;a.click();}
+
+// SHEET SYNC
+async function loadFromSheet(){
+  const btn=document.getElementById("loadBtn");
+  if(btn){btn.textContent="⏳ Loading…";btn.disabled=true;}
+  setCloud("sync","Loading…");
+  try{
+    const url=SHEET_URL+"?date="+dk()+"&t="+Date.now();
+    const resp=await fetch(url);
+    if(!resp.ok)throw new Error("HTTP "+resp.status);
+    const data=await resp.json();
+    if(Array.isArray(data.tasks)){tasks=data.tasks.map(t=>({...t,id:Number(t.id)||t.id,timerTotal:Number(t.timerTotal)||0}));save("qa_tasks",tasks);}
+    if(data.scrum){scrum={...{yesterday:"",today:"",blockers:"",mood:"😊"},...data.scrum};save("qa_scrum_"+dk(),scrum);}
+    if(Array.isArray(data.bugs)){bugs=data.bugs.map(b=>({...b,id:Number(b.id)||b.id}));save("qa_bugs",bugs);}
+    tasks.forEach(t=>{if(!TM[t.id])TM[t.id]={elapsed:t.timerTotal||0,state:"idle",startedAt:null};});
+    const now=new Date().toLocaleTimeString();
+    localStorage.setItem("qa_last_load",now);
+    document.getElementById("lastSyncInfo").textContent="⬇️ Loaded: "+now;
+    setCloud("ok","Sheet ✓");
+    renderAll();
+  }catch(err){
+    setCloud("err","Sheet error");
+    console.error("Load error:",err);
+  }finally{
+    if(btn){btn.textContent="⬇️ Load";btn.disabled=false;}
+  }
 }
 
-/* ─── SYNC TO SHEET ─── */
 async function syncSheet(manual=true){
-  if(!SHEET_URL){
-    showSync('⚠️ No sheet URL set. See the yellow banner above to connect your Google Sheet.');
-    document.getElementById('sheetUrlBanner').classList.remove('hidden');
-    return;
-  }
-  if(manual){
-    const btn=document.getElementById('syncBtn');
-    if(btn){btn.textContent='⏳ Syncing…';btn.disabled=true;}
-  }
-  setCloud('sync','Syncing…');
-  if(manual) showSync('⏳ Syncing to Google Sheet…');
+  if(manual){const btn=document.getElementById("syncBtn");if(btn){btn.textContent="⏳ Syncing…";btn.disabled=true;}}
+  setCloud("sync","Syncing…");
   try{
-    await fetch(SHEET_URL,{method:"POST",body:JSON.stringify({
-      tasks, bugs, scrum,
-      date:dk(),
-      name:localStorage.getItem("qa_name")||""
-    })});
+    await fetch(SHEET_URL,{method:"POST",body:JSON.stringify({tasks,bugs,scrum,date:dk(),name:localStorage.getItem("qa_name")||""})});
     const now=new Date().toLocaleTimeString();
-    localStorage.setItem('qa_last_sync', now);
-    document.getElementById('lastSyncInfo').textContent='☁️ Synced: '+now;
-    setCloud('ok','Synced ✓');
-    if(manual) showSync("✅ Synced successfully to Google Sheet!");
+    document.getElementById("lastSyncInfo").textContent="☁️ Synced: "+now;
+    setCloud("ok","Synced ✓");
+    if(manual)showSync("✅ Synced to Google Sheet!");
   }catch(e){
-    setCloud('err','Sync failed');
-    if(manual) showSync("❌ Sync failed — check your Apps Script URL.");
+    setCloud("err","Sync failed");
+    if(manual)showSync("❌ Sync failed. Check connection.");
   }finally{
-    const btn=document.getElementById('syncBtn');
-    if(btn){btn.textContent='☁️ Sync';btn.disabled=false;}
-    if(manual) setTimeout(()=>document.getElementById("syncBar").classList.add("hidden"),3500);
+    if(manual){const btn=document.getElementById("syncBtn");if(btn){btn.textContent="☁️ Sync";btn.disabled=false;}setTimeout(()=>document.getElementById("syncBar").classList.add("hidden"),3000);}
   }
 }
 function showSync(m){const b=document.getElementById("syncBar");b.textContent=m;b.classList.remove("hidden");}
 
-/* ─── APPS SCRIPT COPY ─── */
-function copyAppsScript(){
-  const code = document.getElementById('appsScriptCode').textContent;
-  navigator.clipboard?.writeText(code).then(()=>{
-    showSync('✅ Apps Script code copied! Paste it in your Google Apps Script editor.');
-    setTimeout(()=>document.getElementById("syncBar").classList.add("hidden"),3500);
-  });
-}
-
-/* ─── MODAL UTILS ─── */
-function closeModal(id){ document.getElementById(id)?.classList.add("hidden"); }
-["taskModal","scrumModal","bugModal","scratchModal","eodModal"].forEach(id=>{
-  document.getElementById(id)?.addEventListener("click",function(e){if(e.target===this)this.classList.add("hidden");});
-});
+// MODAL
+function closeModal(id){document.getElementById(id)?.classList.add("hidden");}
+["taskModal","scrumModal","bugModal","scratchModal","eodModal"].forEach(id=>{document.getElementById(id)?.addEventListener("click",function(e){if(e.target===this)this.classList.add("hidden");});});
 document.addEventListener("keydown",e=>{
-  if(e.key==="Escape") ["taskModal","scrumModal","bugModal","scratchModal","eodModal"].forEach(id=>closeModal(id));
-  if(e.key==="Enter"&&document.activeElement?.id==="f_title") saveTask();
+  if(e.key==="Escape")["taskModal","scrumModal","bugModal","scratchModal","eodModal"].forEach(id=>closeModal(id));
+  if(e.key==="Enter"&&document.activeElement?.id==="f_title")saveTask();
 });
+
+// Start reminder check
+scheduleReminder();
 </script>
 </body>
 </html>
