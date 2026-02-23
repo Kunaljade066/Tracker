@@ -57,7 +57,6 @@ td{padding:9px 13px;border-bottom:1px solid var(--border);font-size:13px;vertica
 </head>
 <body>
 
-<!-- HEADER -->
 <div style="background:var(--bg);border-bottom:1px solid var(--border);padding:0 18px;position:sticky;top:0;z-index:100">
   <div style="max-width:1340px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:58px;gap:8px;flex-wrap:wrap">
     <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
@@ -91,7 +90,6 @@ td{padding:9px 13px;border-bottom:1px solid var(--border);font-size:13px;vertica
 
 <div style="max-width:1340px;margin:0 auto;padding:18px 18px 30px">
   <div id="statsRow" style="display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:16px"></div>
-
   <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">
     <div style="display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:5px 12px">
       <span style="font-size:11px;color:var(--dim)">🏷️ Sprint</span>
@@ -111,13 +109,12 @@ td{padding:9px 13px;border-bottom:1px solid var(--border);font-size:13px;vertica
     </div>
     <div id="lastSyncInfo" style="font-size:11px;color:var(--dim);padding:5px 12px;background:var(--surface);border:1px solid var(--border);border-radius:9px"></div>
   </div>
-
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
     <div style="display:flex;gap:3px;background:var(--surface);border-radius:10px;padding:3px;flex-wrap:wrap">
-      <button class="tab-btn active" id="tab-board"  onclick="switchTab('board')">🗂 Board</button>
-      <button class="tab-btn" id="tab-list"   onclick="switchTab('list')">📋 List</button>
+      <button class="tab-btn active" id="tab-board" onclick="switchTab('board')">🗂 Board</button>
+      <button class="tab-btn" id="tab-list" onclick="switchTab('list')">📋 List</button>
       <button class="tab-btn" id="tab-weekly" onclick="switchTab('weekly')">📅 Weekly</button>
-      <button class="tab-btn" id="tab-bugs"   onclick="switchTab('bugs')">🐛 Bugs</button>
+      <button class="tab-btn" id="tab-bugs" onclick="switchTab('bugs')">🐛 Bugs</button>
       <button class="tab-btn" id="tab-charts" onclick="switchTab('charts')">📊 Charts</button>
       <button class="tab-btn" id="tab-report" onclick="switchTab('report')">📈 Report</button>
     </div>
@@ -129,14 +126,12 @@ td{padding:9px 13px;border-bottom:1px solid var(--border);font-size:13px;vertica
       </select>
     </div>
   </div>
-
   <div id="view-board"></div>
   <div id="view-list" class="hidden"></div>
   <div id="view-weekly" class="hidden"></div>
   <div id="view-bugs" class="hidden"></div>
   <div id="view-charts" class="hidden"></div>
   <div id="view-report" class="hidden"></div>
-
   <div style="margin-top:20px;background:linear-gradient(135deg,#1c1917,#1e1b4b);border:1px solid #f59e0b44;border-radius:13px;padding:16px 22px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
     <div>
       <div style="font-family:'Space Grotesk';font-weight:700;font-size:16px;color:#fbbf24">📤 Ready to wrap up?</div>
@@ -293,19 +288,14 @@ td{padding:9px 13px;border-bottom:1px solid var(--border);font-size:13px;vertica
         <button class="btn" id="copyBtn2" onclick="copyReport()" style="background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;padding:12px 0;font-size:14px;flex:1;font-weight:700;border-radius:10px;justify-content:center">📋 Copy &amp; Send to Manager</button>
         <button class="btn" onclick="downloadRpt()" style="background:#334155;color:#e2e8f0;padding:12px 18px;font-size:13px;border-radius:10px">⬇️ .txt</button>
       </div>
-      <div id="manualBox" class="hidden">
-        <div style="background:#fef3c7;border:1.5px solid #f59e0b;border-radius:9px;padding:12px">
-          <div style="font-size:12px;color:#92400e;font-weight:700;margin-bottom:6px">📋 Click inside → Ctrl+A → Ctrl+C</div>
-          <textarea id="manualText" onclick="this.select()" style="width:100%;height:170px;background:#fff;color:#1e293b;border:1px solid #d97706;border-radius:7px;padding:10px;font-family:'Courier New',monospace;font-size:11px;line-height:1.7;resize:vertical"></textarea>
-          <button class="btn" onclick="document.getElementById('manualBox').classList.add('hidden')" style="background:#334155;color:#e2e8f0;padding:4px 11px;font-size:11px;margin-top:6px">✕</button>
-        </div>
-      </div>
     </div>
   </div>
 </div>
 
 <script>
+// ── CONFIG: Update with your Google Apps Script URL ──────────
 const SHEET_URL = "https://script.google.com/macros/s/AKfycbywr9fKEN6Ow9TNPWvL1qpmcGFS0r8BQOxfWtrkTrZj6HlfRnHSmjcnzg9aYZGWntGljw/exec";
+// ─────────────────────────────────────────────────────────────
 
 const STATUS = {
   TODO:{label:"To Do",color:"#6b7280",bg:"#f3f4f6"},
@@ -317,18 +307,11 @@ const STATUS = {
 const PRI = {HIGH:{c:"#dc2626"},MEDIUM:{c:"#d97706"},LOW:{c:"#059669"}};
 const BSTC = {OPEN:"#dc2626",IN_FIX:"#d97706",FIXED:"#059669",CLOSED:"#6b7280",REOPEN:"#7c3aed"};
 
-let tasks = [];
-let bugs  = [];
-let scrum = {yesterday:"",today:"",blockers:"",mood:"😊"};
-let TM = {};
-let globalInterval = null;
-let autoSyncTimer  = null;
-let autoLoadInterval = null;
-let activeTab      = "board";
-let currentFilter  = "ALL";
-let editingId      = null;
-let rTab           = "email";
-let isLight        = localStorage.getItem("qa_theme")==="light";
+let tasks=[], bugs=[], scrum={yesterday:"",today:"",blockers:"",mood:"😊"};
+let TM={}, globalInterval=null, autoSyncTimer=null, autoLoadInterval=null;
+let activeTab="board", currentFilter="ALL", editingId=null, rTab="email";
+let isLight=localStorage.getItem("qa_theme")==="light";
+let isSyncing=false; // prevent concurrent syncs
 
 function load(k,def){try{return JSON.parse(localStorage.getItem(k)||"null")||def;}catch{return def;}}
 function save(k,v){localStorage.setItem(k,JSON.stringify(v));}
@@ -337,8 +320,6 @@ function getToday(){return new Date().toLocaleDateString("en-IN",{weekday:"long"
 function getTime(){return new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"});}
 function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
 function fmtT(sec){if(!sec||sec<0)return"0:00";const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=sec%60;return h>0?`${h}h ${m}m`:`${m}:${String(s).padStart(2,"0")}`;}
-function saveTasks(){save("qa_tasks",tasks);scheduleAutoSync();}
-function saveBugs(){save("qa_bugs",bugs);scheduleAutoSync();}
 
 function setCloud(state,msg){
   const dot=document.getElementById("cloudDot"),lbl=document.getElementById("cloudLabel");
@@ -347,12 +328,196 @@ function setCloud(state,msg){
   lbl.textContent=msg;
 }
 
+// ── SAVE: Save locally then schedule auto-sync to sheet ──────
+function saveTasks(){save("qa_tasks",tasks);scheduleAutoSync();}
+function saveBugs(){save("qa_bugs",bugs);scheduleAutoSync();}
+
 function scheduleAutoSync(){
   if(autoSyncTimer)clearTimeout(autoSyncTimer);
-  autoSyncTimer=setTimeout(()=>syncSheet(false),30000);
+  // Wait 3 seconds after last change before syncing
+  autoSyncTimer=setTimeout(()=>syncSheet(false),3000);
 }
 
-// FIXED: Initialize with SHEET FIRST, not localStorage
+// ── FETCH: Read data from Google Sheet via JSONP ─────────────
+function fetchFromSheet(){
+  return new Promise((resolve,reject)=>{
+    const cbName="QA_CB_"+Date.now();
+    const script=document.createElement("script");
+    const timeout=setTimeout(()=>{
+      cleanup();reject(new Error("Sheet fetch timeout after 12s"));
+    },12000);
+    function cleanup(){
+      clearTimeout(timeout);
+      delete window[cbName];
+      try{if(script.parentNode)script.parentNode.removeChild(script);}catch(e){}
+    }
+    window[cbName]=(data)=>{cleanup();resolve(data);};
+    script.src=SHEET_URL+"?date="+dk()+"&t="+Date.now()+"&callback="+cbName;
+    script.onerror=()=>{cleanup();reject(new Error("Script load failed — check SHEET_URL"));};
+    document.head.appendChild(script);
+  });
+}
+
+// ── MERGE: Sheet data wins, but preserve running timers ──────
+function mergeFromSheet(sheetData){
+  // TASKS: Merge by ID — sheet wins
+  if(Array.isArray(sheetData.tasks)&&sheetData.tasks.length>0){
+    const merged={};
+    // Start with local tasks
+    tasks.forEach(t=>merged[String(t.id)]=t);
+    // Sheet overwrites (sheet is source of truth)
+    sheetData.tasks.forEach(t=>{
+      const key=String(t.id);
+      const sheetTask={...t,id:Number(t.id)||t.id,timerTotal:Number(t.timerTotal)||0};
+      // If timer is currently running locally, keep local timer value
+      if(TM[key]&&TM[key].state==="running"){
+        sheetTask.timerTotal=TM[key].elapsed;
+      }
+      merged[key]=sheetTask;
+    });
+    tasks=Object.values(merged);
+  }
+
+  // BUGS: Merge by ID — sheet wins
+  if(Array.isArray(sheetData.bugs)&&sheetData.bugs.length>0){
+    const merged={};
+    bugs.forEach(b=>merged[String(b.id)]=b);
+    sheetData.bugs.forEach(b=>{merged[String(b.id)]={...b,id:Number(b.id)||b.id};});
+    bugs=Object.values(merged);
+  }
+
+  // SCRUM: Sheet wins if it has content
+  if(sheetData.scrum){
+    const s=sheetData.scrum;
+    if(s.yesterday||s.today||s.blockers){
+      scrum={
+        yesterday:s.yesterday||scrum.yesterday,
+        today:s.today||scrum.today,
+        blockers:s.blockers||scrum.blockers,
+        mood:s.mood||scrum.mood
+      };
+    }
+  }
+
+  // Sync timer state for new tasks
+  tasks.forEach(t=>{
+    if(!TM[t.id])TM[t.id]={elapsed:t.timerTotal||0,state:"idle",startedAt:null};
+  });
+
+  // Persist merged data locally
+  save("qa_tasks",tasks);
+  save("qa_bugs",bugs);
+  save("qa_scrum_"+dk(),scrum);
+}
+
+// ── PUSH: Send merged data to sheet ─────────────────────────
+async function pushToSheet(){
+  await fetch(SHEET_URL,{
+    method:"POST",
+    body:JSON.stringify({
+      tasks,bugs,scrum,
+      date:dk(),
+      name:localStorage.getItem("qa_name")||""
+    }),
+    mode:"no-cors"
+  });
+}
+
+// ── LOAD: Read from sheet, replace local completely ──────────
+async function loadFromSheet(){
+  const btn=document.getElementById("loadBtn");
+  if(btn){btn.textContent="⏳ Loading…";btn.disabled=true;}
+  setCloud("sync","Loading from sheet…");
+  try{
+    const data=await fetchFromSheet();
+    // Sheet is complete source of truth on manual load
+    if(Array.isArray(data.tasks)){
+      tasks=data.tasks.map(t=>({...t,id:Number(t.id)||t.id,timerTotal:Number(t.timerTotal)||0}));
+    }
+    if(Array.isArray(data.bugs)){
+      bugs=data.bugs.map(b=>({...b,id:Number(b.id)||b.id}));
+    }
+    if(data.scrum){
+      scrum={yesterday:data.scrum.yesterday||"",today:data.scrum.today||"",blockers:data.scrum.blockers||"",mood:data.scrum.mood||"😊"};
+    }
+    save("qa_tasks",tasks);
+    save("qa_bugs",bugs);
+    save("qa_scrum_"+dk(),scrum);
+    tasks.forEach(t=>{if(!TM[t.id])TM[t.id]={elapsed:t.timerTotal||0,state:"idle",startedAt:null};});
+    const now=new Date().toLocaleTimeString();
+    localStorage.setItem("qa_last_load",now);
+    document.getElementById("lastSyncInfo").textContent="⬇️ Loaded: "+now;
+    setCloud("ok","Sheet ✓");
+    renderAll();
+    showSync("✅ Loaded from sheet — data is fresh!");
+  }catch(err){
+    console.error("Load error:",err);
+    tasks=load("qa_tasks",[]);
+    bugs=load("qa_bugs",[]);
+    scrum=load("qa_scrum_"+dk(),{yesterday:"",today:"",blockers:"",mood:"😊"});
+    tasks.forEach(t=>{if(!TM[t.id])TM[t.id]={elapsed:t.timerTotal||0,state:"idle",startedAt:null};});
+    renderAll();
+    setCloud("err","Using local cache");
+    showSync("⚠️ Could not reach sheet — using local data.");
+  }finally{
+    if(btn){btn.textContent="⬇️ Load";btn.disabled=false;}
+    setTimeout(()=>document.getElementById("syncBar").classList.add("hidden"),4000);
+  }
+}
+
+// ── SYNC: Read sheet → merge → push back (safe, no data loss) ─
+async function syncSheet(manual=true){
+  if(isSyncing){console.log("Sync already in progress, skipping");return;}
+  isSyncing=true;
+  if(manual){
+    const btn=document.getElementById("syncBtn");
+    if(btn){btn.textContent="⏳ Syncing…";btn.disabled=true;}
+  }
+  setCloud("sync","Syncing…");
+  try{
+    // Step 1: Read latest from sheet
+    const sheetData=await fetchFromSheet();
+    // Step 2: Merge (sheet wins on conflicts)
+    mergeFromSheet(sheetData);
+    // Step 3: Push merged result back to sheet
+    await pushToSheet();
+    const now=new Date().toLocaleTimeString();
+    document.getElementById("lastSyncInfo").textContent="☁️ Synced: "+now;
+    setCloud("ok","Synced ✓");
+    if(manual)showSync("✅ Synced! Sheet is up to date.");
+    renderAll();
+  }catch(err){
+    console.error("Sync error:",err);
+    setCloud("err","Sync failed");
+    if(manual)showSync("❌ Sync failed: "+err.message);
+    // On sync failure, try just pushing local data
+    try{await pushToSheet();}catch(e2){console.error("Push fallback also failed:",e2);}
+  }finally{
+    isSyncing=false;
+    if(manual){
+      const btn=document.getElementById("syncBtn");
+      if(btn){btn.textContent="☁️ Sync";btn.disabled=false;}
+      setTimeout(()=>document.getElementById("syncBar").classList.add("hidden"),4000);
+    }
+  }
+}
+
+// Auto-load from sheet every 60 seconds (keeps 2 devices in sync)
+function startAutoLoad(){
+  if(autoLoadInterval)clearInterval(autoLoadInterval);
+  autoLoadInterval=setInterval(async()=>{
+    if(!isSyncing){
+      try{
+        const data=await fetchFromSheet();
+        mergeFromSheet(data);
+        renderAll();
+        setCloud("ok","Auto-synced ✓");
+      }catch(e){console.log("Background sync failed (normal if offline):",e);}
+    }
+  },60000);
+}
+
+// ── INIT ─────────────────────────────────────────────────────
 (function init(){
   if(isLight){document.body.classList.add("light");document.getElementById("themeBtn").textContent="☀️ Light";}
   document.getElementById("todayLabel").textContent=getToday();
@@ -362,17 +527,19 @@ function scheduleAutoSync(){
   document.getElementById("reminderTime").value=localStorage.getItem("qa_reminder_time")||"18:00";
   const ll=localStorage.getItem("qa_last_load");
   if(ll)document.getElementById("lastSyncInfo").textContent="⬇️ Loaded: "+ll;
-  
+  // Load from local cache immediately so UI isn't empty
+  tasks=load("qa_tasks",[]);
+  bugs=load("qa_bugs",[]);
+  scrum=load("qa_scrum_"+dk(),{yesterday:"",today:"",blockers:"",mood:"😊"});
+  tasks.forEach(t=>{if(!TM[t.id])TM[t.id]={elapsed:t.timerTotal||0,state:"idle",startedAt:null};});
   startGlobalTick();
   renderAll();
-  
-  // LOAD FROM SHEET FIRST - sheet is source of truth
+  // Then load from sheet (sheet overwrites local)
   loadFromSheet();
-  
-  // Check sheet every 60 seconds for updates from other devices
+  // Start background auto-sync
   startAutoLoad();
-  
   Notification?.permission==="default"&&Notification?.requestPermission();
+  scheduleReminder();
 })();
 
 function startGlobalTick(){
@@ -385,8 +552,7 @@ function startGlobalTick(){
       if(pill){pill.textContent="⏱ "+fmtT(total);pill.className="tpill tpill-run";}
     });
     const runId=Object.keys(TM).find(id=>TM[id].state==="running");
-    const badge=document.getElementById("activeTimerBadge");
-    const label=document.getElementById("activeTimerLabel");
+    const badge=document.getElementById("activeTimerBadge"),label=document.getElementById("activeTimerLabel");
     if(runId&&badge&&label){
       const t=tasks.find(t=>t.id==runId),tm=TM[runId];
       const total=tm.elapsed+Math.floor((Date.now()-tm.startedAt)/1000);
@@ -394,16 +560,6 @@ function startGlobalTick(){
       badge.classList.remove("hidden");badge.style.display="flex";
     }else if(badge){badge.classList.add("hidden");}
   },1000);
-}
-
-// NEW: Background auto-load from sheet every 60 seconds
-function startAutoLoad(){
-  if(autoLoadInterval)clearInterval(autoLoadInterval);
-  autoLoadInterval=setInterval(()=>{
-    loadFromSheet().catch(err=>{
-      console.log("Background load failed (normal if offline):",err);
-    });
-  }, 60000);
 }
 
 // TIMER
@@ -450,7 +606,6 @@ function timerBtnsHTML(id,state){
   return`<button class="tbtn" onclick="timerStart(${id})" style="background:#05966922;color:#34d399">▶ Start</button>`;
 }
 
-// STATS
 function getStats(){return{total:tasks.length,done:tasks.filter(t=>t.status==="DONE").length,prog:tasks.filter(t=>t.status==="IN_PROGRESS"||t.status==="TESTING").length,blocked:tasks.filter(t=>t.blocker&&t.status!=="DONE").length,remaining:tasks.filter(t=>t.status!=="DONE").length,openBugs:bugs.filter(b=>b.status==="OPEN"||b.status==="REOPEN").length};}
 function renderStats(){
   const s=getStats(),pct=s.total?Math.round(s.done/s.total*100):0;
@@ -678,7 +833,12 @@ function saveTask(){
   if(!TM[task.id])TM[task.id]={elapsed:task.timerTotal,state:"idle",startedAt:null};
   saveTasks();closeModal("taskModal");renderAll();
 }
-function delTask(id){if(confirm("Delete this task?")){tasks=tasks.filter(t=>t.id!==id);saveTasks();renderAll();}}
+function delTask(id){
+  if(confirm("Delete this task?")){
+    tasks=tasks.filter(t=>t.id!==id);
+    saveTasks();renderAll();
+  }
+}
 function updateStatus(id,status){tasks=tasks.map(t=>t.id==id?{...t,status}:t);saveTasks();renderCurrent();}
 
 // TABS
@@ -706,7 +866,11 @@ function saveScrumData(){
   scrum.yesterday=document.getElementById("s_yesterday").value;
   scrum.today=document.getElementById("s_today").value;
   scrum.blockers=document.getElementById("s_blockers").value;
-  save("qa_scrum_"+dk(),scrum);closeModal("scrumModal");renderCurrent();scheduleAutoSync();
+  save("qa_scrum_"+dk(),scrum);
+  closeModal("scrumModal");
+  renderCurrent();
+  // Sync scrum to sheet immediately
+  syncSheet(false);
 }
 function setMood(m){scrum.mood=m;document.querySelectorAll(".mood-btn").forEach(b=>b.classList.toggle("active",b.textContent===m));}
 
@@ -875,127 +1039,16 @@ function copyReport(){
   const ok=()=>{["copyBtn","copyBtn2"].forEach(id=>{const b=document.getElementById(id);if(!b)return;b.textContent="✅ Copied!";b.style.background="#059669";setTimeout(()=>{b.textContent=id==="copyBtn"?"📋 Copy":"📋 Copy & Send to Manager";b.style.background=id==="copyBtn"?"#1e40af":"linear-gradient(135deg,#f59e0b,#ef4444)";},3000);});};
   if(navigator.clipboard?.writeText){navigator.clipboard.writeText(text).then(ok).catch(()=>fbCopy(text,ok));}else fbCopy(text,ok);
 }
-function fbCopy(text,ok){const ta=document.createElement("textarea");ta.value=text;ta.style.cssText="position:fixed;top:0;left:0;width:2px;height:2px;opacity:0";document.body.appendChild(ta);ta.focus();ta.select();ta.setSelectionRange(0,999999);try{const r=document.execCommand("copy");document.body.removeChild(ta);r?ok():showManual(text);}catch(e){document.body.removeChild(ta);showManual(text);}}
-function showManual(text){document.getElementById("manualBox").classList.remove("hidden");document.getElementById("manualText").value=text;document.getElementById("manualText").select();}
+function fbCopy(text,ok){const ta=document.createElement("textarea");ta.value=text;ta.style.cssText="position:fixed;top:0;left:0;width:2px;height:2px;opacity:0";document.body.appendChild(ta);ta.focus();ta.select();ta.setSelectionRange(0,999999);try{const r=document.execCommand("copy");document.body.removeChild(ta);r?ok():showManual(text);}catch(e){document.body.removeChild(ta);}}
 function downloadRpt(){const text=rTab==="email"?buildEmail():buildWA();const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type:"text/plain"}));a.download=`QA_EOD_${dk()}.txt`;a.click();}
-
-// FIXED: Load from sheet - sheet is source of truth
-async function loadFromSheet(){
-  const btn=document.getElementById("loadBtn");
-  if(btn){btn.textContent="⏳ Loading…";btn.disabled=true;}
-  setCloud("sync","Loading…");
-  try{
-    const url=SHEET_URL+"?date="+dk()+"&t="+Date.now()+"&callback=window.QA_CALLBACK";
-    
-    const promise = new Promise((resolve, reject) => {
-      window.QA_CALLBACK = (data) => {
-        resolve(data);
-      };
-      setTimeout(() => {
-        reject(new Error("Request timeout"));
-      }, 10000);
-    });
-    
-    const script = document.createElement('script');
-    script.src = url;
-    script.onerror = () => {
-      reject(new Error("Failed to load script"));
-    };
-    document.head.appendChild(script);
-    
-    const data = await promise;
-    
-    // SHEET DATA IS SOURCE OF TRUTH
-    if(Array.isArray(data.tasks) && data.tasks.length > 0){
-      tasks = data.tasks.map(t=>({...t,id:Number(t.id)||t.id,timerTotal:Number(t.timerTotal)||0}));
-    } else if(Array.isArray(data.tasks) && data.tasks.length === 0 && localStorage.getItem("qa_tasks")){
-      tasks = load("qa_tasks",[]);
-    }
-    
-    if(Array.isArray(data.bugs) && data.bugs.length > 0){
-      bugs = data.bugs.map(b=>({...b,id:Number(b.id)||b.id}));
-    } else if(Array.isArray(data.bugs) && data.bugs.length === 0 && localStorage.getItem("qa_bugs")){
-      bugs = load("qa_bugs",[]);
-    }
-    
-    if(data.scrum && Object.keys(data.scrum).length > 0){
-      scrum = {yesterday:data.scrum.yesterday||"", today:data.scrum.today||"", blockers:data.scrum.blockers||"", mood:data.scrum.mood||"😊"};
-    } else {
-      scrum = load("qa_scrum_"+dk(),{yesterday:"",today:"",blockers:"",mood:"😊"});
-    }
-    
-    save("qa_tasks",tasks);
-    save("qa_bugs",bugs);
-    save("qa_scrum_"+dk(),scrum);
-    
-    tasks.forEach(t=>{if(!TM[t.id])TM[t.id]={elapsed:t.timerTotal||0,state:"idle",startedAt:null};});
-    
-    const now=new Date().toLocaleTimeString();
-    localStorage.setItem("qa_last_load",now);
-    document.getElementById("lastSyncInfo").textContent="⬇️ Loaded: "+now;
-    
-    renderAll();
-    setTimeout(()=>syncSheet(false),500);
-    
-    setCloud("ok","Sheet ✓");
-    document.head.removeChild(script);
-  }catch(err){
-    console.error("Load error:",err);
-    tasks = load("qa_tasks",[]);
-    bugs = load("qa_bugs",[]);
-    scrum = load("qa_scrum_"+dk(),{yesterday:"",today:"",blockers:"",mood:"😊"});
-    tasks.forEach(t=>{if(!TM[t.id])TM[t.id]={elapsed:t.timerTotal||0,state:"idle",startedAt:null};});
-    renderAll();
-    setCloud("err","Using local data");
-  }finally{
-    if(btn){btn.textContent="⬇️ Load";btn.disabled=false;}
-  }
-}
-
-// FIXED: Sync with no-cors mode
-async function syncSheet(manual=true){
-  if(manual){const btn=document.getElementById("syncBtn");if(btn){btn.textContent="⏳ Syncing…";btn.disabled=true;}}
-  setCloud("sync","Syncing…");
-  try{
-    const response = await fetch(SHEET_URL, {
-      method: 'POST',
-      body: JSON.stringify({
-        tasks: tasks,
-        bugs: bugs,
-        scrum: scrum,
-        date: dk(),
-        name: localStorage.getItem("qa_name")||""
-      }),
-      mode: 'no-cors'
-    });
-    
-    const now=new Date().toLocaleTimeString();
-    document.getElementById("lastSyncInfo").textContent="☁️ Synced: "+now;
-    setCloud("ok","Synced ✓");
-    if(manual)showSync("✅ Data synced to sheet!");
-    
-    if(manual){
-      setTimeout(()=>loadFromSheet(),1000);
-    }
-  }catch(e){
-    setCloud("err","Sync failed");
-    if(manual)showSync("❌ Sync failed. Using local data.");
-    console.error("Sync error:",e);
-  }finally{
-    if(manual){const btn=document.getElementById("syncBtn");if(btn){btn.textContent="☁️ Sync";btn.disabled=false;}setTimeout(()=>document.getElementById("syncBar").classList.add("hidden"),3000);}
-  }
-}
 function showSync(m){const b=document.getElementById("syncBar");b.textContent=m;b.classList.remove("hidden");}
 
-// MODAL
 function closeModal(id){document.getElementById(id)?.classList.add("hidden");}
 ["taskModal","scrumModal","bugModal","scratchModal","eodModal"].forEach(id=>{document.getElementById(id)?.addEventListener("click",function(e){if(e.target===this)this.classList.add("hidden");});});
 document.addEventListener("keydown",e=>{
   if(e.key==="Escape")["taskModal","scrumModal","bugModal","scratchModal","eodModal"].forEach(id=>closeModal(id));
   if(e.key==="Enter"&&document.activeElement?.id==="f_title")saveTask();
 });
-
-scheduleReminder();
 </script>
 </body>
 </html>
