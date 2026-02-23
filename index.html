@@ -319,7 +319,7 @@ const BSTC = {OPEN:"#dc2626",IN_FIX:"#d97706",FIXED:"#059669",CLOSED:"#6b7280",R
 
 let tasks = [];
 let bugs  = [];
-let scrum = {yesterday:"",today:"",blockers:"",mood:"😊"};
+let scrum = {yesterday:"",today:"",blockers:"",mood:"😊",lastModified:0};
 let TM = {};
 let globalInterval = null;
 let autoSyncTimer  = null;
@@ -959,6 +959,13 @@ async function loadFromSheet(){
       scrum = localScrum;
     }
     
+    // SCRATCH NOTES: Load from sheet if available
+    if(data.scratch && data.scratch.trim().length > 0){
+      localStorage.setItem("qa_scratch",data.scratch);
+      const scratchEl = document.getElementById("scratchText");
+      if(scratchEl)scratchEl.value = data.scratch;
+    }
+    
     // Ensure all have timestamps for next sync
     tasks.forEach(t=>{if(!t.lastModified)t.lastModified=Date.now();});
     bugs.forEach(b=>{if(!b.lastModified)b.lastModified=Date.now();});
@@ -999,10 +1006,14 @@ async function syncSheet(manual=true){
     bugs.forEach(b=>{if(!b.lastModified)b.lastModified=Date.now();});
     if(!scrum.lastModified)scrum.lastModified=Date.now();
     
+    // Get scratch notes
+    const scratch = document.getElementById("scratchText")?.value || localStorage.getItem("qa_scratch") || "";
+    
     const payload = JSON.stringify({
       tasks: tasks,
       bugs: bugs,
       scrum: scrum,
+      scratch: scratch,
       date: dk(),
       name: localStorage.getItem("qa_name")||""
     });
