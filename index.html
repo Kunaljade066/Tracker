@@ -707,7 +707,10 @@ function saveScrumData(){
   scrum.today=document.getElementById("s_today").value;
   scrum.blockers=document.getElementById("s_blockers").value;
   scrum.lastModified=Date.now();
-  save("qa_scrum_"+dk(),scrum);closeModal("scrumModal");renderCurrent();scheduleAutoSync();
+  save("qa_scrum_"+dk(),scrum);
+  closeModal("scrumModal");
+  renderCurrent();
+  syncSheet(false);
 }
 function setMood(m){scrum.mood=m;document.querySelectorAll(".mood-btn").forEach(b=>b.classList.toggle("active",b.textContent===m));}
 
@@ -907,59 +910,26 @@ async function loadFromSheet(){
     const data = await promise;
     console.log("📊 Sheet data received:", data);
     
-    // MERGE: Sheet is source of truth, but merge with local if timestamps allow
-    const localTasks = load("qa_tasks",[]);
-    const localBugs = load("qa_bugs",[]);
-    const localScrum = load("qa_scrum_"+dk(),{yesterday:"",today:"",blockers:"",mood:"😊",lastModified:0});
-    
-    // TASKS: Use sheet if it has data, merge with local if newer
+    // SHEET IS SOURCE OF TRUTH - use it directly, don't merge with local
     if(Array.isArray(data.tasks) && data.tasks.length > 0){
-      const sheetMap = {};
-      data.tasks.forEach(t=>{
-        sheetMap[String(t.id)] = {...t, id:Number(t.id)||t.id, timerTotal:Number(t.timerTotal)||0, lastModified:t.lastModified||0};
-      });
-      // Add local tasks that might be newer
-      localTasks.forEach(t=>{
-        const sheetTask = sheetMap[String(t.id)];
-        if(!sheetTask || (t.lastModified && t.lastModified > (sheetTask.lastModified||0))){
-          sheetMap[String(t.id)] = t;
-        }
-      });
-      tasks = Object.values(sheetMap);
+      tasks = data.tasks.map(t=>({...t,id:Number(t.id)||t.id,timerTotal:Number(t.timerTotal)||0,lastModified:t.lastModified||0}));
     } else {
-      tasks = localTasks.length > 0 ? localTasks : [];
+      tasks = [];
     }
     
-    // BUGS: Use sheet if it has data, merge with local
     if(Array.isArray(data.bugs) && data.bugs.length > 0){
-      const bugMap = {};
-      data.bugs.forEach(b=>{
-        bugMap[String(b.id)] = {...b, id:Number(b.id)||b.id, lastModified:b.lastModified||0};
-      });
-      // Add local bugs that might be newer
-      localBugs.forEach(b=>{
-        const sheetBug = bugMap[String(b.id)];
-        if(!sheetBug || (b.lastModified && b.lastModified > (sheetBug.lastModified||0))){
-          bugMap[String(b.id)] = b;
-        }
-      });
-      bugs = Object.values(bugMap);
+      bugs = data.bugs.map(b=>({...b,id:Number(b.id)||b.id,lastModified:b.lastModified||0}));
     } else {
-      bugs = localBugs.length > 0 ? localBugs : [];
+      bugs = [];
     }
     
-    // SCRUM: Merge by timestamp
     if(data.scrum && Object.keys(data.scrum).length > 0){
-      const sheetTs = data.scrum.lastModified || 0;
-      const localTs = localScrum.lastModified || 0;
-      scrum = sheetTs >= localTs ? 
-        {yesterday:data.scrum.yesterday||"", today:data.scrum.today||"", blockers:data.scrum.blockers||"", mood:data.scrum.mood||"😊", lastModified:sheetTs} :
-        localScrum;
+      scrum = {yesterday:data.scrum.yesterday||"", today:data.scrum.today||"", blockers:data.scrum.blockers||"", mood:data.scrum.mood||"😊", lastModified:data.scrum.lastModified||0};
     } else {
-      scrum = localScrum;
+      scrum = {yesterday:"",today:"",blockers:"",mood:"😊",lastModified:0};
     }
     
-    // SCRATCH NOTES: Load from sheet if available
+    // SCRATCH NOTES: Load from sheet
     if(data.scratch && data.scratch.trim().length > 0){
       localStorage.setItem("qa_scratch",data.scratch);
       const scratchEl = document.getElementById("scratchText");
@@ -971,6 +941,7 @@ async function loadFromSheet(){
     bugs.forEach(b=>{if(!b.lastModified)b.lastModified=Date.now();});
     if(!scrum.lastModified)scrum.lastModified=Date.now();
     
+    // Save to localStorage as cache (not source of truth)
     save("qa_tasks",tasks);
     save("qa_bugs",bugs);
     save("qa_scrum_"+dk(),scrum);
@@ -983,10 +954,11 @@ async function loadFromSheet(){
     setTimeout(()=>syncSheet(false),500);
     setCloud("ok","Sheet ✓");
   }catch(err){
-    console.log("📝 Sheet unavailable, using local data");
+    console.log("📝 Sheet unavailable, using cached local data");
+    // Only use local as fallback when sheet is down
     tasks = load("qa_tasks",[]);
     bugs = load("qa_bugs",[]);
-    scrum = load("qa_scrum_"+dk(),{yesterday:"",today:"",blockers:"",mood:"😊"});
+    scrum = load("qa_scrum_"+dk(),{yesterday:"",today:"",blockers:"",mood:"😊",lastModified:0});
     tasks.forEach(t=>{if(!TM[t.id])TM[t.id]={elapsed:t.timerTotal||0,state:"idle",startedAt:null};});
     renderAll();
     setCloud("ok","Local mode");
