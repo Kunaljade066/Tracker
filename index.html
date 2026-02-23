@@ -711,7 +711,7 @@ function saveScrumData(){
   renderCurrent();
   syncSheet(false);
 }
-function setMood(m){scrum.mood=m;document.querySelectorAll(".mood-btn").forEach(b=>b.classList.toggle("active",b.textContent===m));}
+function setMood(m){scrum.mood=m;scrum.lastModified=Date.now();document.querySelectorAll(".mood-btn").forEach(b=>b.classList.toggle("active",b.textContent===m));}
 
 // BUGS
 function openBugModal(){renderBugListModal();document.getElementById("bugModal").classList.remove("hidden");}
@@ -977,7 +977,7 @@ async function loadFromSheet(){
   }
 }
 
-// FIXED: Sync with no-cors mode
+// FIXED: Sync with no-cors mode - don't overwrite with empty data
 async function syncSheet(manual=true){
   if(manual){const btn=document.getElementById("syncBtn");if(btn){btn.textContent="⏳ Syncing…";btn.disabled=true;}}
   setCloud("sync","Syncing…");
@@ -987,23 +987,30 @@ async function syncSheet(manual=true){
     bugs.forEach(b=>{if(!b.lastModified)b.lastModified=Date.now();});
     if(!scrum.lastModified)scrum.lastModified=Date.now();
     
-    // Get scratch notes from current input
-    const scratch = document.getElementById("scratchText")?.value || "";
+    // Get scratch notes from textarea
+    const scratchEl = document.getElementById("scratchText");
+    const scratch = scratchEl ? scratchEl.value : "";
+    
+    // Only send scrum if it has actual content (not empty)
+    const scrumToSend = (scrum.yesterday || scrum.today || scrum.blockers || scrum.mood !== '😊') 
+      ? scrum 
+      : null;
     
     const payload = JSON.stringify({
       tasks: tasks,
       bugs: bugs,
-      scrum: scrum,
+      scrum: scrumToSend,
       scratch: scratch,
       date: dk(),
       name: localStorage.getItem("qa_name")||""
     });
     
-    console.log("📤 Syncing data:");
-    console.log("  - Tasks:", tasks.length);
-    console.log("  - Bugs:", bugs.length);
-    console.log("  - Scrum:", scrum);
-    console.log("  - Scratch:", scratch ? `${scratch.length} chars` : "empty");
+    console.log("📤 SYNC PAYLOAD:");
+    console.log("  date:", dk());
+    console.log("  tasks:", tasks.length);
+    console.log("  bugs:", bugs.length);
+    console.log("  scrum:", scrumToSend ? JSON.stringify(scrumToSend) : "(not sending - empty)");
+    console.log("  scratch:", scratch ? scratch.substring(0,50) + "..." : "(empty)");
     
     const response = await fetch(SHEET_URL, {
       method: 'POST',
