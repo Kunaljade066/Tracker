@@ -909,6 +909,7 @@ async function loadFromSheet(){
     
     const data = await promise;
     console.log("📊 Sheet data received:", data);
+    console.log("📋 Scrum from sheet:", data.scrum);
     
     // SHEET IS SOURCE OF TRUTH - use it directly, don't merge with local
     if(Array.isArray(data.tasks) && data.tasks.length > 0){
@@ -923,14 +924,24 @@ async function loadFromSheet(){
       bugs = [];
     }
     
-    if(data.scrum && Object.keys(data.scrum).length > 0){
-      scrum = {yesterday:data.scrum.yesterday||"", today:data.scrum.today||"", blockers:data.scrum.blockers||"", mood:data.scrum.mood||"😊", lastModified:data.scrum.lastModified||0};
+    // Load scrum data from sheet
+    if(data.scrum && (data.scrum.yesterday || data.scrum.today || data.scrum.blockers)){
+      console.log("✅ Loading scrum from sheet:", data.scrum);
+      scrum = {
+        yesterday:data.scrum.yesterday||"", 
+        today:data.scrum.today||"", 
+        blockers:data.scrum.blockers||"", 
+        mood:data.scrum.mood||"😊", 
+        lastModified:data.scrum.lastModified||0
+      };
     } else {
+      console.log("⚠️ No scrum data in sheet, keeping empty");
       scrum = {yesterday:"",today:"",blockers:"",mood:"😊",lastModified:0};
     }
     
     // SCRATCH NOTES: Load from sheet
     if(data.scratch && data.scratch.trim().length > 0){
+      console.log("📝 Loading scratch notes from sheet");
       localStorage.setItem("qa_scratch",data.scratch);
       const scratchEl = document.getElementById("scratchText");
       if(scratchEl)scratchEl.value = data.scratch;
@@ -990,7 +1001,12 @@ async function syncSheet(manual=true){
       name: localStorage.getItem("qa_name")||""
     });
     
-    console.log("📤 Syncing to sheet:", SHEET_URL);
+    console.log("📤 Syncing data:");
+    console.log("  - Tasks:", tasks.length);
+    console.log("  - Bugs:", bugs.length);
+    console.log("  - Scrum:", scrum);
+    console.log("  - Scratch:", scratch ? `${scratch.length} chars` : "empty");
+    
     const response = await fetch(SHEET_URL, {
       method: 'POST',
       body: payload,
@@ -1001,6 +1017,7 @@ async function syncSheet(manual=true){
     document.getElementById("lastSyncInfo").textContent="☁️ Synced: "+now;
     setCloud("ok","Synced ✓");
     if(manual)showSync("✅ Data merged & synced!");
+    console.log("✅ Sync complete!");
     
     // Auto-load after sync to get merged data from all devices
     if(manual){
