@@ -319,7 +319,7 @@ const BSTC = {OPEN:"#dc2626",IN_FIX:"#d97706",FIXED:"#059669",CLOSED:"#6b7280",R
 
 let tasks = [];
 let bugs  = [];
-let scrum = {yesterday:"",today:"",blockers:"",mood:"😊",lastModified:0};
+let scrum = {yesterday:"",today:"",blockers:"",mood:"😊"};
 let TM = {};
 let globalInterval = null;
 let autoSyncTimer  = null;
@@ -673,7 +673,7 @@ function saveTask(){
   if(!title){document.getElementById("f_title").style.borderColor="#dc2626";document.getElementById("f_title").focus();return;}
   document.getElementById("f_title").style.borderColor="";
   const ex=editingId?tasks.find(t=>t.id===editingId):null;
-  const task={id:editingId||Date.now(),title,type:document.getElementById("f_type").value,priority:document.getElementById("f_priority").value,status:document.getElementById("f_status").value,env:document.getElementById("f_env").value.trim(),assignee:document.getElementById("f_assignee").value.trim(),estimate:document.getElementById("f_est").value.trim(),actual:document.getElementById("f_actual").value.trim(),sprint:document.getElementById("f_sprint").value.trim(),release:document.getElementById("f_release").value.trim(),blocker:document.getElementById("f_blocker").value.trim(),notes:document.getElementById("f_notes").value.trim(),timerTotal:ex?.timerTotal||0,createdAt:ex?.createdAt||new Date().toLocaleTimeString(),lastModified:Date.now()};
+  const task={id:editingId||Date.now(),title,type:document.getElementById("f_type").value,priority:document.getElementById("f_priority").value,status:document.getElementById("f_status").value,env:document.getElementById("f_env").value.trim(),assignee:document.getElementById("f_assignee").value.trim(),estimate:document.getElementById("f_est").value.trim(),actual:document.getElementById("f_actual").value.trim(),sprint:document.getElementById("f_sprint").value.trim(),release:document.getElementById("f_release").value.trim(),blocker:document.getElementById("f_blocker").value.trim(),notes:document.getElementById("f_notes").value.trim(),timerTotal:ex?.timerTotal||0,createdAt:ex?.createdAt||new Date().toLocaleTimeString()};
   tasks=editingId?tasks.map(t=>t.id===editingId?task:t):[...tasks,task];
   if(!TM[task.id])TM[task.id]={elapsed:task.timerTotal,state:"idle",startedAt:null};
   saveTasks();closeModal("taskModal");renderAll();
@@ -706,7 +706,6 @@ function saveScrumData(){
   scrum.yesterday=document.getElementById("s_yesterday").value;
   scrum.today=document.getElementById("s_today").value;
   scrum.blockers=document.getElementById("s_blockers").value;
-  scrum.lastModified=Date.now();
   save("qa_scrum_"+dk(),scrum);closeModal("scrumModal");renderCurrent();scheduleAutoSync();
 }
 function setMood(m){scrum.mood=m;document.querySelectorAll(".mood-btn").forEach(b=>b.classList.toggle("active",b.textContent===m));}
@@ -729,14 +728,14 @@ function renderBugListModal(){
 }
 function addBug(){
   const title=document.getElementById("b_title").value.trim();if(!title){document.getElementById("b_title").focus();return;}
-  bugs.push({id:Date.now(),title,severity:document.getElementById("b_severity").value,status:document.getElementById("b_status").value,steps:document.getElementById("b_steps").value.trim(),date:new Date().toLocaleDateString("en-IN"),lastModified:Date.now()});
+  bugs.push({id:Date.now(),title,severity:document.getElementById("b_severity").value,status:document.getElementById("b_status").value,steps:document.getElementById("b_steps").value.trim(),date:new Date().toLocaleDateString("en-IN")});
   saveBugs();
   ["b_title","b_steps"].forEach(id=>{document.getElementById(id).value="";});
   document.getElementById("b_severity").value="MEDIUM";document.getElementById("b_status").value="OPEN";
   renderBugListModal();renderCurrent();
 }
 function delBug(id){if(confirm("Delete bug?")){bugs=bugs.filter(b=>b.id!==id);saveBugs();renderBugListModal();renderCurrent();}}
-function updBugSt(id,st){bugs=bugs.map(b=>b.id==id?{...b,status:st,lastModified:Date.now()}:b);saveBugs();renderCurrent();}
+function updBugSt(id,st){bugs=bugs.map(b=>b.id==id?{...b,status:st}:b);saveBugs();renderCurrent();}
 
 // SCRATCH
 function openScratch(){document.getElementById("scratchText").value=localStorage.getItem("qa_scratch")||"";updScratchCnt();document.getElementById("scratchModal").classList.remove("hidden");}
@@ -885,113 +884,70 @@ async function loadFromSheet(){
   const btn=document.getElementById("loadBtn");
   if(btn){btn.textContent="⏳ Loading…";btn.disabled=true;}
   setCloud("sync","Loading…");
-  let script=null;
   try{
     const url=SHEET_URL+"?date="+dk()+"&t="+Date.now()+"&callback=window.QA_CALLBACK";
     
     const promise = new Promise((resolve, reject) => {
-      const timeout=setTimeout(()=>reject(new Error("timeout")),5000);
       window.QA_CALLBACK = (data) => {
-        clearTimeout(timeout);
         resolve(data);
       };
-      script = document.createElement('script');
-      script.src = url;
-      script.onerror = () => {
-        clearTimeout(timeout);
-        reject(new Error("script error"));
-      };
-      document.head.appendChild(script);
+      setTimeout(() => {
+        reject(new Error("Request timeout"));
+      }, 10000);
     });
     
+    const script = document.createElement('script');
+    script.src = url;
+    script.onerror = () => {
+      reject(new Error("Failed to load script"));
+    };
+    document.head.appendChild(script);
+    
     const data = await promise;
-    console.log("📊 Sheet data received:", data);
     
-    // MERGE: Sheet is source of truth, but merge with local if timestamps allow
-    const localTasks = load("qa_tasks",[]);
-    const localBugs = load("qa_bugs",[]);
-    const localScrum = load("qa_scrum_"+dk(),{yesterday:"",today:"",blockers:"",mood:"😊",lastModified:0});
-    
-    // TASKS: Use sheet if it has data, merge with local if newer
+    // SHEET DATA IS SOURCE OF TRUTH
     if(Array.isArray(data.tasks) && data.tasks.length > 0){
-      const sheetMap = {};
-      data.tasks.forEach(t=>{
-        sheetMap[String(t.id)] = {...t, id:Number(t.id)||t.id, timerTotal:Number(t.timerTotal)||0, lastModified:t.lastModified||0};
-      });
-      // Add local tasks that might be newer
-      localTasks.forEach(t=>{
-        const sheetTask = sheetMap[String(t.id)];
-        if(!sheetTask || (t.lastModified && t.lastModified > (sheetTask.lastModified||0))){
-          sheetMap[String(t.id)] = t;
-        }
-      });
-      tasks = Object.values(sheetMap);
-    } else {
-      tasks = localTasks.length > 0 ? localTasks : [];
+      tasks = data.tasks.map(t=>({...t,id:Number(t.id)||t.id,timerTotal:Number(t.timerTotal)||0}));
+    } else if(Array.isArray(data.tasks) && data.tasks.length === 0 && localStorage.getItem("qa_tasks")){
+      tasks = load("qa_tasks",[]);
     }
     
-    // BUGS: Use sheet if it has data, merge with local
     if(Array.isArray(data.bugs) && data.bugs.length > 0){
-      const bugMap = {};
-      data.bugs.forEach(b=>{
-        bugMap[String(b.id)] = {...b, id:Number(b.id)||b.id, lastModified:b.lastModified||0};
-      });
-      // Add local bugs that might be newer
-      localBugs.forEach(b=>{
-        const sheetBug = bugMap[String(b.id)];
-        if(!sheetBug || (b.lastModified && b.lastModified > (sheetBug.lastModified||0))){
-          bugMap[String(b.id)] = b;
-        }
-      });
-      bugs = Object.values(bugMap);
-    } else {
-      bugs = localBugs.length > 0 ? localBugs : [];
+      bugs = data.bugs.map(b=>({...b,id:Number(b.id)||b.id}));
+    } else if(Array.isArray(data.bugs) && data.bugs.length === 0 && localStorage.getItem("qa_bugs")){
+      bugs = load("qa_bugs",[]);
     }
     
-    // SCRUM: Merge by timestamp
     if(data.scrum && Object.keys(data.scrum).length > 0){
-      const sheetTs = data.scrum.lastModified || 0;
-      const localTs = localScrum.lastModified || 0;
-      scrum = sheetTs >= localTs ? 
-        {yesterday:data.scrum.yesterday||"", today:data.scrum.today||"", blockers:data.scrum.blockers||"", mood:data.scrum.mood||"😊", lastModified:sheetTs} :
-        localScrum;
+      scrum = {yesterday:data.scrum.yesterday||"", today:data.scrum.today||"", blockers:data.scrum.blockers||"", mood:data.scrum.mood||"😊"};
     } else {
-      scrum = localScrum;
+      scrum = load("qa_scrum_"+dk(),{yesterday:"",today:"",blockers:"",mood:"😊"});
     }
-    
-    // SCRATCH NOTES: Load from sheet if available
-    if(data.scratch && data.scratch.trim().length > 0){
-      localStorage.setItem("qa_scratch",data.scratch);
-      const scratchEl = document.getElementById("scratchText");
-      if(scratchEl)scratchEl.value = data.scratch;
-    }
-    
-    // Ensure all have timestamps for next sync
-    tasks.forEach(t=>{if(!t.lastModified)t.lastModified=Date.now();});
-    bugs.forEach(b=>{if(!b.lastModified)b.lastModified=Date.now();});
-    if(!scrum.lastModified)scrum.lastModified=Date.now();
     
     save("qa_tasks",tasks);
     save("qa_bugs",bugs);
     save("qa_scrum_"+dk(),scrum);
+    
     tasks.forEach(t=>{if(!TM[t.id])TM[t.id]={elapsed:t.timerTotal||0,state:"idle",startedAt:null};});
     
     const now=new Date().toLocaleTimeString();
     localStorage.setItem("qa_last_load",now);
     document.getElementById("lastSyncInfo").textContent="⬇️ Loaded: "+now;
+    
     renderAll();
     setTimeout(()=>syncSheet(false),500);
+    
     setCloud("ok","Sheet ✓");
+    document.head.removeChild(script);
   }catch(err){
-    console.log("📝 Sheet unavailable, using local data");
+    console.error("Load error:",err);
     tasks = load("qa_tasks",[]);
     bugs = load("qa_bugs",[]);
     scrum = load("qa_scrum_"+dk(),{yesterday:"",today:"",blockers:"",mood:"😊"});
     tasks.forEach(t=>{if(!TM[t.id])TM[t.id]={elapsed:t.timerTotal||0,state:"idle",startedAt:null};});
     renderAll();
-    setCloud("ok","Local mode");
+    setCloud("err","Using local data");
   }finally{
-    if(script && script.parentNode)try{document.head.removeChild(script);}catch(e){}
     if(btn){btn.textContent="⬇️ Load";btn.disabled=false;}
   }
 }
@@ -1001,45 +957,30 @@ async function syncSheet(manual=true){
   if(manual){const btn=document.getElementById("syncBtn");if(btn){btn.textContent="⏳ Syncing…";btn.disabled=true;}}
   setCloud("sync","Syncing…");
   try{
-    // Ensure all items have lastModified timestamp
-    tasks.forEach(t=>{if(!t.lastModified)t.lastModified=Date.now();});
-    bugs.forEach(b=>{if(!b.lastModified)b.lastModified=Date.now();});
-    if(!scrum.lastModified)scrum.lastModified=Date.now();
-    
-    // Get scratch notes
-    const scratch = document.getElementById("scratchText")?.value || localStorage.getItem("qa_scratch") || "";
-    
-    const payload = JSON.stringify({
-      tasks: tasks,
-      bugs: bugs,
-      scrum: scrum,
-      scratch: scratch,
-      date: dk(),
-      name: localStorage.getItem("qa_name")||""
-    });
-    
-    console.log("📤 Syncing to sheet:", SHEET_URL);
     const response = await fetch(SHEET_URL, {
       method: 'POST',
-      body: payload,
+      body: JSON.stringify({
+        tasks: tasks,
+        bugs: bugs,
+        scrum: scrum,
+        date: dk(),
+        name: localStorage.getItem("qa_name")||""
+      }),
       mode: 'no-cors'
     });
     
     const now=new Date().toLocaleTimeString();
     document.getElementById("lastSyncInfo").textContent="☁️ Synced: "+now;
     setCloud("ok","Synced ✓");
-    if(manual)showSync("✅ Data merged & synced!");
+    if(manual)showSync("✅ Data synced to sheet!");
     
-    // Auto-load after sync to get merged data from all devices
     if(manual){
       setTimeout(()=>loadFromSheet(),1000);
     }
   }catch(e){
+    setCloud("err","Sync failed");
+    if(manual)showSync("❌ Sync failed. Using local data.");
     console.error("Sync error:",e);
-    const now=new Date().toLocaleTimeString();
-    document.getElementById("lastSyncInfo").textContent="💾 Local: "+now;
-    setCloud("ok","Local mode");
-    if(manual)showSync("⚠️ Sync failed - will retry. Data saved locally.");
   }finally{
     if(manual){const btn=document.getElementById("syncBtn");if(btn){btn.textContent="☁️ Sync";btn.disabled=false;}setTimeout(()=>document.getElementById("syncBar").classList.add("hidden"),3000);}
   }
