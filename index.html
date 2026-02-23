@@ -337,8 +337,8 @@ function getToday(){return new Date().toLocaleDateString("en-IN",{weekday:"long"
 function getTime(){return new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"});}
 function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
 function fmtT(sec){if(!sec||sec<0)return"0:00";const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=sec%60;return h>0?`${h}h ${m}m`:`${m}:${String(s).padStart(2,"0")}`;}
-function saveTasks(){scheduleAutoSync();}
-function saveBugs(){scheduleAutoSync();}
+function saveTasks(){save("qa_tasks",tasks);scheduleAutoSync();}
+function saveBugs(){save("qa_bugs",bugs);scheduleAutoSync();}
 
 function setCloud(state,msg){
   const dot=document.getElementById("cloudDot"),lbl=document.getElementById("cloudLabel");
@@ -707,11 +707,9 @@ function saveScrumData(){
   scrum.today=document.getElementById("s_today").value;
   scrum.blockers=document.getElementById("s_blockers").value;
   scrum.lastModified=Date.now();
-  closeModal("scrumModal");
-  renderCurrent();
-  syncSheet(false);
+  save("qa_scrum_"+dk(),scrum);closeModal("scrumModal");renderCurrent();scheduleAutoSync();
 }
-function setMood(m){scrum.mood=m;scrum.lastModified=Date.now();document.querySelectorAll(".mood-btn").forEach(b=>b.classList.toggle("active",b.textContent===m));}
+function setMood(m){scrum.mood=m;document.querySelectorAll(".mood-btn").forEach(b=>b.classList.toggle("active",b.textContent===m));}
 
 // BUGS
 function openBugModal(){renderBugListModal();document.getElementById("bugModal").classList.remove("hidden");}
@@ -742,9 +740,9 @@ function updBugSt(id,st){bugs=bugs.map(b=>b.id==id?{...b,status:st,lastModified:
 
 // SCRATCH
 function openScratch(){document.getElementById("scratchText").value=localStorage.getItem("qa_scratch")||"";updScratchCnt();document.getElementById("scratchModal").classList.remove("hidden");}
-function onScratchInput(){updScratchCnt();scheduleAutoSync();}
+function onScratchInput(){localStorage.setItem("qa_scratch",document.getElementById("scratchText").value);updScratchCnt();}
 function updScratchCnt(){const v=document.getElementById("scratchText")?.value||"";const el=document.getElementById("scratchCount");if(el)el.textContent=`${v.length} chars`;}
-function clearScratch(){if(confirm("Clear notes?")){document.getElementById("scratchText").value="";updScratchCnt();syncSheet(false);}}
+function clearScratch(){if(confirm("Clear notes?")){document.getElementById("scratchText").value="";localStorage.removeItem("qa_scratch");updScratchCnt();}}
 
 // REMINDER
 var remInt=null;
@@ -908,44 +906,64 @@ async function loadFromSheet(){
     
     const data = await promise;
     console.log("📊 Sheet data received:", data);
-    console.log("📋 Scrum from sheet:", data.scrum);
     
-    // SHEET IS SOURCE OF TRUTH - use it directly, don't merge with local
+    // MERGE: Sheet is source of truth, but merge with local if timestamps allow
+    const localTasks = load("qa_tasks",[]);
+    const localBugs = load("qa_bugs",[]);
+    const localScrum = load("qa_scrum_"+dk(),{yesterday:"",today:"",blockers:"",mood:"😊",lastModified:0});
+    
+    // TASKS: Use sheet if it has data, merge with local if newer
     if(Array.isArray(data.tasks) && data.tasks.length > 0){
-      tasks = data.tasks.map(t=>({...t,id:Number(t.id)||t.id,timerTotal:Number(t.timerTotal)||0,lastModified:t.lastModified||0}));
+      const sheetMap = {};
+      data.tasks.forEach(t=>{
+        sheetMap[String(t.id)] = {...t, id:Number(t.id)||t.id, timerTotal:Number(t.timerTotal)||0, lastModified:t.lastModified||0};
+      });
+      // Add local tasks that might be newer
+      localTasks.forEach(t=>{
+        const sheetTask = sheetMap[String(t.id)];
+        if(!sheetTask || (t.lastModified && t.lastModified > (sheetTask.lastModified||0))){
+          sheetMap[String(t.id)] = t;
+        }
+      });
+      tasks = Object.values(sheetMap);
     } else {
-      tasks = [];
+      tasks = localTasks.length > 0 ? localTasks : [];
     }
     
+    // BUGS: Use sheet if it has data, merge with local
     if(Array.isArray(data.bugs) && data.bugs.length > 0){
-      bugs = data.bugs.map(b=>({...b,id:Number(b.id)||b.id,lastModified:b.lastModified||0}));
+      const bugMap = {};
+      data.bugs.forEach(b=>{
+        bugMap[String(b.id)] = {...b, id:Number(b.id)||b.id, lastModified:b.lastModified||0};
+      });
+      // Add local bugs that might be newer
+      localBugs.forEach(b=>{
+        const sheetBug = bugMap[String(b.id)];
+        if(!sheetBug || (b.lastModified && b.lastModified > (sheetBug.lastModified||0))){
+          bugMap[String(b.id)] = b;
+        }
+      });
+      bugs = Object.values(bugMap);
     } else {
-      bugs = [];
+      bugs = localBugs.length > 0 ? localBugs : [];
     }
     
-    // Load scrum data from sheet
-    if(data.scrum && (data.scrum.yesterday || data.scrum.today || data.scrum.blockers)){
-      console.log("✅ Loading scrum from sheet:", data.scrum);
-      scrum = {
-        yesterday:data.scrum.yesterday||"", 
-        today:data.scrum.today||"", 
-        blockers:data.scrum.blockers||"", 
-        mood:data.scrum.mood||"😊", 
-        lastModified:data.scrum.lastModified||0
-      };
+    // SCRUM: Merge by timestamp
+    if(data.scrum && Object.keys(data.scrum).length > 0){
+      const sheetTs = data.scrum.lastModified || 0;
+      const localTs = localScrum.lastModified || 0;
+      scrum = sheetTs >= localTs ? 
+        {yesterday:data.scrum.yesterday||"", today:data.scrum.today||"", blockers:data.scrum.blockers||"", mood:data.scrum.mood||"😊", lastModified:sheetTs} :
+        localScrum;
     } else {
-      console.log("⚠️ No scrum data in sheet, keeping empty");
-      scrum = {yesterday:"",today:"",blockers:"",mood:"😊",lastModified:0};
+      scrum = localScrum;
     }
     
-    // SCRATCH NOTES: Load from sheet
+    // SCRATCH NOTES: Load from sheet if available
     if(data.scratch && data.scratch.trim().length > 0){
-      console.log("📝 Loading scratch notes from sheet");
+      localStorage.setItem("qa_scratch",data.scratch);
       const scratchEl = document.getElementById("scratchText");
       if(scratchEl)scratchEl.value = data.scratch;
-    } else {
-      const scratchEl = document.getElementById("scratchText");
-      if(scratchEl)scratchEl.value = "";
     }
     
     // Ensure all have timestamps for next sync
@@ -953,7 +971,9 @@ async function loadFromSheet(){
     bugs.forEach(b=>{if(!b.lastModified)b.lastModified=Date.now();});
     if(!scrum.lastModified)scrum.lastModified=Date.now();
     
-    // DON'T save to localStorage - sheet is only source of truth
+    save("qa_tasks",tasks);
+    save("qa_bugs",bugs);
+    save("qa_scrum_"+dk(),scrum);
     tasks.forEach(t=>{if(!TM[t.id])TM[t.id]={elapsed:t.timerTotal||0,state:"idle",startedAt:null};});
     
     const now=new Date().toLocaleTimeString();
@@ -963,11 +983,10 @@ async function loadFromSheet(){
     setTimeout(()=>syncSheet(false),500);
     setCloud("ok","Sheet ✓");
   }catch(err){
-    console.log("📝 Sheet unavailable, using cached local data");
-    // Only use local as fallback when sheet is down
+    console.log("📝 Sheet unavailable, using local data");
     tasks = load("qa_tasks",[]);
     bugs = load("qa_bugs",[]);
-    scrum = load("qa_scrum_"+dk(),{yesterday:"",today:"",blockers:"",mood:"😊",lastModified:0});
+    scrum = load("qa_scrum_"+dk(),{yesterday:"",today:"",blockers:"",mood:"😊"});
     tasks.forEach(t=>{if(!TM[t.id])TM[t.id]={elapsed:t.timerTotal||0,state:"idle",startedAt:null};});
     renderAll();
     setCloud("ok","Local mode");
@@ -977,7 +996,7 @@ async function loadFromSheet(){
   }
 }
 
-// FIXED: Sync with no-cors mode - don't overwrite with empty data
+// FIXED: Sync with no-cors mode
 async function syncSheet(manual=true){
   if(manual){const btn=document.getElementById("syncBtn");if(btn){btn.textContent="⏳ Syncing…";btn.disabled=true;}}
   setCloud("sync","Syncing…");
@@ -987,31 +1006,19 @@ async function syncSheet(manual=true){
     bugs.forEach(b=>{if(!b.lastModified)b.lastModified=Date.now();});
     if(!scrum.lastModified)scrum.lastModified=Date.now();
     
-    // Get scratch notes from textarea
-    const scratchEl = document.getElementById("scratchText");
-    const scratch = scratchEl ? scratchEl.value : "";
-    
-    // Only send scrum if it has actual content (not empty)
-    const scrumToSend = (scrum.yesterday || scrum.today || scrum.blockers || scrum.mood !== '😊') 
-      ? scrum 
-      : null;
+    // Get scratch notes
+    const scratch = document.getElementById("scratchText")?.value || localStorage.getItem("qa_scratch") || "";
     
     const payload = JSON.stringify({
       tasks: tasks,
       bugs: bugs,
-      scrum: scrumToSend,
+      scrum: scrum,
       scratch: scratch,
       date: dk(),
       name: localStorage.getItem("qa_name")||""
     });
     
-    console.log("📤 SYNC PAYLOAD:");
-    console.log("  date:", dk());
-    console.log("  tasks:", tasks.length);
-    console.log("  bugs:", bugs.length);
-    console.log("  scrum:", scrumToSend ? JSON.stringify(scrumToSend) : "(not sending - empty)");
-    console.log("  scratch:", scratch ? scratch.substring(0,50) + "..." : "(empty)");
-    
+    console.log("📤 Syncing to sheet:", SHEET_URL);
     const response = await fetch(SHEET_URL, {
       method: 'POST',
       body: payload,
@@ -1022,7 +1029,6 @@ async function syncSheet(manual=true){
     document.getElementById("lastSyncInfo").textContent="☁️ Synced: "+now;
     setCloud("ok","Synced ✓");
     if(manual)showSync("✅ Data merged & synced!");
-    console.log("✅ Sync complete!");
     
     // Auto-load after sync to get merged data from all devices
     if(manual){
