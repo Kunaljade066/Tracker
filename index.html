@@ -306,7 +306,7 @@ td{padding:9px 13px;border-bottom:1px solid var(--border);font-size:13px;vertica
 
 <script>
 const SHEET_URL = "https://qatracker.kunal-249.workers.dev";
-// Replace "your-cloudflare-url" with your actual Cloudflare Worker subdomain
+// ☝️ This is your worker URL - data syncs to Cloudflare KV storage
 
 const STATUS = {
   TODO:{label:"To Do",color:"#6b7280",bg:"#f3f4f6"},
@@ -1015,8 +1015,8 @@ async function syncSheet(manual=true){
     
     const response = await fetch(SHEET_URL, {
       method: 'POST',
-      body: payload,
-      mode: 'no-cors'
+      headers: { 'Content-Type': 'application/json' },
+      body: payload
     });
     
     const now=new Date().toLocaleTimeString();
