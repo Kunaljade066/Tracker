@@ -267,6 +267,11 @@ td{padding:9px 13px;border-bottom:1px solid var(--border);font-size:13px;vertica
         <textarea id="s_yesterday" class="inp" rows="3" placeholder="e.g. Completed regression testing…"></textarea></div>
       <div><label style="font-size:11px;color:#3b82f6;font-weight:700;display:block;margin-bottom:5px">🚀 What will you do TODAY?</label>
         <textarea id="s_today" class="inp" rows="3" placeholder="e.g. Test payment gateway…"></textarea></div>
+        
+      <!-- NEW: Priority Section -->
+      <div><label style="font-size:11px;color:#f59e0b;font-weight:700;display:block;margin-bottom:5px">🎯 Top PRIORITIES?</label>
+        <textarea id="s_priority" class="inp" rows="2" placeholder="e.g. 1. Fix login bug, 2. Review PR #42"></textarea></div>
+        
       <div><label style="font-size:11px;color:#dc2626;font-weight:700;display:block;margin-bottom:5px">🚧 Any BLOCKERS?</label>
         <textarea id="s_blockers" class="inp" rows="2" placeholder="e.g. API not ready…"></textarea></div>
       <div><label style="font-size:11px;color:var(--dim);font-weight:700;display:block;margin-bottom:7px">😊 How's your day?</label>
@@ -392,7 +397,7 @@ const BSTC = {OPEN:"#dc2626",IN_FIX:"#d97706",FIXED:"#059669",CLOSED:"#6b7280",R
 // State
 let tasks = [];
 let bugs = [];
-let scrum = {yesterday:"",today:"",blockers:"",mood:"😊",lastModified:0};
+let scrum = {yesterday:"",today:"",priority:"",blockers:"",mood:"😊",lastModified:0};
 let scratch = "";
 let userData = {name:"",sprint:"",release:"",manager:"",reminderTime:"18:00"};
 let timers = {};
@@ -731,7 +736,7 @@ function renderReport(){
     </div>
     <div style="background:var(--surface);border-radius:11px;padding:18px;border:1px solid var(--border)">
       <div style="font-family:'Space Grotesk';font-weight:700;font-size:13px;margin-bottom:14px;color:var(--text)">🗣️ Scrum Notes</div>
-      ${[["✅ Yesterday",scrum.yesterday,"#059669"],["🚀 Today",scrum.today,"#3b82f6"],["🚧 Blockers",scrum.blockers,"#dc2626"]].map(([l,v,c])=>`<div style="margin-bottom:10px"><div style="font-size:11px;color:${c};font-weight:700;margin-bottom:3px">${l}</div><div style="font-size:12px;color:${v?"var(--text)":"var(--dim)"};background:var(--bg);border-radius:7px;padding:8px;min-height:30px">${v||"Not filled"}</div></div>`).join("")}
+      ${[["✅ Yesterday",scrum.yesterday,"#059669"],["🚀 Today",scrum.today,"#3b82f6"],["🎯 Priorities",scrum.priority,"#f59e0b"],["🚧 Blockers",scrum.blockers,"#dc2626"]].map(([l,v,c])=>`<div style="margin-bottom:10px"><div style="font-size:11px;color:${c};font-weight:700;margin-bottom:3px">${l}</div><div style="font-size:12px;color:${v?"var(--text)":"var(--dim)"};background:var(--bg);border-radius:7px;padding:8px;min-height:30px">${v||"Not filled"}</div></div>`).join("")}
     </div>
     <div style="background:var(--surface);border-radius:11px;padding:18px;border:1px solid var(--border)">
       <div style="font-family:'Space Grotesk';font-weight:700;font-size:13px;margin-bottom:14px;color:var(--text)">⏱️ Time Tracked</div>
@@ -786,7 +791,7 @@ function saveTask(){
     timerTotal:ex?.timerTotal||0,
     createdAt:ex?.createdAt||new Date().toLocaleTimeString(),
     lastModified:Date.now(),
-    _unsynced: true // Mark as unsynced until successfully sent
+    _unsynced: true
   };
   tasks=editingId?tasks.map(t=>t.id===editingId?task:t):[...tasks,task];
   if(!timers[task.id])timers[task.id]={elapsed:task.timerTotal,state:"idle",startedAt:null};
@@ -836,6 +841,7 @@ function openScrum(){
   document.getElementById("scrumDate").textContent=getToday();
   document.getElementById("s_yesterday").value=scrum.yesterday;
   document.getElementById("s_today").value=scrum.today;
+  document.getElementById("s_priority").value=scrum.priority || ""; // New
   document.getElementById("s_blockers").value=scrum.blockers;
   document.querySelectorAll(".mood-btn").forEach(b=>b.classList.toggle("active",b.textContent===scrum.mood));
   document.getElementById("scrumModal").classList.remove("hidden");
@@ -844,6 +850,7 @@ function openScrum(){
 function saveScrumData(){
   scrum.yesterday=document.getElementById("s_yesterday").value;
   scrum.today=document.getElementById("s_today").value;
+  scrum.priority=document.getElementById("s_priority").value; // New
   scrum.blockers=document.getElementById("s_blockers").value;
   scrum.lastModified=Date.now();
   closeModal("scrumModal");
@@ -1015,7 +1022,9 @@ Please find my End of Day QA summary for ${getToday()}.${sp?"\nSprint: "+sp:""}$
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🗣️ SCRUM NOTES
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Yesterday : ${scrum.yesterday||"—"}
   Today     : ${scrum.today||"—"}
+  Priorities: ${scrum.priority||"—"}
   Blockers  : ${scrum.blockers||"None"}
  ${note?`\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n📝 NOTES\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n${note}\n`:""}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1081,10 +1090,7 @@ function downloadRpt(){
   const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([text],{type:"text/plain"})); a.download=`QA_EOD_${dk()}.txt`; a.click();
 }
 
-// ==========================================
-// SYNC LOGIC (Fix for deletion sync)
-// ==========================================
-
+// SYNC
 async function loadFromSheet(){
   const btn=document.getElementById("loadBtn");
   if(btn){btn.textContent="⏳ Loading…";btn.disabled=true;}
@@ -1095,15 +1101,11 @@ async function loadFromSheet(){
     if(!response.ok) throw new Error("Load failed");
     const data = await response.json();
 
-    // Smart Merge Logic
     if(data.tasks && Array.isArray(data.tasks)){
       const serverIds = new Set(data.tasks.map(t => t.id));
-      
-      // 1. Update/Add tasks from server
       data.tasks.forEach(st => {
         const idx = tasks.findIndex(t => t.id === st.id);
         if(idx >= 0){
-          // Server wins for updates
           if((st.lastModified||0) >= (tasks[idx].lastModified||0)){
              tasks[idx] = {...st, id: Number(st.id), timerTotal: Number(st.timerTotal)||0};
           }
@@ -1111,22 +1113,15 @@ async function loadFromSheet(){
           tasks.push({...st, id: Number(st.id), timerTotal: Number(st.timerTotal)||0});
         }
       });
-
-      // 2. Handle Deletions: Remove local tasks that ARE synced but MISSING from server
       tasks = tasks.filter(t => {
-        // If it's on server, keep it (handled above).
-        // If it's NOT on server:
         if(!serverIds.has(t.id)){
-          // If it has _unsynced flag, it's a new local item -> KEEP
           if(t._unsynced) return true;
-          // If it was previously synced (no _unsynced flag), it was deleted on server -> REMOVE
-          return false; 
+          return false;
         }
         return true;
       });
     }
 
-    // Smart Merge for Bugs
     if(data.bugs && Array.isArray(data.bugs)){
       const serverIds = new Set(data.bugs.map(b => b.id));
       data.bugs.forEach(sb => {
@@ -1148,9 +1143,15 @@ async function loadFromSheet(){
       });
     }
 
-    // Update simple states
     if(data.scrum && (data.scrum.lastModified||0) > (scrum.lastModified||0)){
-      scrum = {...data.scrum, lastModified: data.scrum.lastModified||0};
+      scrum = {
+        yesterday: data.scrum.yesterday || "",
+        today: data.scrum.today || "",
+        priority: data.scrum.priority || "", // New
+        blockers: data.scrum.blockers || "",
+        mood: data.scrum.mood || "😊",
+        lastModified: data.scrum.lastModified || 0
+      };
     }
     if(data.scratch) scratch = data.scratch;
     if(data.userData){
@@ -1160,7 +1161,6 @@ async function loadFromSheet(){
       document.getElementById("releaseInput").value=userData.release||"";
     }
 
-    // Restore timers
     tasks.forEach(t=>{ if(!timers[t.id])timers[t.id]={elapsed:t.timerTotal||0,state:"idle",startedAt:null}; });
     
     const now=new Date().toLocaleTimeString();
@@ -1200,7 +1200,6 @@ async function syncSheet(manual=true){
     
     if(!response.ok) throw new Error("Sync failed");
     
-    // SUCCESS: Mark all items as synced
     tasks.forEach(t => delete t._unsynced);
     bugs.forEach(b => delete b._unsynced);
     
