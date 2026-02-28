@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>QA Tracker</title>
+<title>QA Tracker - Cloud Storage</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
@@ -20,7 +20,6 @@ input,select,textarea{font-family:inherit;outline:none}
 .hidden{display:none!important}
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:300;display:flex;align-items:center;justify-content:center;padding:16px}
 .modal{background:var(--surface);border-radius:16px;padding:26px;max-width:660px;width:100%;max-height:93vh;overflow-y:auto;border:1px solid var(--border);box-shadow:0 24px 64px rgba(0,0,0,.5)}
-.eod-modal{background:var(--surface);border-radius:16px;max-width:820px;width:100%;max-height:95vh;overflow-y:auto;border:1px solid #f59e0b55;box-shadow:0 0 80px rgba(245,158,11,.18)}
 .pb{height:5px;border-radius:3px;background:var(--border);overflow:hidden}
 .pb-fill{height:100%;border-radius:3px;transition:width .5s ease}
 .tcard{background:var(--surface2);border-radius:10px;padding:11px;border:1px solid var(--border);transition:all .18s;margin-bottom:8px}
@@ -30,87 +29,31 @@ th{padding:10px 13px;text-align:left;font-size:11px;color:var(--dim);font-weight
 td{padding:9px 13px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle}
 .tpill{font-family:'Space Grotesk';font-size:12px;font-weight:700;padding:3px 9px;border-radius:20px;display:inline-flex;align-items:center;gap:4px}
 .tpill-idle{color:#64748b;background:#64748b18;border:1px solid #64748b33}
-.tpill-run{color:#059669;background:#05966918;border:1px solid #05966944;animation:pulse-green 2s infinite}
-.tpill-pause{color:#d97706;background:#d9770618;border:1px solid #d9770644}
-@keyframes pulse-green{0%,100%{box-shadow:0 0 0 0 #05966933}50%{box-shadow:0 0 0 4px #05966900}}
+.tpill-run{color:#059669;background:#05966918;border:1px solid #05966944}
 .tbtn{cursor:pointer;border:none;border-radius:6px;font-size:10px;font-weight:700;padding:2px 7px;font-family:inherit;transition:all .12s}
 .tbtn:hover{filter:brightness(1.15)}
 .tab-btn{cursor:pointer;padding:7px 14px;border-radius:7px;font-weight:500;font-size:13px;transition:all .18s;border:none;background:transparent;color:var(--muted);font-family:inherit}
 .tab-btn.active{background:#1e40af;color:#fff}
 .tab-btn:hover:not(.active){background:var(--surface);color:var(--text)}
-.mood-btn{font-size:22px;background:transparent;border:2px solid var(--border);border-radius:10px;padding:6px 12px;cursor:pointer;transition:all .18s}
-.mood-btn.active{background:#1e40af33;border-color:#3b82f6}
-@keyframes glow{0%,100%{box-shadow:0 0 8px #f59e0b55}50%{box-shadow:0 0 22px #f59e0baa}}
-.eod-glow{animation:glow 2.5s infinite}
-.rpt-pre{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;font-family:'Courier New',monospace;font-size:11.5px;line-height:1.9;white-space:pre-wrap;word-break:break-word;max-height:360px;overflow-y:auto;color:var(--muted)}
-.sev-CRITICAL{color:#dc2626;font-weight:700}.sev-HIGH{color:#f97316;font-weight:700}.sev-MEDIUM{color:#d97706;font-weight:700}.sev-LOW{color:#059669;font-weight:700}
-.wday{background:var(--surface);border-radius:10px;padding:12px;border:1px solid var(--border);min-height:90px}
-.wday.today-col{border-color:#3b82f6;box-shadow:0 0 0 1px #3b82f655}
-.scratchpad{background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;padding:14px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);resize:vertical;min-height:160px;width:100%;line-height:1.75}
-.rtab{cursor:pointer;padding:7px 18px;border-radius:7px;font-size:13px;font-weight:600;border:none;font-family:inherit;transition:all .15s}
 .badge{display:inline-block;padding:1px 7px;border-radius:4px;font-size:10px;font-weight:500}
 .cloud-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:4px}
-.cloud-ok{background:#059669}.cloud-err{background:#dc2626}
-.cloud-sync{background:#d97706;animation:blink .8s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.cloud-ok{background:#059669}.cloud-err{background:#dc2626}.cloud-sync{background:#d97706}
+.date-nav{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--surface);padding:12px;border-radius:10px;border:1px solid var(--border);margin-bottom:14px}
 
-/* Mobile Menu */
-.mobile-menu-wrapper{position:relative;display:none}
-.mobile-menu-btn{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:7px 12px;border-radius:8px;cursor:pointer;font-size:14px}
-.mobile-dropdown{position:absolute;top:100%;right:0;background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.5);min-width:180px;z-index:200;display:none;flex-direction:column;padding:8px}
-.mobile-dropdown.show{display:flex}
-.mobile-dropdown .btn{width:100%;justify-content:flex-start;padding:10px 14px;border-radius:8px;margin:2px 0}
-
-/* Responsive */
-@media(max-width:1200px){.board-grid{grid-template-columns:repeat(3,1fr)!important}}
-@media(max-width:900px){.board-grid{grid-template-columns:repeat(2,1fr)!important}.stats-grid{grid-template-columns:repeat(3,1fr)!important}}
-@media(max-width:700px){
-  .mobile-menu-wrapper{display:block}
-  .desktop-only{display:none!important}
-  .header-inner{flex-direction:column;height:auto;padding:12px 0;gap:12px}
-  .header-btns{width:100%;justify-content:center}
-  .header-left{width:100%;justify-content:center}
-  .board-grid{grid-template-columns:1fr!important}
-  .stats-grid{grid-template-columns:repeat(2,1fr)!important}
-  .tab-wrap{width:100%;justify-content:center}
-  .filters-row{flex-direction:column;align-items:stretch}
-  #searchInput{width:100%!important}
-  #filterSel{width:100%!important}
-  .info-row{flex-direction:column;align-items:stretch}
-  .eod-banner{flex-direction:column;text-align:center}
-  .modal{padding:18px;max-height:90vh}
-  th,td{padding:7px 9px;font-size:11px}
-  .form-grid{grid-template-columns:1fr!important}
-  .form-grid2{grid-template-columns:1fr!important}
-  .form-grid4{grid-template-columns:1fr 1fr!important}
-}
-@media(max-width:480px){
-  .stats-grid{grid-template-columns:1fr 1fr!important}
-  .tab-btn{padding:6px 10px;font-size:11px}
-  .btn{padding:6px 9px!important;font-size:11px!important}
-}
-
+@media(max-width:700px){.date-nav{flex-direction:column;align-items:stretch}}
 .board-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
 .stats-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
 .form-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}
 .form-grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.form-grid4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:9px}
 .tab-wrap{display:flex;gap:3px;background:var(--surface);border-radius:10px;padding:3px;flex-wrap:wrap}
 .filters-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .info-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .header-inner{display:flex;align-items:center;justify-content:space-between;height:58px;gap:8px;flex-wrap:wrap}
 .header-btns{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .header-left{display:flex;align-items:center;gap:10px;flex-shrink:0}
-.eod-banner{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
-.weekly-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
-.report-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-@media(max-width:700px){
-  .weekly-grid{grid-template-columns:repeat(4,1fr)!important}
-  .report-grid{grid-template-columns:1fr!important}
-  .charts-grid{grid-template-columns:1fr!important}
-}
-@media(max-width:480px){.weekly-grid{grid-template-columns:repeat(2,1fr)!important}}
+
+@media(max-width:900px){.board-grid{grid-template-columns:repeat(2,1fr)!important}.stats-grid{grid-template-columns:repeat(3,1fr)!important}}
+@media(max-width:700px){.board-grid{grid-template-columns:1fr!important}.stats-grid{grid-template-columns:repeat(2,1fr)!important}.tab-wrap{width:100%;justify-content:center}.filters-row{flex-direction:column;align-items:stretch}.info-row{flex-direction:column;align-items:stretch}.header-inner{flex-direction:column;height:auto;padding:12px 0;gap:12px}.header-btns{width:100%;justify-content:center}.header-left{width:100%;justify-content:center}}
 </style>
 </head>
 <body>
@@ -121,80 +64,71 @@ td{padding:9px 13px;border-bottom:1px solid var(--border);font-size:13px;vertica
     <div class="header-left">
       <div style="background:linear-gradient(135deg,#3b82f6,#06b6d4);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:18px">🧪</div>
       <div>
-        <div style="font-family:'Space Grotesk';font-weight:700;font-size:15px;color:var(--text)">QA Tracker — Kunal Jade</div>
+        <div style="font-family:'Space Grotesk';font-weight:700;font-size:15px;color:var(--text)">QA Tracker</div>
         <div style="display:flex;align-items:center;gap:6px">
           <div id="todayLabel" style="font-size:12px;color:var(--muted)"></div>
           <span style="font-size:11px;color:var(--dim);display:flex;align-items:center">
-            <span class="cloud-dot cloud-ok" id="cloudDot"></span><span id="cloudLabel">Connecting…</span>
+            <span class="cloud-dot cloud-ok" id="cloudDot"></span><span id="cloudLabel">Cloud Ready</span>
           </span>
         </div>
       </div>
     </div>
     
     <div class="header-btns">
-      <input id="myNameInput" class="inp" style="width:115px;font-size:12px;padding:5px 9px" placeholder="Your name…" oninput="userData.name=this.value"/>
-      <button class="btn desktop-only" onclick="openScrum()" style="background:#7c3aed;color:#fff;padding:7px 11px;font-size:12px">📋 Scrum</button>
-      <button class="btn desktop-only" onclick="openBugModal()" style="background:#dc2626;color:#fff;padding:7px 11px;font-size:12px">🐛 Bugs</button>
-      <button class="btn desktop-only" onclick="openScratch()" style="background:#0369a1;color:#fff;padding:7px 11px;font-size:12px">📝 Notes</button>
-      <button class="btn desktop-only" onclick="syncSheet(true)" style="background:#059669;color:#fff;padding:7px 11px;font-size:12px" id="syncBtn">☁️ Sync</button>
-      <button class="btn desktop-only" onclick="loadFromSheet()" style="background:#0e7490;color:#fff;padding:7px 11px;font-size:12px" id="loadBtn">⬇️ Load</button>
-      
-      <div class="mobile-menu-wrapper">
-        <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰ Menu</button>
-        <div id="mobileDropdown" class="mobile-dropdown">
-          <button class="btn" onclick="openScrum();closeMobileMenu()" style="background:#7c3aed;color:#fff">📋 Scrum</button>
-          <button class="btn" onclick="openBugModal();closeMobileMenu()" style="background:#dc2626;color:#fff">🐛 Bugs</button>
-          <button class="btn" onclick="openScratch();closeMobileMenu()" style="background:#0369a1;color:#fff">📝 Notes</button>
-          <button class="btn" onclick="syncSheet(true);closeMobileMenu()" style="background:#059669;color:#fff">☁️ Sync</button>
-          <button class="btn" onclick="loadFromSheet();closeMobileMenu()" style="background:#0e7490;color:#fff">⬇️ Load</button>
-          <button class="btn" onclick="toggleTheme();closeMobileMenu()" style="background:var(--border);color:var(--text)" id="themeBtnMobile">🌙 Dark</button>
-        </div>
-      </div>
-      
+      <input id="myNameInput" class="inp" style="width:120px;font-size:12px;padding:5px 9px" placeholder="Your name…" oninput="saveToCloud()"/>
       <button class="btn" id="themeBtn" onclick="toggleTheme()" style="background:var(--surface);color:var(--text);padding:7px 11px;font-size:12px;border:1px solid var(--border)">🌙 Dark</button>
       <button class="btn" onclick="openTaskForm(null)" style="background:#1e40af;color:#fff;padding:7px 12px;font-size:12px">+ Task</button>
-      <button class="btn eod-glow" onclick="openEOD()" style="background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;padding:8px 15px;font-size:13px;border-radius:10px;font-weight:700">📤 EOD</button>
+      <button class="btn" onclick="openScrum()" style="background:#7c3aed;color:#fff;padding:7px 11px;font-size:12px">📋 Scrum</button>
+      <button class="btn" onclick="openBugModal()" style="background:#dc2626;color:#fff;padding:7px 11px;font-size:12px">🐛 Bugs</button>
+      <button class="btn" onclick="openScratch()" style="background:#0369a1;color:#fff;padding:7px 11px;font-size:12px">📝 Notes</button>
+      <button class="btn" onclick="syncNow()" id="syncBtn" style="background:#059669;color:#fff;padding:7px 11px;font-size:12px">☁️ Sync</button>
+      <button class="btn" onclick="loadFromCloud()" id="loadBtn" style="background:#0e7490;color:#fff;padding:7px 11px;font-size:12px">⬇️ Load</button>
+      <button class="btn" onclick="openEOD()" style="background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;padding:8px 15px;font-size:13px;border-radius:10px;font-weight:700">📤 EOD</button>
     </div>
   </div>
 </div>
 
 <div id="syncBar" class="hidden" style="background:var(--surface);padding:6px 20px;text-align:center;font-size:13px;color:var(--muted);border-bottom:1px solid var(--border)"></div>
-<div id="reminderBar" class="hidden" onclick="openEOD();this.classList.add('hidden')" style="background:linear-gradient(90deg,#f59e0b,#ef4444);padding:10px 20px;text-align:center;font-size:13px;color:#fff;font-weight:700;cursor:pointer">⏰ EOD Reminder — Tap to generate your daily report!</div>
 
 <div style="max-width:1340px;margin:0 auto;padding:18px 18px 30px">
+  <!-- DATE FILTER SECTION -->
+  <div class="date-nav">
+    <div style="display:flex;align-items:center;gap:8px;flex:1">
+      <span style="font-size:12px;color:var(--dim);font-weight:600;white-space:nowrap">📅 Date:</span>
+      <input id="dateFilter" type="date" class="inp" style="width:140px;font-size:12px;padding:5px 9px" onchange="switchDate(this.value)"/>
+      <button class="btn" onclick="goToToday()" style="background:#1e40af;color:#fff;padding:5px 12px;font-size:11px;white-space:nowrap">Today</button>
+      <button class="btn" onclick="previousDay()" style="background:var(--surface2);color:var(--text);padding:5px 12px;font-size:11px;border:1px solid var(--border);white-space:nowrap">← Prev</button>
+      <button class="btn" onclick="nextDay()" style="background:var(--surface2);color:var(--text);padding:5px 12px;font-size:11px;border:1px solid var(--border);white-space:nowrap">Next →</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px">
+      <span id="dateInfo" style="font-size:11px;color:var(--dim);white-space:nowrap"></span>
+      <span id="recordCount" style="font-size:11px;background:#1e40af22;color:#60a5fa;padding:3px 10px;border-radius:6px;font-weight:600"></span>
+    </div>
+  </div>
+
   <div id="statsRow" class="stats-grid" style="margin-bottom:16px"></div>
 
   <div class="info-row" style="margin-bottom:14px">
     <div style="display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:5px 12px">
       <span style="font-size:11px;color:var(--dim)">🏷️ Sprint</span>
-      <input id="sprintInput" class="inp" style="width:110px;font-size:11px;padding:3px 8px" placeholder="Sprint 24" oninput="userData.sprint=this.value"/>
+      <input id="sprintInput" class="inp" style="width:110px;font-size:11px;padding:3px 8px" placeholder="Sprint 24" oninput="saveToCloud()"/>
     </div>
     <div style="display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:5px 12px">
       <span style="font-size:11px;color:var(--dim)">🚀 Release</span>
-      <input id="releaseInput" class="inp" style="width:90px;font-size:11px;padding:3px 8px" placeholder="v2.4.1" oninput="userData.release=this.value"/>
-    </div>
-    <div style="display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:5px 12px">
-      <span style="font-size:11px;color:var(--dim)">⏰ EOD at</span>
-      <input id="reminderTime" type="time" class="inp" style="width:90px;font-size:11px;padding:3px 8px" value="18:00" onchange="scheduleReminder()"/>
-    </div>
-    <div id="activeTimerBadge" class="hidden" style="display:flex;align-items:center;gap:6px;background:#05966918;border:1px solid #05966944;border-radius:9px;padding:5px 14px">
-      <span style="font-size:11px;color:#059669;font-weight:700">⏱ Active:</span>
-      <span id="activeTimerLabel" style="font-size:11px;color:#059669;font-family:'Space Grotesk';font-weight:700"></span>
+      <input id="releaseInput" class="inp" style="width:90px;font-size:11px;padding:3px 8px" placeholder="v2.4.1" oninput="saveToCloud()"/>
     </div>
     <div id="lastSyncInfo" style="font-size:11px;color:var(--dim);padding:5px 12px;background:var(--surface);border:1px solid var(--border);border-radius:9px"></div>
   </div>
 
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
     <div class="tab-wrap">
-      <button class="tab-btn active" id="tab-board"  onclick="switchTab('board')">🗂 Board</button>
-      <button class="tab-btn" id="tab-list"   onclick="switchTab('list')">📋 List</button>
-      <button class="tab-btn" id="tab-weekly" onclick="switchTab('weekly')">📅 Weekly</button>
-      <button class="tab-btn" id="tab-bugs"   onclick="switchTab('bugs')">🐛 Bugs</button>
-      <button class="tab-btn" id="tab-charts" onclick="switchTab('charts')">📊 Charts</button>
+      <button class="tab-btn active" id="tab-board" onclick="switchTab('board')">🗂 Board</button>
+      <button class="tab-btn" id="tab-list" onclick="switchTab('list')">📋 List</button>
+      <button class="tab-btn" id="tab-bugs" onclick="switchTab('bugs')">🐛 Bugs</button>
       <button class="tab-btn" id="tab-report" onclick="switchTab('report')">📈 Report</button>
     </div>
     <div class="filters-row" style="gap:6px">
-      <input class="inp" id="searchInput" style="width:175px;font-size:12px;padding:6px 10px" placeholder="🔍 Search tasks…" oninput="renderCurrent()"/>
+      <input class="inp" id="searchInput" style="width:175px;font-size:12px;padding:6px 10px" placeholder="🔍 Search…" oninput="renderCurrent()"/>
       <select class="inp" id="filterSel" style="width:130px;font-size:12px;padding:6px 9px" onchange="currentFilter=this.value;renderCurrent()">
         <option value="ALL">All Status</option><option value="TODO">To Do</option><option value="IN_PROGRESS">In Progress</option>
         <option value="TESTING">Testing</option><option value="BLOCKED">Blocked</option><option value="DONE">Done</option>
@@ -204,18 +138,8 @@ td{padding:9px 13px;border-bottom:1px solid var(--border);font-size:13px;vertica
 
   <div id="view-board"></div>
   <div id="view-list" class="hidden"></div>
-  <div id="view-weekly" class="hidden"></div>
   <div id="view-bugs" class="hidden"></div>
-  <div id="view-charts" class="hidden"></div>
   <div id="view-report" class="hidden"></div>
-
-  <div class="eod-banner" style="margin-top:20px;background:linear-gradient(135deg,#1c1917,#1e1b4b);border:1px solid #f59e0b44;border-radius:13px;padding:16px 22px">
-    <div>
-      <div style="font-family:'Space Grotesk';font-weight:700;font-size:16px;color:#fbbf24">📤 Ready to wrap up?</div>
-      <div style="font-size:12px;color:#94a3b8;margin-top:3px">Generate EOD report → Copy → Paste in Gmail/WhatsApp → Done!</div>
-    </div>
-    <button class="btn eod-glow" onclick="openEOD()" style="background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;padding:11px 24px;font-size:14px;border-radius:11px;font-weight:700">📤 Generate EOD Report</button>
-  </div>
 </div>
 
 <!-- TASK MODAL -->
@@ -224,10 +148,10 @@ td{padding:9px 13px;border-bottom:1px solid var(--border);font-size:13px;vertica
     <div id="taskModalTitle" style="font-family:'Space Grotesk';font-weight:700;font-size:17px;color:var(--text);margin-bottom:16px">➕ New Task</div>
     <div style="display:flex;flex-direction:column;gap:12px">
       <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Task Title *</label>
-        <input id="f_title" class="inp" placeholder="e.g. Test login flow on Chrome"/></div>
+        <input id="f_title" class="inp" placeholder="e.g. Test login flow"/></div>
       <div class="form-grid">
         <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Type</label>
-          <select id="f_type" class="inp"><option>Bug</option><option>Test Case</option><option>Regression</option><option>Smoke</option><option>UAT</option><option>Automation</option><option>Review</option><option>Other</option></select></div>
+          <select id="f_type" class="inp"><option>Bug</option><option>Test Case</option><option>Regression</option><option>Smoke</option><option>UAT</option><option>Automation</option></select></div>
         <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Priority</label>
           <select id="f_priority" class="inp"><option value="HIGH">🔴 High</option><option value="MEDIUM" selected>🟡 Medium</option><option value="LOW">🟢 Low</option></select></div>
         <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Status</label>
@@ -236,19 +160,13 @@ td{padding:9px 13px;border-bottom:1px solid var(--border);font-size:13px;vertica
       <div class="form-grid2">
         <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Environment</label>
           <input id="f_env" class="inp" placeholder="Staging / QA / Prod"/></div>
-        <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Assignee</label>
-          <input id="f_assignee" class="inp" placeholder="Self / Dev Team"/></div>
-      </div>
-      <div class="form-grid4">
-        <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Estimate</label><input id="f_est" class="inp" placeholder="2h"/></div>
-        <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Actual</label><input id="f_actual" class="inp" placeholder="1.5h"/></div>
-        <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Sprint</label><input id="f_sprint" class="inp" placeholder="Sprint 24"/></div>
-        <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Release</label><input id="f_release" class="inp" placeholder="v2.4.1"/></div>
+        <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Estimate</label>
+          <input id="f_est" class="inp" placeholder="2h"/></div>
       </div>
       <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">🚧 Blocker</label>
-        <input id="f_blocker" class="inp" placeholder="e.g. Waiting for dev fix JIRA-123"/></div>
+        <input id="f_blocker" class="inp" placeholder="What's blocking this?"/></div>
       <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Notes</label>
-        <textarea id="f_notes" class="inp" rows="2" placeholder="Steps, links, observations…"></textarea></div>
+        <textarea id="f_notes" class="inp" rows="2" placeholder="Steps, observations…"></textarea></div>
       <div style="display:flex;gap:9px;justify-content:flex-end">
         <button class="btn" onclick="closeModal('taskModal')" style="background:#334155;color:#e2e8f0;padding:9px 18px">Cancel</button>
         <button class="btn" onclick="saveTask()" id="saveTaskBtn" style="background:#1e40af;color:#fff;padding:9px 18px">Add Task</button>
@@ -267,22 +185,10 @@ td{padding:9px 13px;border-bottom:1px solid var(--border);font-size:13px;vertica
         <textarea id="s_yesterday" class="inp" rows="3" placeholder="e.g. Completed regression testing…"></textarea></div>
       <div><label style="font-size:11px;color:#3b82f6;font-weight:700;display:block;margin-bottom:5px">🚀 What will you do TODAY?</label>
         <textarea id="s_today" class="inp" rows="3" placeholder="e.g. Test payment gateway…"></textarea></div>
-        
-      <!-- NEW: Priority Section -->
       <div><label style="font-size:11px;color:#f59e0b;font-weight:700;display:block;margin-bottom:5px">🎯 Top PRIORITIES?</label>
         <textarea id="s_priority" class="inp" rows="2" placeholder="e.g. 1. Fix login bug, 2. Review PR #42"></textarea></div>
-        
       <div><label style="font-size:11px;color:#dc2626;font-weight:700;display:block;margin-bottom:5px">🚧 Any BLOCKERS?</label>
         <textarea id="s_blockers" class="inp" rows="2" placeholder="e.g. API not ready…"></textarea></div>
-      <div><label style="font-size:11px;color:var(--dim);font-weight:700;display:block;margin-bottom:7px">😊 How's your day?</label>
-        <div id="moodRow" style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="mood-btn" onclick="setMood('😫')">😫</button>
-          <button class="mood-btn" onclick="setMood('😕')">😕</button>
-          <button class="mood-btn" onclick="setMood('😐')">😐</button>
-          <button class="mood-btn active" onclick="setMood('😊')">😊</button>
-          <button class="mood-btn" onclick="setMood('🚀')">🚀</button>
-        </div>
-      </div>
       <div style="display:flex;gap:9px;justify-content:flex-end">
         <button class="btn" onclick="closeModal('scrumModal')" style="background:#334155;color:#e2e8f0;padding:9px 18px">Cancel</button>
         <button class="btn" onclick="saveScrumData()" style="background:#7c3aed;color:#fff;padding:9px 18px">Save Notes</button>
@@ -291,21 +197,37 @@ td{padding:9px 13px;border-bottom:1px solid var(--border);font-size:13px;vertica
   </div>
 </div>
 
-<!-- BUG MODAL -->
+<!-- SCRATCH PAD -->
+<div id="scratchModal" class="modal-bg hidden">
+  <div class="modal" style="max-width:700px">
+    <div style="font-family:'Space Grotesk';font-weight:700;font-size:17px;color:var(--text);margin-bottom:3px">📝 Quick Notes</div>
+    <div style="font-size:11px;color:var(--dim);margin-bottom:12px">Auto-saved to cloud.</div>
+    <textarea id="scratchText" class="scratchpad" rows="14" oninput="onScratchInput()" style="background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;padding:14px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);resize:vertical;min-height:160px;width:100%;line-height:1.75"></textarea>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px">
+      <span id="scratchCount" style="font-size:11px;color:var(--dim)"></span>
+      <div style="display:flex;gap:8px">
+        <button class="btn" onclick="clearScratch()" style="background:#334155;color:#e2e8f0;padding:7px 14px;font-size:12px">🗑 Clear</button>
+        <button class="btn" onclick="closeModal('scratchModal')" style="background:#0369a1;color:#fff;padding:7px 14px;font-size:12px">✓ Done</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <div id="bugModal" class="modal-bg hidden">
   <div class="modal" style="max-width:720px">
     <div style="font-family:'Space Grotesk';font-weight:700;font-size:17px;color:var(--text);margin-bottom:16px">🐛 Bug Log</div>
     <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--border)">
-      <div class="form-grid" style="grid-template-columns:2fr 1fr 1fr">
-        <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Bug Title / ID *</label>
-          <input id="b_title" class="inp" placeholder="e.g. BUG-123 Login fails on Safari"/></div>
+      <div class="form-grid2">
+        <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Bug Title *</label>
+          <input id="b_title" class="inp" placeholder="e.g. Login fails on Safari"/></div>
         <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Severity</label>
           <select id="b_severity" class="inp"><option value="CRITICAL">🔴 Critical</option><option value="HIGH">🟠 High</option><option value="MEDIUM" selected>🟡 Medium</option><option value="LOW">🟢 Low</option></select></div>
-        <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Status</label>
-          <select id="b_status" class="inp"><option value="OPEN">Open</option><option value="IN_FIX">In Fix</option><option value="FIXED">Fixed</option><option value="CLOSED">Closed</option><option value="REOPEN">Reopened</option></select></div>
       </div>
+      <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Status</label>
+        <select id="b_status" class="inp"><option value="OPEN">Open</option><option value="IN_FIX">In Fix</option><option value="FIXED">Fixed</option><option value="CLOSED">Closed</option></select></div>
       <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Steps to Reproduce</label>
-        <textarea id="b_steps" class="inp" rows="3" placeholder="1. Go to login page&#10;2. Enter credentials&#10;3. Click Login → Error appears"></textarea></div>
+        <textarea id="b_steps" class="inp" rows="2" placeholder="1. Step 1&#10;2. Step 2…"></textarea></div>
       <div style="display:flex;justify-content:flex-end">
         <button class="btn" onclick="addBug()" style="background:#dc2626;color:#fff;padding:8px 18px">+ Log Bug</button>
       </div>
@@ -317,65 +239,29 @@ td{padding:9px 13px;border-bottom:1px solid var(--border);font-size:13px;vertica
   </div>
 </div>
 
-<!-- SCRATCH PAD -->
-<div id="scratchModal" class="modal-bg hidden">
-  <div class="modal" style="max-width:700px">
-    <div style="font-family:'Space Grotesk';font-weight:700;font-size:17px;color:var(--text);margin-bottom:3px">📝 Quick Notes</div>
-    <div style="font-size:11px;color:var(--dim);margin-bottom:12px">Auto-saved to cloud.</div>
-    <textarea id="scratchText" class="scratchpad" rows="14" oninput="onScratchInput()"></textarea>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px">
-      <span id="scratchCount" style="font-size:11px;color:var(--dim)"></span>
-      <div style="display:flex;gap:8px">
-        <button class="btn" onclick="clearScratch()" style="background:#334155;color:#e2e8f0;padding:7px 14px;font-size:12px">🗑 Clear</button>
-        <button class="btn" onclick="closeModal('scratchModal')" style="background:#0369a1;color:#fff;padding:7px 14px;font-size:12px">✓ Done</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- EOD MODAL -->
 <div id="eodModal" class="modal-bg hidden">
-  <div class="eod-modal">
-    <div style="background:linear-gradient(135deg,#1c1917,#1e1b4b);border-bottom:1px solid #f59e0b44;padding:20px 24px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
-        <div>
-          <div style="font-family:'Space Grotesk';font-weight:700;font-size:20px;color:#fbbf24">📤 End of Day Report</div>
-          <div id="eodDateTime" style="font-size:12px;color:#94a3b8;margin-top:2px"></div>
-        </div>
-        <button class="btn" onclick="closeModal('eodModal')" style="background:#334155;color:#e2e8f0;padding:6px 14px;font-size:13px">✕ Close</button>
-      </div>
-      <div id="eodStats" style="display:flex;gap:9px;flex-wrap:wrap"></div>
-    </div>
-    <div style="padding:20px 24px;display:flex;flex-direction:column;gap:14px">
+  <div class="modal" style="max-width:700px">
+    <div style="font-family:'Space Grotesk';font-weight:700;font-size:17px;color:var(--text);margin-bottom:16px">📤 EOD Report</div>
+    <div style="display:flex;flex-direction:column;gap:12px">
       <div class="form-grid2">
-        <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">👤 Your Name</label>
-          <input id="eod_name" class="inp" placeholder="e.g. Kunal Jade" oninput="userData.name=this.value;updateEOD()"/></div>
-        <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">👔 Manager Name</label>
-          <input id="eod_mgr" class="inp" placeholder="e.g. Rahul, Team…" oninput="userData.manager=this.value;updateEOD()"/></div>
+        <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Your Name</label>
+          <input id="eod_name" class="inp" placeholder="Name" oninput="updateEOD()"/></div>
+        <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Manager</label>
+          <input id="eod_mgr" class="inp" placeholder="Manager name" oninput="updateEOD()"/></div>
       </div>
-      <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">📝 Additional Notes</label>
+      <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Additional Notes</label>
         <textarea id="eod_notes" class="inp" rows="2" oninput="updateEOD()"></textarea></div>
-      <div style="display:flex;gap:5px;background:var(--bg);border-radius:9px;padding:4px;width:fit-content">
-        <button class="rtab" id="rtab-email" onclick="setRTab('email')" style="background:#1e40af;color:#fff">📧 Email</button>
-        <button class="rtab" id="rtab-whatsapp" onclick="setRTab('whatsapp')" style="background:transparent;color:var(--dim)">💬 WhatsApp</button>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <button class="btn" id="btn-email" onclick="setEODFormat('email')" style="background:#1e40af;color:#fff;padding:6px 12px;font-size:11px">📧 Email</button>
+        <button class="btn" id="btn-whatsapp" onclick="setEODFormat('whatsapp')" style="background:var(--surface2);color:var(--dim);padding:6px 12px;font-size:11px;border:1px solid var(--border)">💬 WhatsApp</button>
       </div>
-      <div>
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;flex-wrap:wrap;gap:8px">
-          <div id="rFmtLabel" style="font-size:11px;color:var(--dim)">📧 Paste into Gmail / Outlook</div>
-          <button class="btn" id="copyBtn" onclick="copyReport()" style="background:#1e40af;color:#fff;padding:7px 16px;font-size:12px">📋 Copy</button>
-        </div>
-        <pre id="rptPreview" class="rpt-pre"></pre>
+      <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:6px">Report Preview:</label>
+        <pre id="eodPreview" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;font-size:10px;color:var(--muted);max-height:300px;overflow-y:auto;white-space:pre-wrap;word-break:break-word;line-height:1.6"></pre>
       </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn" id="copyBtn2" onclick="copyReport()" style="background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;padding:12px 0;font-size:14px;flex:1;font-weight:700;border-radius:10px;justify-content:center">📋 Copy &amp; Send to Manager</button>
-        <button class="btn" onclick="downloadRpt()" style="background:#334155;color:#e2e8f0;padding:12px 18px;font-size:13px;border-radius:10px">⬇️ .txt</button>
-      </div>
-      <div id="manualBox" class="hidden">
-        <div style="background:#fef3c7;border:1.5px solid #f59e0b;border-radius:9px;padding:12px">
-          <div style="font-size:12px;color:#92400e;font-weight:700;margin-bottom:6px">📋 Click inside → Ctrl+A → Ctrl+C</div>
-          <textarea id="manualText" onclick="this.select()" style="width:100%;height:170px;background:#fff;color:#1e293b;border:1px solid #d9mr06;border-radius:7px;padding:10px;font-family:'Courier New',monospace;font-size:11px;line-height:1.7;resize:vertical"></textarea>
-          <button class="btn" onclick="document.getElementById('manualBox').classList.add('hidden')" style="background:#334155;color:#e2e8f0;padding:4px 11px;font-size:11px;margin-top:6px">✕</button>
-        </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn" onclick="copyEOD()" style="background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;padding:10px 20px;font-size:12px;font-weight:700">📋 Copy Report</button>
+        <button class="btn" onclick="closeModal('eodModal')" style="background:#334155;color:#e2e8f0;padding:10px 18px">Close</button>
       </div>
     </div>
   </div>
@@ -389,850 +275,697 @@ const STATUS = {
   IN_PROGRESS:{label:"In Progress",color:"#d97706",bg:"#fef3c7"},
   TESTING:{label:"Testing",color:"#7c3aed",bg:"#ede9fe"},
   BLOCKED:{label:"Blocked",color:"#dc2626",bg:"#fee2e2"},
-  DONE:{label:"Done",color:"#059669",bg:"#d1fae5"},
+  DONE:{label:"Done",color:"#059669",bg:"#d1fae5"}
 };
 const PRI = {HIGH:{c:"#dc2626"},MEDIUM:{c:"#d97706"},LOW:{c:"#059669"}};
-const BSTC = {OPEN:"#dc2626",IN_FIX:"#d97706",FIXED:"#059669",CLOSED:"#6b7280",REOPEN:"#7c3aed"};
 
-// State
-let tasks = [];
-let bugs = [];
-let scrum = {yesterday:"",today:"",priority:"",blockers:"",mood:"😊",lastModified:0};
-let scratch = "";
-let userData = {name:"",sprint:"",release:"",manager:"",reminderTime:"18:00"};
-let timers = {};
-let activeTab = "board";
+let allData = {}; // { "2025-01-15": {tasks, bugs, userData, scrum, scratch}, ... }
+let currentDate = new Date().toISOString().split("T")[0];
 let currentFilter = "ALL";
-let editingId = null;
-let rTab = "email";
+let activeTab = "board";
 let isLight = false;
-let intervals = {tick:null,sync:null,load:null,reminder:null};
+let eodFormat = "email";
+let syncTimeout = null;
 
-// Utility
 const dk = () => new Date().toISOString().split("T")[0];
-const getToday = () => new Date().toLocaleDateString("en-IN",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
-const getTime = () => new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"});
 const esc = s => String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-const fmtT = sec => {if(!sec||sec<0)return"0:00";const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=sec%60;return h>0?`${h}h ${m}m`:`${m}:${String(s).padStart(2,"0")}`;};
 
-function setCloud(state,msg){
-  const dot=document.getElementById("cloudDot"),lbl=document.getElementById("cloudLabel");
-  if(!dot||!lbl)return;
-  dot.className="cloud-dot "+(state==="ok"?"cloud-ok":state==="err"?"cloud-err":"cloud-sync");
-  lbl.textContent=msg;
-}
-
-function scheduleAutoSync(){
-  if(intervals.sync)clearTimeout(intervals.sync);
-  intervals.sync=setTimeout(()=>syncSheet(false),3000);
-}
-
-// Mobile Menu
-function toggleMobileMenu(){ document.getElementById("mobileDropdown").classList.toggle("show"); }
-function closeMobileMenu(){ document.getElementById("mobileDropdown").classList.remove("show"); }
-document.addEventListener("click",e=>{ if(!e.target.closest(".mobile-menu-wrapper")) closeMobileMenu(); });
-
-// Init
-(function init(){
-  isLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-  if(isLight){document.body.classList.add("light");document.getElementById("themeBtn").textContent="☀️ Light";}
-  document.getElementById("todayLabel").textContent=getToday();
-  startGlobalTick();
-  renderAll();
-  loadFromSheet();
-  intervals.load=setInterval(()=>loadFromSheet().catch(()=>{}),30000);
-  if(Notification?.permission==="default")Notification?.requestPermission();
-  window.matchMedia('(prefers-color-scheme: light)').addEventListener('change',e=>{
-    isLight=e.matches;
-    document.body.classList.toggle("light",isLight);
-    document.getElementById("themeBtn").textContent=isLight?"☀️ Light":"🌙 Dark";
-    if(document.getElementById("themeBtnMobile"))document.getElementById("themeBtnMobile").textContent=isLight?"☀️ Light":"🌙 Dark";
-  });
-})();
-
-function startGlobalTick(){
-  if(intervals.tick)clearInterval(intervals.tick);
-  intervals.tick=setInterval(()=>{
-    Object.keys(timers).forEach(id=>{
-      const tm=timers[id];
-      if(tm.state!=="running")return;
-      const total=tm.elapsed+Math.floor((Date.now()-tm.startedAt)/1000);
-      const pill=document.getElementById("tpill_"+id);
-      if(pill){pill.textContent="⏱ "+fmtT(total);pill.className="tpill tpill-run";}
-    });
-    const runId=Object.keys(timers).find(id=>timers[id].state==="running");
-    const badge=document.getElementById("activeTimerBadge");
-    const label=document.getElementById("activeTimerLabel");
-    if(runId&&badge&&label){
-      const t=tasks.find(t=>t.id==runId);
-      const tm=timers[runId];
-      const total=tm.elapsed+Math.floor((Date.now()-tm.startedAt)/1000);
-      label.textContent=(t?t.title.substring(0,22)+"…":"Task")+" | "+fmtT(total);
-      badge.classList.remove("hidden");badge.style.display="flex";
-    }else if(badge){badge.classList.add("hidden");}
-  },1000);
-}
-
-// Timer
-function getTimerElapsed(id){
-  const tm=timers[id];
-  if(!tm)return tasks.find(t=>t.id==id)?.timerTotal||0;
-  if(tm.state==="running")return tm.elapsed+Math.floor((Date.now()-tm.startedAt)/1000);
-  return tm.elapsed;
-}
-
-function timerStart(id){
-  Object.keys(timers).forEach(oid=>{ if(oid!=id&&timers[oid].state==="running")timerPause(oid); });
-  if(!timers[id])timers[id]={elapsed:tasks.find(t=>t.id==id)?.timerTotal||0,state:"idle",startedAt:null};
-  timers[id].state="running";
-  timers[id].startedAt=Date.now();
-  refreshTimerBtn(id);
-  scheduleAutoSync();
-}
-
-function timerPause(id){
-  if(!timers[id]||timers[id].state!=="running")return;
-  timers[id].elapsed+=Math.floor((Date.now()-timers[id].startedAt)/1000);
-  timers[id].state="paused";
-  timers[id].startedAt=null;
-  tasks=tasks.map(t=>t.id==id?{...t,timerTotal:timers[id].elapsed,lastModified:Date.now()}:t);
-  refreshTimerBtn(id);
-  scheduleAutoSync();
-}
-
-function timerReset(id){
-  timers[id]={elapsed:0,state:"idle",startedAt:null};
-  tasks=tasks.map(t=>t.id==id?{...t,timerTotal:0,lastModified:Date.now()}:t);
-  const pill=document.getElementById("tpill_"+id);
-  if(pill){pill.textContent="⏱ 0:00";pill.className="tpill tpill-idle";}
-  refreshTimerBtn(id);
-  scheduleAutoSync();
-}
-
-function timerStop(id){
-  timerPause(id);
-  const pill=document.getElementById("tpill_"+id);
-  if(pill&&timers[id]){pill.textContent="⏱ "+fmtT(timers[id].elapsed);pill.className="tpill tpill-idle";}
-  refreshTimerBtn(id);
-}
-
-function refreshTimerBtn(id){
-  const wrap=document.getElementById("tbwrap_"+id);
-  if(!wrap)return;
-  const tm=timers[id]||{state:"idle",elapsed:tasks.find(t=>t.id==id)?.timerTotal||0};
-  const el=getTimerElapsed(id);
-  const pill=document.getElementById("tpill_"+id);
-  if(pill){
-    pill.textContent="⏱ "+fmtT(el);
-    pill.className="tpill "+(tm.state==="running"?"tpill-run":tm.state==="paused"?"tpill-pause":"tpill-idle");
+function getDateData(date = currentDate) {
+  if (!allData[date]) {
+    allData[date] = { 
+      tasks: [], 
+      bugs: [], 
+      userData: { name: "", sprint: "", release: "" },
+      scrum: { yesterday: "", today: "", priority: "", blockers: "", mood: "😊" },
+      scratch: ""
+    };
   }
-  wrap.innerHTML=timerBtnsHTML(id,tm.state);
+  return allData[date];
 }
 
-function timerBtnsHTML(id,state){
-  if(state==="running") return`<button class="tbtn" onclick="timerPause(${id})" style="background:#d9770622;color:#d97706">⏸ Pause</button><button class="tbtn" onclick="timerReset(${id})" style="background:#dc262622;color:#f87171">↺</button>`;
-  if(state==="paused") return`<button class="tbtn" onclick="timerStart(${id})" style="background:#05966922;color:#34d399">▶ Resume</button><button class="tbtn" onclick="timerStop(${id})" style="background:#64748b22;color:#94a3b8">⏹</button><button class="tbtn" onclick="timerReset(${id})" style="background:#dc262622;color:#f87171">↺</button>`;
-  return`<button class="tbtn" onclick="timerStart(${id})" style="background:#05966922;color:#34d399">▶ Start</button>`;
+function setCloud(state, msg) {
+  const dot = document.getElementById("cloudDot");
+  const lbl = document.getElementById("cloudLabel");
+  if (!dot || !lbl) return;
+  dot.className = "cloud-dot " + (state === "ok" ? "cloud-ok" : state === "err" ? "cloud-err" : "cloud-sync");
+  lbl.textContent = msg;
 }
 
-// Stats
-function getStats(){
-  return{
-    total:tasks.length,
-    done:tasks.filter(t=>t.status==="DONE").length,
-    prog:tasks.filter(t=>t.status==="IN_PROGRESS"||t.status==="TESTING").length,
-    blocked:tasks.filter(t=>t.blocker&&t.status!=="DONE").length,
-    remaining:tasks.filter(t=>t.status!=="DONE").length,
-    openBugs:bugs.filter(b=>b.status==="OPEN"||b.status==="REOPEN").length
+function showSync(msg) {
+  const b = document.getElementById("syncBar");
+  b.textContent = msg;
+  b.classList.remove("hidden");
+  setTimeout(() => b.classList.add("hidden"), 3000);
+}
+
+function scheduleSave() {
+  if (syncTimeout) clearTimeout(syncTimeout);
+  syncTimeout = setTimeout(() => saveToCloud(), 2000);
+}
+
+async function saveToCloud() {
+  // Save user data first
+  const data = getDateData();
+  data.userData.name = document.getElementById("myNameInput")?.value || "";
+  data.userData.sprint = document.getElementById("sprintInput")?.value || "";
+  data.userData.release = document.getElementById("releaseInput")?.value || "";
+  
+  setCloud("sync", "Saving...");
+  try {
+    const payload = {
+      allData: allData,
+      lastModified: Date.now(),
+      timestamp: new Date().toISOString()
+    };
+    
+    const response = await fetch(SHEET_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    
+    if (!response.ok) throw new Error("Save failed");
+    
+    const now = new Date().toLocaleTimeString();
+    document.getElementById("lastSyncInfo").textContent = "☁️ Saved: " + now;
+    setCloud("ok", "Cloud ✓");
+  } catch (e) {
+    console.error("Save error:", e);
+    setCloud("err", "Save failed");
+    showSync("❌ Save failed - will retry");
+  }
+}
+
+async function loadFromCloud() {
+  const btn = document.getElementById("loadBtn");
+  if (btn) { btn.textContent = "⏳ Loading…"; btn.disabled = true; }
+  setCloud("sync", "Loading...");
+  
+  try {
+    // Try new endpoint first
+    let response = await fetch(SHEET_URL + "?action=getAll&t=" + Date.now());
+    let data;
+    
+    if (!response.ok) {
+      // If new endpoint fails, try old endpoint (backward compatibility)
+      console.log("New endpoint failed, trying old format...");
+      response = await fetch(SHEET_URL + "?date=" + currentDate + "&t=" + Date.now());
+      if (!response.ok) throw new Error("Both endpoints failed");
+      data = await response.json();
+      
+      // Convert old format to new
+      if (data.tasks || data.bugs) {
+        allData[currentDate] = {
+          tasks: Array.isArray(data.tasks) ? data.tasks : [],
+          bugs: Array.isArray(data.bugs) ? data.bugs : [],
+          userData: data.userData || { name: "", sprint: "", release: "" },
+          scrum: data.scrum || {},
+          scratch: data.scratch || ""
+        };
+      }
+    } else {
+      data = await response.json();
+      
+      // Handle new format (allData with multiple dates)
+      if (data.allData && typeof data.allData === 'object') {
+        allData = data.allData;
+      } 
+      // Handle old single-date format
+      else if (data.tasks || data.bugs) {
+        allData[currentDate] = {
+          tasks: Array.isArray(data.tasks) ? data.tasks : [],
+          bugs: Array.isArray(data.bugs) ? data.bugs : [],
+          userData: data.userData || { name: "", sprint: "", release: "" },
+          scrum: data.scrum || {},
+          scratch: data.scratch || ""
+        };
+      }
+    }
+    
+    updateUIFromData();
+    const now = new Date().toLocaleTimeString();
+    document.getElementById("lastSyncInfo").textContent = "⬇️ Loaded: " + now;
+    setCloud("ok", "Cloud ✓");
+    renderAll();
+    showSync("✅ Data loaded!");
+  } catch (err) {
+    console.log("Cloud unavailable:", err);
+    setCloud("err", "Offline");
+    showSync("❌ Load failed");
+  } finally {
+    if (btn) { btn.textContent = "⬇️ Load"; btn.disabled = false; }
+  }
+}
+
+function updateUIFromData() {
+  const data = getDateData();
+  document.getElementById("myNameInput").value = data.userData?.name || "";
+  document.getElementById("sprintInput").value = data.userData?.sprint || "";
+  document.getElementById("releaseInput").value = data.userData?.release || "";
+}
+
+function syncNow() {
+  loadFromCloud();
+}
+
+function goToToday() {
+  currentDate = dk();
+  document.getElementById("dateFilter").value = currentDate;
+  updateDateDisplay();
+  renderAll();
+}
+
+function previousDay() {
+  const d = new Date(currentDate);
+  d.setDate(d.getDate() - 1);
+  currentDate = d.toISOString().split("T")[0];
+  document.getElementById("dateFilter").value = currentDate;
+  updateDateDisplay();
+  renderAll();
+}
+
+function nextDay() {
+  const d = new Date(currentDate);
+  d.setDate(d.getDate() + 1);
+  currentDate = d.toISOString().split("T")[0];
+  document.getElementById("dateFilter").value = currentDate;
+  updateDateDisplay();
+  renderAll();
+}
+
+function switchDate(date) {
+  currentDate = date;
+  updateDateDisplay();
+  renderAll();
+}
+
+function updateDateDisplay() {
+  const d = new Date(currentDate + "T00:00:00");
+  document.getElementById("dateInfo").textContent = d.toLocaleDateString("en-IN", {weekday:"short", month:"short", day:"numeric"});
+  document.getElementById("dateFilter").value = currentDate;
+  const data = getDateData();
+  const taskCount = data.tasks?.length || 0;
+  const bugCount = data.bugs?.length || 0;
+  document.getElementById("recordCount").textContent = `${taskCount} tasks | ${bugCount} bugs`;
+  updateUIFromData();
+}
+
+function getTasks() { return getDateData().tasks || []; }
+function getBugs() { return getDateData().bugs || []; }
+
+function getStats() {
+  const tasks = getTasks();
+  return {
+    total: tasks.length,
+    done: tasks.filter(t => t.status === "DONE").length,
+    prog: tasks.filter(t => t.status === "IN_PROGRESS" || t.status === "TESTING").length,
+    blocked: tasks.filter(t => t.blocker && t.status !== "DONE").length,
+    remaining: tasks.filter(t => t.status !== "DONE").length,
+    openBugs: getBugs().filter(b => b.status === "OPEN" || b.status === "IN_FIX").length
   };
 }
 
-function renderStats(){
-  const s=getStats(),pct=s.total?Math.round(s.done/s.total*100):0;
-  document.getElementById("statsRow").innerHTML=[
+function renderStats() {
+  const s = getStats();
+  const pct = s.total ? Math.round(s.done / s.total * 100) : 0;
+  document.getElementById("statsRow").innerHTML = [
     {l:"Total",v:s.total,icon:"📝",c:"#3b82f6"},
     {l:"In Progress",v:s.prog,icon:"⚡",c:"#d97706"},
     {l:"Remaining",v:s.remaining,icon:"⏳",c:"#7c3aed"},
     {l:"Blocked",v:s.blocked,icon:"🚧",c:"#dc2626"},
     {l:"Done",v:s.done,icon:"✅",c:"#059669",pct},
-    {l:"Open Bugs",v:s.openBugs,icon:"🐛",c:"#f97316"},
-  ].map(x=>`<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px 15px">
+    {l:"Open Bugs",v:s.openBugs,icon:"🐛",c:"#f97316"}
+  ].map(x => `<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px 15px">
     <div style="font-size:17px;margin-bottom:4px">${x.icon}</div>
     <div style="font-size:22px;font-weight:700;color:${x.c};font-family:'Space Grotesk'">${x.v}</div>
     <div style="font-size:10px;color:var(--dim);margin-top:1px">${x.l}</div>
-    ${x.pct!=null&&s.total>0?`<div class="pb" style="margin-top:7px"><div class="pb-fill" style="background:linear-gradient(90deg,#3b82f6,#06b6d4);width:${x.pct}%"></div></div><div style="font-size:9px;color:var(--dim);margin-top:2px">${x.pct}%</div>`:""}
+    ${x.pct != null && s.total > 0 ? `<div class="pb" style="margin-top:7px"><div class="pb-fill" style="background:#059669;width:${x.pct}%"></div></div><div style="font-size:9px;color:var(--dim);margin-top:2px">${x.pct}%</div>` : ""}
   </div>`).join("");
 }
 
-function getFiltered(){
-  const q=(document.getElementById("searchInput")?.value||"").toLowerCase();
-  return tasks.filter(t=> (currentFilter==="ALL"||t.status===currentFilter) && (t.title.toLowerCase().includes(q)||(t.notes||"").toLowerCase().includes(q)) );
+function getFiltered() {
+  const q = (document.getElementById("searchInput")?.value || "").toLowerCase();
+  return getTasks().filter(t =>
+    (currentFilter === "ALL" || t.status === currentFilter) &&
+    (t.title.toLowerCase().includes(q) || (t.notes || "").toLowerCase().includes(q))
+  );
 }
 
-// Card
-function cardHTML(t){
-  const state=(timers[t.id]||{state:"idle"}).state;
-  const elapsed=getTimerElapsed(t.id);
-  const pillCls=state==="running"?"tpill-run":state==="paused"?"tpill-pause":"tpill-idle";
-  return`<div class="tcard" id="card_${t.id}">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
-      <span style="font-size:12px;font-weight:600;color:var(--text);flex:1;line-height:1.4">${esc(t.title)}</span>
-      <div style="display:flex;gap:3px;margin-left:5px;flex-shrink:0">
+function cardHTML(t) {
+  return `<div class="tcard" id="card_${t.id}">
+    <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:6px">
+      <span style="font-size:12px;font-weight:600;color:var(--text);flex:1">${esc(t.title)}</span>
+      <div style="display:flex;gap:3px;margin-left:5px">
         <button class="btn" onclick="openTaskForm(${t.id})" style="background:#1e40af22;color:#60a5fa;padding:2px 6px;font-size:10px">✏️</button>
         <button class="btn" onclick="delTask(${t.id})" style="background:#dc262622;color:#f87171;padding:2px 6px;font-size:10px">🗑</button>
       </div>
     </div>
-    <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:${t.blocker||t.notes?6:0}px">
+    <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px">
       <span class="badge" style="background:var(--border);color:var(--muted)">${t.type}</span>
-      <span style="color:${PRI[t.priority]?.c||"#94a3b8"};font-size:10px;font-weight:700">${t.priority}</span>
-      ${t.sprint?`<span class="badge" style="background:#1e40af22;color:#60a5fa">🏷️ ${esc(t.sprint)}</span>`:""}
-      ${t.env?`<span class="badge" style="background:var(--surface);color:var(--dim)">🌐 ${esc(t.env)}</span>`:""}
+      <span style="color:${PRI[t.priority]?.c};font-size:10px;font-weight:700">${t.priority}</span>
+      ${t.env ? `<span class="badge" style="background:var(--surface);color:var(--dim)">🌐 ${esc(t.env)}</span>` : ""}
     </div>
-    ${t.blocker?`<div style="background:#dc262611;border:1px solid #dc262633;border-radius:5px;padding:3px 7px;margin-bottom:5px;font-size:10px;color:#f87171">🚧 ${esc(t.blocker)}</div>`:""}
-    ${t.notes?`<div style="font-size:10px;color:var(--dim);margin-bottom:6px;line-height:1.4">${esc(t.notes.substring(0,70))}${t.notes.length>70?"…":""}</div>`:""}
-    <div style="display:flex;align-items:center;gap:5px;margin-bottom:6px;flex-wrap:wrap">
-      <span id="tpill_${t.id}" class="tpill ${pillCls}">⏱ ${fmtT(elapsed)}</span>
-      <span id="tbwrap_${t.id}" style="display:flex;gap:3px">${timerBtnsHTML(t.id,state)}</span>
-    </div>
-    <select onchange="updateStatus(${t.id},this.value)" style="width:100%;background:${STATUS[t.status]?.bg}33;color:${STATUS[t.status]?.color};border:1px solid ${STATUS[t.status]?.color}55;border-radius:6px;padding:5px 8px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">
-      ${Object.entries(STATUS).map(([k,v])=>`<option value="${k}" ${t.status===k?"selected":""}>${v.label}</option>`).join("")}
+    ${t.blocker ? `<div style="background:#dc262611;border:1px solid #dc262633;border-radius:5px;padding:3px 7px;margin-bottom:5px;font-size:10px;color:#f87171">🚧 ${esc(t.blocker)}</div>` : ""}
+    ${t.notes ? `<div style="font-size:10px;color:var(--dim);margin-bottom:6px;line-height:1.4">${esc(t.notes.substring(0,70))}</div>` : ""}
+    <select onchange="updateStatus(${t.id}, this.value)" style="width:100%;background:${STATUS[t.status]?.bg}33;color:${STATUS[t.status]?.color};border:1px solid ${STATUS[t.status]?.color}55;border-radius:6px;padding:5px 8px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">
+      ${Object.entries(STATUS).map(([k,v]) => `<option value="${k}" ${t.status === k ? "selected" : ""}>${v.label}</option>`).join("")}
     </select>
-    <div style="font-size:9px;color:var(--border);margin-top:4px">${t.createdAt||""}</div>
   </div>`;
 }
 
-// Renderers
-function renderBoard(){
-  const f=getFiltered();
-  document.getElementById("view-board").innerHTML=`<div class="board-grid">
-    ${Object.entries(STATUS).map(([k,s])=>{
-      const col=f.filter(t=>t.status===k);
-      return`<div style="background:var(--surface);border-radius:11px;padding:12px;border:1px solid var(--border)">
+function renderBoard() {
+  const f = getFiltered();
+  document.getElementById("view-board").innerHTML = `<div class="board-grid">
+    ${Object.entries(STATUS).map(([k,s]) => {
+      const col = f.filter(t => t.status === k);
+      return `<div style="background:var(--surface);border-radius:11px;padding:12px;border:1px solid var(--border)">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
           <span style="font-weight:700;font-size:12px;color:${s.color}">${s.label}</span>
           <span style="background:${s.bg}33;color:${s.color};border-radius:20px;padding:1px 8px;font-size:11px;font-weight:700">${col.length}</span>
         </div>
-        ${col.map(t=>cardHTML(t)).join("")}
-        ${!col.length?`<div style="color:var(--border);font-size:11px;text-align:center;padding:14px 0">Empty</div>`:""}
+        ${col.map(t => cardHTML(t)).join("")}
+        ${!col.length ? `<div style="color:var(--border);font-size:11px;text-align:center;padding:14px 0">Empty</div>` : ""}
       </div>`;
     }).join("")}
   </div>`;
 }
 
-function renderList(){
-  const f=getFiltered();
-  document.getElementById("view-list").innerHTML=`<div style="background:var(--surface);border-radius:11px;border:1px solid var(--border);overflow:auto">
-    <table><thead><tr>${["Task","Type","Pri","Status","Sprint","Env","Est/Act","⏱ Timer","Blocker","Actions"].map(h=>`<th>${h}</th>`).join("")}</tr></thead>
-    <tbody>${!f.length?`<tr><td colspan="10" style="padding:34px;text-align:center;color:var(--dim)">No tasks yet. Click + Task!</td></tr>`:
-      f.map(t=>{
-        const state=(timers[t.id]||{state:"idle"}).state,elapsed=getTimerElapsed(t.id);
-        const pillCls=state==="running"?"tpill-run":state==="paused"?"tpill-pause":"tpill-idle";
-        return`<tr>
-          <td style="max-width:180px"><div style="font-weight:500;color:var(--text)">${esc(t.title)}</div>${t.notes?`<div style="font-size:10px;color:var(--dim)">${esc(t.notes.substring(0,50))}</div>`:""}</td>
-          <td style="color:var(--muted);font-size:11px">${t.type}</td>
-          <td><span style="color:${PRI[t.priority]?.c};font-size:11px;font-weight:700">${t.priority}</span></td>
-          <td><select onchange="updateStatus(${t.id},this.value)" style="background:${STATUS[t.status]?.bg}33;color:${STATUS[t.status]?.color};border:1px solid ${STATUS[t.status]?.color}55;border-radius:6px;padding:3px 7px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">${Object.entries(STATUS).map(([k,v])=>`<option value="${k}" ${t.status===k?"selected":""}>${v.label}</option>`).join("")}</select></td>
-          <td style="font-size:11px;color:var(--dim)">${t.sprint||"—"}</td>
-          <td style="font-size:11px;color:var(--muted)">${t.env||"—"}</td>
-          <td style="font-size:11px;color:var(--muted)">${t.estimate||"—"} / ${t.actual||"—"}</td>
-          <td><div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap"><span id="tpill_${t.id}" class="tpill ${pillCls}">⏱ ${fmtT(elapsed)}</span><span id="tbwrap_${t.id}" style="display:flex;gap:3px">${timerBtnsHTML(t.id,state)}</span></div></td>
-          <td>${t.blocker?`<span style="color:#f87171;font-size:10px">🚧 ${esc(t.blocker)}</span>`:`<span style="color:var(--border)">—</span>`}</td>
-          <td><div style="display:flex;gap:4px"><button class="btn" onclick="openTaskForm(${t.id})" style="background:#1e40af22;color:#60a5fa;padding:3px 8px;font-size:11px">Edit</button><button class="btn" onclick="delTask(${t.id})" style="background:#dc262622;color:#f87171;padding:3px 8px;font-size:11px">Del</button></div></td>
-        </tr>`;
-      }).join("")}</tbody></table></div>`;
+function renderList() {
+  const f = getFiltered();
+  document.getElementById("view-list").innerHTML = `<div style="background:var(--surface);border-radius:11px;border:1px solid var(--border);overflow:auto">
+    <table><thead><tr>${["Task","Type","Priority","Status","Env","Blocker","Actions"].map(h => `<th>${h}</th>`).join("")}</tr></thead>
+    <tbody>${!f.length ? `<tr><td colspan="7" style="padding:34px;text-align:center;color:var(--dim)">No tasks</td></tr>` :
+      f.map(t => `<tr>
+        <td style="max-width:200px"><div style="font-weight:500;color:var(--text)">${esc(t.title)}</div>${t.notes ? `<div style="font-size:10px;color:var(--dim)">${esc(t.notes.substring(0,50))}</div>` : ""}</td>
+        <td style="color:var(--muted);font-size:11px">${t.type}</td>
+        <td><span style="color:${PRI[t.priority]?.c};font-size:11px;font-weight:700">${t.priority}</span></td>
+        <td><select onchange="updateStatus(${t.id}, this.value)" style="background:${STATUS[t.status]?.bg}33;color:${STATUS[t.status]?.color};border:1px solid ${STATUS[t.status]?.color}55;border-radius:6px;padding:3px 7px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">${Object.entries(STATUS).map(([k,v]) => `<option value="${k}" ${t.status === k ? "selected" : ""}>${v.label}</option>`).join("")}</select></td>
+        <td style="font-size:11px;color:var(--muted)">${t.env || "—"}</td>
+        <td>${t.blocker ? `<span style="color:#f87171;font-size:10px">🚧</span>` : `<span style="color:var(--border)">—</span>`}</td>
+        <td><button class="btn" onclick="delTask(${t.id})" style="background:#dc262622;color:#f87171;padding:3px 8px;font-size:11px">Del</button></td>
+      </tr>`).join("")}</tbody></table></div>`;
 }
 
-function renderWeekly(){
-  const today=new Date(),day=today.getDay(),mon=new Date(today);
-  mon.setDate(today.getDate()-(day===0?6:day-1));
-  const days=[];for(let i=0;i<7;i++){const d=new Date(mon);d.setDate(mon.getDate()+i);days.push(d);}
-  const todayStr=dk();
-  document.getElementById("view-weekly").innerHTML=`
-    <div class="weekly-grid" style="margin-bottom:14px">
-      ${days.map(d=>{
-        const key=d.toISOString().split("T")[0],isT=key===todayStr;
-        const saved=isT?tasks:[];
-        const done=saved.filter(t=>t.status==="DONE").length,tot=saved.length,pct=tot?Math.round(done/tot*100):0;
-        return`<div class="wday ${isT?"today-col":""}">
-          <div style="font-weight:700;font-size:12px;color:${isT?"#3b82f6":"var(--muted)"}">${d.toLocaleDateString("en-IN",{weekday:"short"})}</div>
-          <div style="font-size:10px;color:var(--dim);margin-bottom:8px">${d.toLocaleDateString("en-IN",{day:"numeric",month:"short"})}</div>
-          ${isT?`<div style="font-size:12px;color:var(--text);font-weight:600">${tot} tasks</div><div style="font-size:10px;color:#059669;margin-top:2px">✅ ${done} done</div><div style="font-size:10px;color:#d97706">⚡ ${tasks.filter(t=>t.status==="IN_PROGRESS").length} active</div><div style="font-size:10px;color:#dc2626">🚧 ${tasks.filter(t=>t.blocker&&t.status!=="DONE").length} blocked</div><div class="pb" style="margin-top:6px"><div class="pb-fill" style="background:#059669;width:${pct}%"></div></div>`:tot>0?`<div style="font-size:11px;color:var(--muted)">${tot} tasks</div><div style="font-size:10px;color:#059669">✅ ${done} done</div><div class="pb" style="margin-top:6px"><div class="pb-fill" style="background:#3b82f6;width:${pct}%"></div></div>`:`<div style="font-size:10px;color:var(--border);margin-top:4px">No data</div>`}
-        </div>`;
-      }).join("")}
-    </div>
-    <div style="background:var(--surface);border-radius:11px;padding:16px;border:1px solid var(--border)">
-      <div style="font-family:'Space Grotesk';font-weight:700;font-size:13px;margin-bottom:12px;color:var(--text)">📅 Today's Tasks</div>
-      ${!tasks.length?`<div style="color:var(--dim);text-align:center;padding:18px">No tasks today.</div>`:
-        tasks.map(t=>`<div style="display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--border)">
-          <span style="font-size:15px">${t.status==="DONE"?"✅":t.status==="BLOCKED"?"🚧":t.status==="IN_PROGRESS"?"⚡":"📋"}</span>
-          <div style="flex:1"><div style="font-size:12px;color:var(--text)">${esc(t.title)}</div><div style="font-size:10px;color:var(--dim)">${t.type} · ${t.priority}</div></div>
-          <span style="font-size:11px;color:${STATUS[t.status]?.color};font-weight:600">${STATUS[t.status]?.label}</span>
-          <span style="font-size:11px;font-family:'Space Grotesk';color:#06b6d4">${fmtT(getTimerElapsed(t.id))}</span>
-        </div>`).join("")}
-    </div>`;
-}
-
-function renderBugsView(){
-  document.getElementById("view-bugs").innerHTML=`
+function renderBugsView() {
+  const bugs = getBugs();
+  document.getElementById("view-bugs").innerHTML = `
     <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
-      <button class="btn" onclick="openBugModal()" style="background:#dc2626;color:#fff;padding:8px 16px;font-size:13px">+ Log New Bug</button>
+      <button class="btn" onclick="openBugModal()" style="background:#dc2626;color:#fff;padding:8px 16px;font-size:13px">+ New Bug</button>
     </div>
-    ${!bugs.length?`<div style="background:var(--surface);border-radius:11px;padding:38px;text-align:center;border:1px solid var(--border);color:var(--dim)">🎉 No bugs logged yet!</div>`:`
+    ${!bugs.length ? `<div style="background:var(--surface);border-radius:11px;padding:38px;text-align:center;border:1px solid var(--border);color:var(--dim)">✅ No bugs!</div>` : `
     <div style="background:var(--surface);border-radius:11px;border:1px solid var(--border);overflow:auto">
-      <table><thead><tr>${["Bug / ID","Severity","Status","Steps","Date","Del"].map(h=>`<th>${h}</th>`).join("")}</tr></thead>
-      <tbody>${bugs.map(b=>`<tr>
+      <table><thead><tr>${["Bug","Severity","Status","Steps","Actions"].map(h => `<th>${h}</th>`).join("")}</tr></thead>
+      <tbody>${bugs.map(b => `<tr>
         <td style="font-weight:500;color:var(--text);max-width:200px">${esc(b.title)}</td>
-        <td><span class="sev-${b.severity}" style="font-size:11px">${b.severity}</span></td>
-        <td><select onchange="updBugSt(${b.id},this.value)" style="background:${BSTC[b.status]}22;color:${BSTC[b.status]};border:1px solid ${BSTC[b.status]}55;border-radius:5px;padding:2px 7px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">${["OPEN","IN_FIX","FIXED","CLOSED","REOPEN"].map(s=>`<option value="${s}" ${b.status===s?"selected":""}>${s}</option>`).join("")}</select></td>
-        <td style="font-size:11px;color:var(--muted);max-width:200px">${esc((b.steps||"").substring(0,70))}</td>
-        <td style="font-size:10px;color:var(--dim)">${b.date}</td>
+        <td style="color:${b.severity === "CRITICAL" ? "#dc2626" : b.severity === "HIGH" ? "#f97316" : "#d97706"};font-size:11px;font-weight:700">${b.severity}</td>
+        <td><select onchange="updBugStatus(${b.id}, this.value)" style="font-size:11px;font-weight:700;padding:3px 6px;border-radius:5px;border:1px solid var(--border);cursor:pointer;font-family:inherit">${["OPEN","IN_FIX","FIXED","CLOSED"].map(s => `<option ${b.status === s ? "selected" : ""}>${s}</option>`).join("")}</select></td>
+        <td style="font-size:10px;color:var(--muted);max-width:200px">${esc((b.steps || "").substring(0,60))}</td>
         <td><button class="btn" onclick="delBug(${b.id})" style="background:#dc262622;color:#f87171;padding:2px 7px;font-size:11px">🗑</button></td>
       </tr>`).join("")}</tbody></table></div>`}`;
 }
 
-function renderCharts(){
-  document.getElementById("view-charts").innerHTML=`<div class="charts-grid">
-    ${[{id:"cStatus",title:"📊 Tasks by Status"},{id:"cPriority",title:"🎯 Tasks by Priority"},{id:"cType",title:"🔧 Tasks by Type"},{id:"cBugs",title:"🐛 Bug Severity"}]
-    .map(c=>`<div style="background:var(--surface);border-radius:11px;padding:18px;border:1px solid var(--border)"><div style="font-family:'Space Grotesk';font-weight:700;font-size:13px;margin-bottom:14px;color:var(--text)">${c.title}</div><div style="position:relative;width:100%"><canvas id="${c.id}" height="190"></canvas></div></div>`).join("")}
-  </div>`;
-  setTimeout(()=>{
-    const types=["Bug","Test Case","Regression","Smoke","UAT","Automation","Review","Other"];
-    pie("cStatus",Object.keys(STATUS).map(k=>tasks.filter(t=>t.status===k).length),Object.values(STATUS).map(s=>s.label),Object.values(STATUS).map(s=>s.color));
-    pie("cPriority",["HIGH","MEDIUM","LOW"].map(p=>tasks.filter(t=>t.priority===p).length),["High","Medium","Low"],["#dc2626","#d97706","#059669"]);
-    bar("cType",types.map(tp=>tasks.filter(t=>t.type===tp).length),types,["#3b82f6","#06b6d4","#7c3aed","#f59e0b","#059669","#f97316","#ec4899","#94a3b8"]);
-    pie("cBugs",["OPEN","IN_FIX","FIXED","CLOSED","REOPEN"].map(s=>bugs.filter(b=>b.status===s).length),["Open","In Fix","Fixed","Closed","Reopened"],Object.values(BSTC));
-  },60);
-}
-
-function pie(id,data,labels,colors){
-  const cv=document.getElementById(id);if(!cv)return;
-  const ctx=cv.getContext("2d"),W=cv.parentElement.offsetWidth||300;cv.width=W;cv.height=190;
-  const total=data.reduce((a,b)=>a+b,0);
-  if(!total){ctx.fillStyle="#475569";ctx.font="12px DM Sans";ctx.fillText("No data yet",W/2-38,95);return;}
-  const cx=W/2-55,cy=95,r=75;let ang=-Math.PI/2;
-  data.forEach((v,i)=>{if(!v)return;const sw=(v/total)*Math.PI*2;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,ang,ang+sw);ctx.fillStyle=colors[i];ctx.fill();ang+=sw;});
-  let ly=18;
-  data.forEach((v,i)=>{if(!v)return;ctx.fillStyle=colors[i];ctx.fillRect(W-115,ly-10,11,11);ctx.fillStyle=isLight?"#1e293b":"#e2e8f0";ctx.font="11px DM Sans";ctx.fillText(`${labels[i]} (${v})`,W-98,ly);ly+=17;});
-}
-
-function bar(id,data,labels,colors){
-  const cv=document.getElementById(id);if(!cv)return;
-  const ctx=cv.getContext("2d"),W=cv.parentElement.offsetWidth||300;cv.width=W;cv.height=190;
-  const max=Math.max(...data,1),bw=Math.max(4,Math.floor((W-40)/data.length)-4);
-  data.forEach((v,i)=>{const x=24+i*(bw+4),h=Math.floor((v/max)*140);ctx.fillStyle=colors[i];ctx.fillRect(x,158-h,bw,h);ctx.fillStyle=isLight?"#1e293b":"#e2e8f0";ctx.font="8px DM Sans";ctx.textAlign="center";ctx.fillText(labels[i].substring(0,5),x+bw/2,174);if(v>0)ctx.fillText(v,x+bw/2,152-h);});
-}
-
-function renderReport(){
-  const s=getStats(),bl=tasks.filter(t=>t.blocker&&t.status!=="DONE");
-  const totalTime=tasks.reduce((a,t)=>a+getTimerElapsed(t.id),0);
-  document.getElementById("view-report").innerHTML=`<div class="report-grid">
-    <div style="background:var(--surface);border-radius:11px;padding:18px;border:1px solid var(--border)">
-      <div style="font-family:'Space Grotesk';font-weight:700;font-size:13px;margin-bottom:14px;color:var(--text)">📊 Progress</div>
-      ${Object.entries(STATUS).map(([k,sv])=>{const c=tasks.filter(t=>t.status===k).length,p=tasks.length?(c/tasks.length)*100:0;return`<div style="margin-bottom:11px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:12px;color:${sv.color};font-weight:600">${sv.label}</span><span style="font-size:11px;color:var(--muted)">${c} (${Math.round(p)}%)</span></div><div class="pb"><div class="pb-fill" style="background:${sv.color};width:${p}%"></div></div></div>`;}).join("")}
+function renderReport() {
+  const tasks = getTasks();
+  const bugs = getBugs();
+  const s = getStats();
+  const done = tasks.filter(t => t.status === "DONE");
+  const progress = tasks.filter(t => t.status === "IN_PROGRESS" || t.status === "TESTING");
+  const todo = tasks.filter(t => t.status === "TODO");
+  const blocked = tasks.filter(t => t.blocker && t.status !== "DONE");
+  
+  document.getElementById("view-report").innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+      <div style="background:var(--surface);border-radius:11px;padding:18px;border:1px solid var(--border)">
+        <div style="font-family:'Space Grotesk';font-weight:700;font-size:13px;margin-bottom:14px;color:var(--text)">📊 Progress</div>
+        ${Object.entries(STATUS).map(([k,sv]) => {
+          const c = tasks.filter(t => t.status === k).length;
+          const p = tasks.length ? (c / tasks.length) * 100 : 0;
+          return `<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:12px;color:${sv.color};font-weight:600">${sv.label}</span><span style="font-size:11px;color:var(--muted)">${c}</span></div><div class="pb"><div class="pb-fill" style="background:${sv.color};width:${p}%"></div></div></div>`;
+        }).join("")}
+      </div>
+      <div style="background:var(--surface);border-radius:11px;padding:18px;border:1px solid var(--border)">
+        <div style="font-family:'Space Grotesk';font-weight:700;font-size:13px;margin-bottom:14px;color:var(--text)">🚧 Blockers</div>
+        ${!blocked.length ? `<div style="color:#059669;font-size:13px;text-align:center;padding:18px">✅ No blockers!</div>` :
+          blocked.map(t => `<div style="background:#dc262611;border:1px solid #dc262633;border-radius:8px;padding:9px;margin-bottom:7px"><div style="font-weight:600;font-size:11px;color:#f87171">${esc(t.title)}</div><div style="font-size:10px;color:var(--muted);margin-top:2px">${esc(t.blocker)}</div></div>`).join("")
+        }
+      </div>
     </div>
     <div style="background:var(--surface);border-radius:11px;padding:18px;border:1px solid var(--border)">
-      <div style="font-family:'Space Grotesk';font-weight:700;font-size:13px;margin-bottom:14px;color:var(--text)">🚧 Blockers</div>
-      ${!bl.length?`<div style="color:#059669;font-size:13px;background:#05966911;border-radius:8px;padding:14px;text-align:center">🎉 No blockers!</div>`:bl.map(t=>`<div style="background:#dc262611;border:1px solid #dc262633;border-radius:8px;padding:9px;margin-bottom:7px"><div style="font-weight:600;font-size:12px;color:#f87171">${esc(t.title)}</div><div style="font-size:11px;color:var(--muted);margin-top:2px">🚧 ${esc(t.blocker)}</div></div>`).join("")}
-    </div>
-    <div style="background:var(--surface);border-radius:11px;padding:18px;border:1px solid var(--border)">
-      <div style="font-family:'Space Grotesk';font-weight:700;font-size:13px;margin-bottom:14px;color:var(--text)">🗣️ Scrum Notes</div>
-      ${[["✅ Yesterday",scrum.yesterday,"#059669"],["🚀 Today",scrum.today,"#3b82f6"],["🎯 Priorities",scrum.priority,"#f59e0b"],["🚧 Blockers",scrum.blockers,"#dc2626"]].map(([l,v,c])=>`<div style="margin-bottom:10px"><div style="font-size:11px;color:${c};font-weight:700;margin-bottom:3px">${l}</div><div style="font-size:12px;color:${v?"var(--text)":"var(--dim)"};background:var(--bg);border-radius:7px;padding:8px;min-height:30px">${v||"Not filled"}</div></div>`).join("")}
-    </div>
-    <div style="background:var(--surface);border-radius:11px;padding:18px;border:1px solid var(--border)">
-      <div style="font-family:'Space Grotesk';font-weight:700;font-size:13px;margin-bottom:14px;color:var(--text)">⏱️ Time Tracked</div>
-      ${tasks.filter(t=>getTimerElapsed(t.id)>0).map(t=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)"><span style="font-size:12px;color:var(--text);flex:1">${esc(t.title)}</span><span style="font-size:12px;color:#06b6d4;font-weight:700;font-family:'Space Grotesk'">${fmtT(getTimerElapsed(t.id))}</span></div>`).join("")}
-      ${!tasks.filter(t=>getTimerElapsed(t.id)>0).length?`<div style="color:var(--dim);font-size:12px;text-align:center;padding:14px">Use ▶ Start to track time.</div>`:""}
-      <div style="display:flex;justify-content:space-between;padding:10px 0 0"><span style="font-size:13px;font-weight:600;color:var(--text)">Total</span><span style="font-size:13px;font-weight:700;color:#06b6d4;font-family:'Space Grotesk'">${fmtT(totalTime)}</span></div>
-    </div>
-  </div>`;
+      <div style="font-family:'Space Grotesk';font-weight:700;font-size:13px;margin-bottom:14px;color:var(--text)">📝 Summary</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:12px">
+        <div><span style="color:var(--dim)">✅ Done:</span> <span style="color:#059669;font-weight:700">${done.length}/${s.total}</span></div>
+        <div><span style="color:var(--dim)">⚡ Progress:</span> <span style="color:#d97706;font-weight:700">${progress.length}</span></div>
+        <div><span style="color:var(--dim)">📋 Remaining:</span> <span style="color:#7c3aed;font-weight:700">${todo.length}</span></div>
+        <div><span style="color:var(--dim)">🐛 Bugs:</span> <span style="color:#f97316;font-weight:700">${s.openBugs}</span></div>
+      </div>
+    </div>`;
 }
 
-// Task CRUD
-function openTaskForm(id){
-  editingId=id||null;
-  document.getElementById("taskModalTitle").textContent=id?"✏️ Edit Task":"➕ New Task";
-  document.getElementById("saveTaskBtn").textContent=id?"Update Task":"Add Task";
-  const t=id?tasks.find(x=>x.id===id):null;
-  document.getElementById("f_title").value=t?.title||"";
-  document.getElementById("f_type").value=t?.type||"Bug";
-  document.getElementById("f_priority").value=t?.priority||"MEDIUM";
-  document.getElementById("f_status").value=t?.status||"TODO";
-  document.getElementById("f_env").value=t?.env||"";
-  document.getElementById("f_assignee").value=t?.assignee||"";
-  document.getElementById("f_est").value=t?.estimate||"";
-  document.getElementById("f_actual").value=t?.actual||"";
-  document.getElementById("f_sprint").value=t?.sprint||userData.sprint||"";
-  document.getElementById("f_release").value=t?.release||userData.release||"";
-  document.getElementById("f_blocker").value=t?.blocker||"";
-  document.getElementById("f_notes").value=t?.notes||"";
+function renderCurrent() {
+  renderStats();
+  updateDateDisplay();
+  if (activeTab === "board") renderBoard();
+  else if (activeTab === "list") renderList();
+  else if (activeTab === "bugs") renderBugsView();
+  else if (activeTab === "report") renderReport();
+}
+
+function renderAll() { renderCurrent(); }
+
+function switchTab(tab) {
+  activeTab = tab;
+  ["board", "list", "bugs", "report"].forEach(t => {
+    document.getElementById("view-" + t)?.classList.toggle("hidden", t !== tab);
+    document.getElementById("tab-" + t)?.classList.toggle("active", t !== tab ? false : true);
+  });
+  renderCurrent();
+}
+
+function openTaskForm(id) {
+  const task = id ? getTasks().find(t => t.id == id) : null;
+  document.getElementById("taskModalTitle").textContent = id ? "✏️ Edit Task" : "➕ New Task";
+  document.getElementById("saveTaskBtn").textContent = id ? "Update" : "Add Task";
+  document.getElementById("f_title").value = task?.title || "";
+  document.getElementById("f_type").value = task?.type || "Bug";
+  document.getElementById("f_priority").value = task?.priority || "MEDIUM";
+  document.getElementById("f_status").value = task?.status || "TODO";
+  document.getElementById("f_env").value = task?.env || "";
+  document.getElementById("f_est").value = task?.estimate || "";
+  document.getElementById("f_blocker").value = task?.blocker || "";
+  document.getElementById("f_notes").value = task?.notes || "";
+  document.getElementById("taskModal").setAttribute("data-id", id || "");
   document.getElementById("taskModal").classList.remove("hidden");
-  setTimeout(()=>document.getElementById("f_title").focus(),80);
 }
 
-function saveTask(){
-  const title=document.getElementById("f_title").value.trim();
-  if(!title){document.getElementById("f_title").style.borderColor="#dc2626";document.getElementById("f_title").focus();return;}
-  document.getElementById("f_title").style.borderColor="";
-  const ex=editingId?tasks.find(t=>t.id===editingId):null;
-  const task={
-    id:editingId||Date.now(),
+function saveTask() {
+  const title = document.getElementById("f_title").value.trim();
+  if (!title) return alert("Task title required!");
+  const id = document.getElementById("taskModal").getAttribute("data-id");
+  const task = {
+    id: id || Date.now(),
     title,
-    type:document.getElementById("f_type").value,
-    priority:document.getElementById("f_priority").value,
-    status:document.getElementById("f_status").value,
-    env:document.getElementById("f_env").value.trim(),
-    assignee:document.getElementById("f_assignee").value.trim(),
-    estimate:document.getElementById("f_est").value.trim(),
-    actual:document.getElementById("f_actual").value.trim(),
-    sprint:document.getElementById("f_sprint").value.trim(),
-    release:document.getElementById("f_release").value.trim(),
-    blocker:document.getElementById("f_blocker").value.trim(),
-    notes:document.getElementById("f_notes").value.trim(),
-    timerTotal:ex?.timerTotal||0,
-    createdAt:ex?.createdAt||new Date().toLocaleTimeString(),
-    lastModified:Date.now(),
-    _unsynced: true
+    type: document.getElementById("f_type").value,
+    priority: document.getElementById("f_priority").value,
+    status: document.getElementById("f_status").value,
+    env: document.getElementById("f_env").value.trim(),
+    estimate: document.getElementById("f_est").value.trim(),
+    blocker: document.getElementById("f_blocker").value.trim(),
+    notes: document.getElementById("f_notes").value.trim(),
+    date: currentDate
   };
-  tasks=editingId?tasks.map(t=>t.id===editingId?task:t):[...tasks,task];
-  if(!timers[task.id])timers[task.id]={elapsed:task.timerTotal,state:"idle",startedAt:null};
-  scheduleAutoSync();
+  const data = getDateData();
+  if (id) {
+    const idx = data.tasks.findIndex(t => t.id == id);
+    if (idx >= 0) data.tasks[idx] = task;
+  } else {
+    data.tasks.push(task);
+  }
+  saveToCloud();
   closeModal("taskModal");
   renderAll();
 }
 
-function delTask(id){
-  if(confirm("Delete this task?")){
-    tasks=tasks.filter(t=>t.id!==id);
-    delete timers[id];
-    scheduleAutoSync();
-    renderAll();
-  }
+function delTask(id) {
+  if (!confirm("Delete task?")) return;
+  const data = getDateData();
+  data.tasks = data.tasks.filter(t => t.id != id);
+  saveToCloud();
+  renderAll();
 }
 
-function updateStatus(id,status){
-  tasks=tasks.map(t=>t.id==id?{...t,status,lastModified:Date.now(),_unsynced:true}:t);
-  scheduleAutoSync();
-  renderCurrent();
-}
-
-// Tabs
-function switchTab(tab){
-  activeTab=tab;
-  ["board","list","weekly","bugs","charts","report"].forEach(t=>{
-    document.getElementById("view-"+t)?.classList.toggle("hidden",t!==tab);
-    document.getElementById("tab-"+t)?.classList.toggle("active",t===tab);
-  });
-  renderCurrent();
-}
-
-function renderCurrent(){
-  renderStats();
-  if(activeTab==="board")renderBoard();
-  else if(activeTab==="list")renderList();
-  else if(activeTab==="weekly")renderWeekly();
-  else if(activeTab==="bugs")renderBugsView();
-  else if(activeTab==="charts")renderCharts();
-  else if(activeTab==="report")renderReport();
-}
-function renderAll(){renderCurrent();}
-
-// Scrum
-function openScrum(){
-  document.getElementById("scrumDate").textContent=getToday();
-  document.getElementById("s_yesterday").value=scrum.yesterday;
-  document.getElementById("s_today").value=scrum.today;
-  document.getElementById("s_priority").value=scrum.priority || ""; // New
-  document.getElementById("s_blockers").value=scrum.blockers;
-  document.querySelectorAll(".mood-btn").forEach(b=>b.classList.toggle("active",b.textContent===scrum.mood));
-  document.getElementById("scrumModal").classList.remove("hidden");
-}
-
-function saveScrumData(){
-  scrum.yesterday=document.getElementById("s_yesterday").value;
-  scrum.today=document.getElementById("s_today").value;
-  scrum.priority=document.getElementById("s_priority").value; // New
-  scrum.blockers=document.getElementById("s_blockers").value;
-  scrum.lastModified=Date.now();
-  closeModal("scrumModal");
-  renderCurrent();
-  scheduleAutoSync();
-}
-
-function setMood(m){
-  scrum.mood=m;
-  scrum.lastModified=Date.now();
-  document.querySelectorAll(".mood-btn").forEach(b=>b.classList.toggle("active",b.textContent===m));
-}
-
-// Bugs
-function openBugModal(){ renderBugListModal(); document.getElementById("bugModal").classList.remove("hidden"); }
-
-function renderBugListModal(){
-  const el=document.getElementById("bugListInModal");if(!el)return;
-  if(!bugs.length){el.innerHTML=`<div style="color:var(--dim);text-align:center;padding:18px">No bugs yet.</div>`;return;}
-  el.innerHTML=`<div style="background:var(--bg);border-radius:9px;border:1px solid var(--border);overflow:auto">
-    <table><thead><tr>${["Bug","Severity","Status","Steps","Date","✕"].map(h=>`<th>${h}</th>`).join("")}</tr></thead>
-    <tbody>${bugs.map(b=>`<tr>
-      <td style="color:var(--text);font-weight:500">${esc(b.title)}</td>
-      <td><span class="sev-${b.severity}" style="font-size:11px">${b.severity}</span></td>
-      <td><select onchange="updBugSt(${b.id},this.value)" style="background:${BSTC[b.status]}22;color:${BSTC[b.status]};border:1px solid ${BSTC[b.status]}55;border-radius:5px;padding:2px 6px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">${["OPEN","IN_FIX","FIXED","CLOSED","REOPEN"].map(s=>`<option value="${s}" ${b.status===s?"selected":""}>${s}</option>`).join("")}</select></td>
-      <td style="font-size:10px;color:var(--muted);max-width:160px">${esc((b.steps||"").substring(0,60))}</td>
-      <td style="font-size:10px;color:var(--dim)">${b.date}</td>
-      <td><button class="btn" onclick="delBug(${b.id})" style="background:#dc262622;color:#f87171;padding:2px 7px;font-size:10px">🗑</button></td>
-    </tr>`).join("")}</tbody></table></div>`;
-}
-
-function addBug(){
-  const title=document.getElementById("b_title").value.trim();
-  if(!title){document.getElementById("b_title").focus();return;}
-  bugs.push({
-    id:Date.now(),
-    title,
-    severity:document.getElementById("b_severity").value,
-    status:document.getElementById("b_status").value,
-    steps:document.getElementById("b_steps").value.trim(),
-    date:new Date().toLocaleDateString("en-IN"),
-    lastModified:Date.now(),
-    _unsynced: true
-  });
-  ["b_title","b_steps"].forEach(id=>{document.getElementById(id).value="";});
-  document.getElementById("b_severity").value="MEDIUM";document.getElementById("b_status").value="OPEN";
-  scheduleAutoSync();
-  renderBugListModal();
-  renderCurrent();
-}
-
-function delBug(id){
-  if(confirm("Delete bug?")){
-    bugs=bugs.filter(b=>b.id!==id);
-    scheduleAutoSync();
-    renderBugListModal();
+function updateStatus(id, status) {
+  const task = getTasks().find(t => t.id == id);
+  if (task) {
+    task.status = status;
+    saveToCloud();
     renderCurrent();
   }
 }
 
-function updBugSt(id,st){
-  bugs=bugs.map(b=>b.id==id?{...b,status:st,lastModified:Date.now(),_unsynced:true}:b);
-  scheduleAutoSync();
-  renderCurrent();
+function openBugModal() {
+  document.getElementById("b_title").value = "";
+  document.getElementById("b_severity").value = "MEDIUM";
+  document.getElementById("b_status").value = "OPEN";
+  document.getElementById("b_steps").value = "";
+  renderBugList();
+  document.getElementById("bugModal").classList.remove("hidden");
 }
 
-// Scratch
-function openScratch(){ document.getElementById("scratchText").value=scratch; updScratchCnt(); document.getElementById("scratchModal").classList.remove("hidden"); }
-function onScratchInput(){ scratch=document.getElementById("scratchText").value; updScratchCnt(); scheduleAutoSync(); }
-function updScratchCnt(){ const v=document.getElementById("scratchText")?.value||""; const el=document.getElementById("scratchCount"); if(el)el.textContent=`${v.length} chars`; }
-function clearScratch(){ if(confirm("Clear notes?")){ scratch=""; document.getElementById("scratchText").value=""; updScratchCnt(); scheduleAutoSync(); } }
-
-// Reminder
-function scheduleReminder(){
-  const val=document.getElementById("reminderTime")?.value||"18:00";
-  userData.reminderTime=val;
-  if(intervals.reminder)clearInterval(intervals.reminder);
-  intervals.reminder=setInterval(()=>{
-    const now=new Date(),cur=now.getHours().toString().padStart(2,"0")+":"+now.getMinutes().toString().padStart(2,"0");
-    if(cur===val){
-      document.getElementById("reminderBar").classList.remove("hidden");
-      if(Notification?.permission==="granted")new Notification("🧪 QA Tracker — EOD Time!",{body:"Generate your daily report!"});
-    }
-  },30000);
+function renderBugList() {
+  const bugs = getBugs();
+  const el = document.getElementById("bugListInModal");
+  if (!bugs.length) {
+    el.innerHTML = `<div style="color:var(--dim);text-align:center;padding:18px">No bugs yet</div>`;
+    return;
+  }
+  el.innerHTML = `<div style="background:var(--bg);border-radius:9px;border:1px solid var(--border);overflow:auto">
+    <table><thead><tr>${["Bug","Severity","Status","Steps"].map(h => `<th>${h}</th>`).join("")}</tr></thead>
+    <tbody>${bugs.map(b => `<tr>
+      <td style="color:var(--text);font-weight:500">${esc(b.title)}</td>
+      <td style="color:${b.severity === "CRITICAL" ? "#dc2626" : "#f97316"};font-size:11px;font-weight:700">${b.severity}</td>
+      <td><select onchange="updBugStatus(${b.id}, this.value)" style="font-size:10px;padding:2px 6px;border-radius:4px;border:1px solid var(--border);cursor:pointer;font-family:inherit">${["OPEN","IN_FIX","FIXED","CLOSED"].map(s => `<option ${b.status === s ? "selected" : ""}>${s}</option>`).join("")}</select></td>
+      <td style="font-size:10px;color:var(--muted)">${esc((b.steps || "").substring(0,50))}</td>
+    </tr>`).join("")}</tbody></table></div>`;
 }
 
-// Theme
-function toggleTheme(){
-  isLight=!isLight;
-  document.body.classList.toggle("light",isLight);
-  document.getElementById("themeBtn").textContent=isLight?"☀️ Light":"🌙 Dark";
-  if(document.getElementById("themeBtnMobile"))document.getElementById("themeBtnMobile").textContent=isLight?"☀️ Light":"🌙 Dark";
-  if(activeTab==="charts")renderCharts();
+function addBug() {
+  const title = document.getElementById("b_title").value.trim();
+  if (!title) return alert("Bug title required!");
+  const bug = {
+    id: Date.now(),
+    title,
+    severity: document.getElementById("b_severity").value,
+    status: document.getElementById("b_status").value,
+    steps: document.getElementById("b_steps").value.trim(),
+    date: currentDate
+  };
+  const data = getDateData();
+  data.bugs.push(bug);
+  saveToCloud();
+  document.getElementById("b_title").value = "";
+  document.getElementById("b_steps").value = "";
+  renderBugList();
+  renderAll();
 }
 
-// EOD
-function openEOD(){
-  const s=getStats(),pct=s.total?Math.round(s.done/s.total*100):0;
-  document.getElementById("eodDateTime").textContent=`${getToday()} · ${getTime()}`;
-  document.getElementById("eod_name").value=userData.name||"";
-  document.getElementById("eod_mgr").value=userData.manager||"";
-  document.getElementById("eod_notes").value="";
-  document.getElementById("eodStats").innerHTML=[{l:"✅ Done",v:s.done,c:"#059669"},{l:"⚡ Progress",v:s.prog,c:"#d97706"},{l:"📋 Remaining",v:s.remaining,c:"#7c3aed"},{l:"🚧 Blocked",v:s.blocked,c:"#dc2626"},{l:"🐛 Bugs",v:s.openBugs,c:"#f97316"},{l:"📊 Complete",v:pct+"%",c:"#3b82f6"}]
-    .map(x=>`<div style="background:#0f172a66;border-radius:9px;padding:8px 15px;border:1px solid #334155;text-align:center"><div style="font-size:17px;font-weight:700;color:${x.c};font-family:'Space Grotesk'">${x.v}</div><div style="font-size:10px;color:#64748b;margin-top:1px">${x.l}</div></div>`).join("");
+function delBug(id) {
+  if (!confirm("Delete bug?")) return;
+  const data = getDateData();
+  data.bugs = data.bugs.filter(b => b.id != id);
+  saveToCloud();
+  renderBugList();
+  renderAll();
+}
+
+function updBugStatus(id, status) {
+  const bug = getBugs().find(b => b.id == id);
+  if (bug) {
+    bug.status = status;
+    saveToCloud();
+    renderBugsView();
+  }
+}
+
+function setEODFormat(fmt) {
+  eodFormat = fmt;
+  document.getElementById("btn-email").style.background = fmt === "email" ? "#1e40af" : "var(--surface2)";
+  document.getElementById("btn-email").style.color = fmt === "email" ? "#fff" : "var(--dim)";
+  document.getElementById("btn-whatsapp").style.background = fmt === "whatsapp" ? "#059669" : "var(--surface2)";
+  document.getElementById("btn-whatsapp").style.color = fmt === "whatsapp" ? "#fff" : "var(--dim)";
+  updateEOD();
+}
+
+function updateEOD() {
+  const name = document.getElementById("eod_name").value || "QA Engineer";
+  const mgr = document.getElementById("eod_mgr").value || "Team";
+  const note = document.getElementById("eod_notes").value || "";
+  const tasks = getTasks();
+  const bugs = getBugs();
+  const done = tasks.filter(t => t.status === "DONE");
+  const prog = tasks.filter(t => t.status === "IN_PROGRESS" || t.status === "TESTING");
+  const todo = tasks.filter(t => t.status === "TODO");
+  const blocked = tasks.filter(t => t.blocker && t.status !== "DONE");
+  const openBugs = bugs.filter(b => b.status === "OPEN" || b.status === "IN_FIX");
+  const pct = tasks.length ? Math.round(done.length / tasks.length * 100) : 0;
+  
+  let report = "";
+  if (eodFormat === "email") {
+    report = `Subject: EOD Report - ${new Date(currentDate).toLocaleDateString("en-IN")}
+
+Hi ${mgr},
+
+Please find my EOD summary:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📊 SUMMARY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ Done: ${done.length}/${tasks.length} (${pct}%)
+⚡ In Progress: ${prog.length}
+📋 Remaining: ${todo.length}
+🚧 Blocked: ${blocked.length}
+🐛 Open Bugs: ${openBugs.length}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ COMPLETED
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${done.length ? done.map(t => `• [${t.type}] ${t.title}`).join("\n") : "• None"}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚡ IN PROGRESS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${prog.length ? prog.map(t => `• ${t.title}`).join("\n") : "• None"}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 TOMORROW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${todo.length ? todo.map(t => `• ${t.title}`).join("\n") : "• All clear!"}
+
+🚧 Blockers: ${blocked.length ? blocked.map(t => `${t.title} - ${t.blocker}`).join(" | ") : "None"}
+🐛 Bugs: ${openBugs.length ? openBugs.map(b => `${b.title}`).join(" | ") : "None"}
+
+${note ? `\nNotes: ${note}` : ""}
+
+Thanks,
+${name}`;
+  } else {
+    report = `*📋 EOD Report - ${new Date(currentDate).toLocaleDateString("en-IN")}*
+
+*QA: ${name}*
+
+*📊 Summary*
+✅ Done: ${done.length}/${tasks.length} (${pct}%)
+⚡ Progress: ${prog.length} | Remaining: ${todo.length}
+🚧 Blocked: ${blocked.length} | 🐛 Bugs: ${openBugs.length}
+
+*✅ Completed*
+${done.length ? done.map(t => `• ${t.title}`).join("\n") : "• None"}
+
+*⚡ In Progress*
+${prog.length ? prog.map(t => `• ${t.title}`).join("\n") : "• None"}
+
+*📋 Tomorrow*
+${todo.length ? todo.map(t => `• ${t.title}`).join("\n") : "• All clear! 🎉"}
+
+${blocked.length ? `\n*🚧 Blockers*\n${blocked.map(t => t.blocker).join(" | ")}` : ""}
+${openBugs.length ? `\n*🐛 Bugs*\n${openBugs.map(b => b.title).join(" | ")}` : ""}
+${note ? `\n*📝 Notes*\n${note}` : ""}`;
+  }
+  document.getElementById("eodPreview").textContent = report;
+}
+
+function openEOD() {
+  const data = getDateData();
+  document.getElementById("eod_name").value = data.userData?.name || "";
+  document.getElementById("eod_mgr").value = "";
+  document.getElementById("eod_notes").value = "";
+  setEODFormat("email");
   updateEOD();
   document.getElementById("eodModal").classList.remove("hidden");
 }
 
-function setRTab(t){
-  rTab=t;
-  document.getElementById("rtab-email").style.background=t==="email"?"#1e40af":"transparent";
-  document.getElementById("rtab-email").style.color=t==="email"?"#fff":"var(--dim)";
-  document.getElementById("rtab-whatsapp").style.background=t==="whatsapp"?"#059669":"transparent";
-  document.getElementById("rtab-whatsapp").style.color=t==="whatsapp"?"#fff":"var(--dim)";
-  document.getElementById("rFmtLabel").textContent=t==="email"?"📧 Paste into Gmail / Outlook":"💬 Paste into WhatsApp / Slack";
-  updateEOD();
-}
-
-function updateEOD(){ const el=document.getElementById("rptPreview"); if(!el)return; el.textContent=rTab==="email"?buildEmail():buildWA(); }
-
-function buildEmail(){
-  const name=userData.name||"QA Engineer",mgr=userData.manager||"Team",note=document.getElementById("eod_notes")?.value||"";
-  const sp=userData.sprint||"",rl=userData.release||"";
-  const done=tasks.filter(t=>t.status==="DONE"),prog=tasks.filter(t=>t.status==="IN_PROGRESS"||t.status==="TESTING"),todo=tasks.filter(t=>t.status==="TODO"),blk=tasks.filter(t=>t.blocker&&t.status!=="DONE"),ob=bugs.filter(b=>b.status==="OPEN"||b.status==="REOPEN");
-  const tot=tasks.length,pct=tot?Math.round(done.length/tot*100):0,totalTime=fmtT(tasks.reduce((a,t)=>a+getTimerElapsed(t.id),0));
-  const tl=t=>`  • [${t.type}] ${t.title}${t.env?" ("+t.env+")":""}${t.actual?" — "+t.actual:""}${getTimerElapsed(t.id)>0?" ⏱ "+fmtT(getTimerElapsed(t.id)):""}${t.notes?"\n      └ "+t.notes:""}`;
-  return`Subject: EOD Report — QA Update | ${getToday()}${sp?" | "+sp:""}${rl?" | "+rl:""}
-
-Hi ${mgr},
-
-Please find my End of Day QA summary for ${getToday()}.${sp?"\nSprint: "+sp:""}${rl?"  Release: "+rl:""}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📊 DAILY SUMMARY
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  Total Tasks    : ${tot}
-  ✅ Completed   : ${done.length} (${pct}%)
-  ⚡ In Progress  : ${prog.length}
-  📋 Remaining   : ${todo.length}
-  🚧 Blocked     : ${blk.length}
-  🐛 Open Bugs   : ${ob.length}
-  ⏱ Time Logged  : ${totalTime}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✅ COMPLETED TODAY (${done.length})
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- ${done.length?done.map(tl).join("\n"):"  — None completed today"}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚡ IN PROGRESS / TESTING (${prog.length})
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- ${prog.length?prog.map(tl).join("\n"):"  — None in progress"}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📋 CARRY FORWARD TO TOMORROW (${todo.length})
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- ${todo.length?todo.map(tl).join("\n"):"  — All tasks addressed!"}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🚧 BLOCKERS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- ${blk.length?blk.map(t=>`  • ${t.title}\n      └ ${t.blocker}`).join("\n"):"  ✅ No blockers today!"}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🐛 OPEN BUGS (${ob.length})
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- ${ob.length?ob.map(b=>`  • [${b.severity}] ${b.title}`).join("\n"):"  ✅ No open bugs!"}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🗣️ SCRUM NOTES
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  Yesterday : ${scrum.yesterday||"—"}
-  Today     : ${scrum.today||"—"}
-  Priorities: ${scrum.priority||"—"}
-  Blockers  : ${scrum.blockers||"None"}
- ${note?`\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n📝 NOTES\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n${note}\n`:""}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Thanks & Regards,
- ${name}
-Generated at ${getTime()}`;
-}
-
-function buildWA(){
-  const name=userData.name||"QA Engineer",note=document.getElementById("eod_notes")?.value||"",sp=userData.sprint||"";
-  const date=new Date().toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"});
-  const done=tasks.filter(t=>t.status==="DONE"),prog=tasks.filter(t=>t.status==="IN_PROGRESS"||t.status==="TESTING"),todo=tasks.filter(t=>t.status==="TODO"),blk=tasks.filter(t=>t.blocker&&t.status!=="DONE"),ob=bugs.filter(b=>b.status==="OPEN"||b.status==="REOPEN");
-  const tot=tasks.length,pct=tot?Math.round(done.length/tot*100):0;
-  return`*📋 EOD QA Report — ${date}*${sp?" | *"+sp+"*":""}
-*QA:* ${name}
-
-*📊 Summary*
-✅ Done: ${done.length}/${tot} (${pct}%)
-⚡ In Progress: ${prog.length}  📋 Remaining: ${todo.length}
-🚧 Blocked: ${blk.length}  🐛 Open Bugs: ${ob.length}
-⏱ Time: ${fmtT(tasks.reduce((a,t)=>a+getTimerElapsed(t.id),0))}
-
-*✅ Completed*
- ${done.length?done.map(t=>`• [${t.type}] ${t.title}`).join("\n"):"• None"}
-
-*⚡ In Progress*
- ${prog.length?prog.map(t=>`• ${t.title}`).join("\n"):"• None"}
-
-*📋 Tomorrow*
- ${todo.length?todo.map(t=>`• ${t.title}`).join("\n"):"• All clear! 🎉"}
-
-*🚧 Blockers*
- ${blk.length?blk.map(t=>`• ${t.title}: ${t.blocker}`).join("\n"):"✅ None!"}
-
-*🐛 Open Bugs*
- ${ob.length?ob.map(b=>`• [${b.severity}] ${b.title}`).join("\n"):"✅ None!"}
- ${note?`\n*📝 Notes*\n${note}`:""}
- ${getTime()} | Good Day`;
-}
-
-function copyReport(){
-  const text=rTab==="email"?buildEmail():buildWA();
-  const ok=()=>{
-    ["copyBtn","copyBtn2"].forEach(id=>{
-      const b=document.getElementById(id); if(!b)return;
-      b.textContent="✅ Copied!"; b.style.background="#059669";
-      setTimeout(()=>{ b.textContent=id==="copyBtn"?"📋 Copy":"📋 Copy & Send to Manager"; b.style.background=id==="copyBtn"?"#1e40af":"linear-gradient(135deg,#f59e0b,#ef4444)"; },3000);
+function copyEOD() {
+  const text = document.getElementById("eodPreview").textContent;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => {
+      alert("✅ Copied to clipboard!");
     });
+  } else {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+    alert("✅ Copied!");
+  }
+}
+
+function openScrum() {
+  const data = getDateData();
+  document.getElementById("scrumDate").textContent = new Date(currentDate + "T00:00:00").toLocaleDateString("en-IN");
+  document.getElementById("s_yesterday").value = data.scrum?.yesterday || "";
+  document.getElementById("s_today").value = data.scrum?.today || "";
+  document.getElementById("s_priority").value = data.scrum?.priority || "";
+  document.getElementById("s_blockers").value = data.scrum?.blockers || "";
+  document.getElementById("scrumModal").classList.remove("hidden");
+}
+
+function saveScrumData() {
+  const data = getDateData();
+  data.scrum = {
+    yesterday: document.getElementById("s_yesterday").value,
+    today: document.getElementById("s_today").value,
+    priority: document.getElementById("s_priority").value,
+    blockers: document.getElementById("s_blockers").value,
+    mood: data.scrum?.mood || "😊"
   };
-  if(navigator.clipboard?.writeText){ navigator.clipboard.writeText(text).then(ok).catch(()=>fbCopy(text,ok)); } else fbCopy(text,ok);
+  saveToCloud();
+  closeModal("scrumModal");
 }
 
-function fbCopy(text,ok){
-  const ta=document.createElement("textarea"); ta.value=text; ta.style.cssText="position:fixed;top:0;left:0;width:2px;height:2px;opacity:0";
-  document.body.appendChild(ta); ta.focus(); ta.select();
-  try{ const r=document.execCommand("copy"); document.body.removeChild(ta); r?ok():showManual(text); }catch(e){ document.body.removeChild(ta); showManual(text); }
+function openScratch() {
+  const data = getDateData();
+  document.getElementById("scratchText").value = data.scratch || "";
+  updScratchCnt();
+  document.getElementById("scratchModal").classList.remove("hidden");
 }
 
-function showManual(text){ document.getElementById("manualBox").classList.remove("hidden"); document.getElementById("manualText").value=text; document.getElementById("manualText").select(); }
-
-function downloadRpt(){
-  const text=rTab==="email"?buildEmail():buildWA();
-  const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([text],{type:"text/plain"})); a.download=`QA_EOD_${dk()}.txt`; a.click();
+function onScratchInput() {
+  const data = getDateData();
+  data.scratch = document.getElementById("scratchText").value;
+  updScratchCnt();
+  scheduleSave();
 }
 
-// SYNC
-async function loadFromSheet(){
-  const btn=document.getElementById("loadBtn");
-  if(btn){btn.textContent="⏳ Loading…";btn.disabled=true;}
-  setCloud("sync","Loading…");
-  
-  try{
-    const response = await fetch(`${SHEET_URL}?date=${dk()}&t=${Date.now()}`);
-    if(!response.ok) throw new Error("Load failed");
-    const data = await response.json();
+function updScratchCnt() {
+  const v = document.getElementById("scratchText")?.value || "";
+  const el = document.getElementById("scratchCount");
+  if (el) el.textContent = `${v.length} chars`;
+}
 
-    if(data.tasks && Array.isArray(data.tasks)){
-      const serverIds = new Set(data.tasks.map(t => t.id));
-      data.tasks.forEach(st => {
-        const idx = tasks.findIndex(t => t.id === st.id);
-        if(idx >= 0){
-          if((st.lastModified||0) >= (tasks[idx].lastModified||0)){
-             tasks[idx] = {...st, id: Number(st.id), timerTotal: Number(st.timerTotal)||0};
-          }
-        } else {
-          tasks.push({...st, id: Number(st.id), timerTotal: Number(st.timerTotal)||0});
-        }
-      });
-      tasks = tasks.filter(t => {
-        if(!serverIds.has(t.id)){
-          if(t._unsynced) return true;
-          return false;
-        }
-        return true;
-      });
-    }
+function clearScratch() {
+  if (!confirm("Clear notes?")) return;
+  const data = getDateData();
+  data.scratch = "";
+  document.getElementById("scratchText").value = "";
+  updScratchCnt();
+  saveToCloud();
+}
 
-    if(data.bugs && Array.isArray(data.bugs)){
-      const serverIds = new Set(data.bugs.map(b => b.id));
-      data.bugs.forEach(sb => {
-        const idx = bugs.findIndex(b => b.id === sb.id);
-        if(idx >= 0){
-           if((sb.lastModified||0) >= (bugs[idx].lastModified||0)){
-             bugs[idx] = {...sb, id: Number(sb.id)};
-           }
-        } else {
-          bugs.push({...sb, id: Number(sb.id)});
-        }
-      });
-      bugs = bugs.filter(b => {
-        if(!serverIds.has(b.id)){
-          if(b._unsynced) return true;
-          return false;
-        }
-        return true;
-      });
-    }
+function closeModal(id) {
+  document.getElementById(id).classList.add("hidden");
+}
 
-    if(data.scrum && (data.scrum.lastModified||0) > (scrum.lastModified||0)){
-      scrum = {
-        yesterday: data.scrum.yesterday || "",
-        today: data.scrum.today || "",
-        priority: data.scrum.priority || "", // New
-        blockers: data.scrum.blockers || "",
-        mood: data.scrum.mood || "😊",
-        lastModified: data.scrum.lastModified || 0
-      };
-    }
-    if(data.scratch) scratch = data.scratch;
-    if(data.userData){
-      userData = {...userData, ...data.userData};
-      document.getElementById("myNameInput").value=userData.name||"";
-      document.getElementById("sprintInput").value=userData.sprint||"";
-      document.getElementById("releaseInput").value=userData.release||"";
-    }
+function toggleTheme() {
+  isLight = !isLight;
+  document.body.classList.toggle("light", isLight);
+  document.getElementById("themeBtn").textContent = isLight ? "☀️ Light" : "🌙 Dark";
+}
 
-    tasks.forEach(t=>{ if(!timers[t.id])timers[t.id]={elapsed:t.timerTotal||0,state:"idle",startedAt:null}; });
-    
-    const now=new Date().toLocaleTimeString();
-    document.getElementById("lastSyncInfo").textContent="⬇️ Loaded: "+now;
-    renderAll();
-    setCloud("ok","Cloud ✓");
-  }catch(err){
-    console.log("📝 Cloud unavailable:",err);
-    setCloud("err","Offline");
-  }finally{
-    if(btn){btn.textContent="⬇️ Load";btn.disabled=false;}
+// Init
+document.addEventListener("DOMContentLoaded", () => {
+  isLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+  if (isLight) {
+    document.body.classList.add("light");
+    document.getElementById("themeBtn").textContent = "☀️ Light";
   }
-}
-
-async function syncSheet(manual=true){
-  if(manual){
-    const btn=document.getElementById("syncBtn");
-    if(btn){btn.textContent="⏳ Syncing…";btn.disabled=true;}
-  }
-  setCloud("sync","Syncing…");
+  document.getElementById("todayLabel").textContent = new Date().toLocaleDateString("en-IN", {weekday:"long",month:"long",day:"numeric"});
+  document.getElementById("dateFilter").value = currentDate;
+  updateDateDisplay();
+  loadFromCloud();
   
-  try{
-    const payload = {
-      tasks: tasks,
-      bugs: bugs,
-      scrum: scrum,
-      scratch: scratch,
-      userData: userData,
-      date: dk()
-    };
-    
-    const response = await fetch(SHEET_URL, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(payload)
+  ["taskModal","scrumModal","bugModal","scratchModal","eodModal"].forEach(id => {
+    document.getElementById(id).addEventListener("click", (e) => {
+      if (e.target.id === id) closeModal(id);
     });
-    
-    if(!response.ok) throw new Error("Sync failed");
-    
-    tasks.forEach(t => delete t._unsynced);
-    bugs.forEach(b => delete b._unsynced);
-    
-    const now=new Date().toLocaleTimeString();
-    document.getElementById("lastSyncInfo").textContent="☁️ Synced: "+now;
-    setCloud("ok","Synced ✓");
-    if(manual)showSync("✅ Data synced!");
-  }catch(e){
-    console.error("Sync error:",e);
-    setCloud("err","Sync failed");
-    if(manual)showSync("❌ Sync failed");
-  }finally{
-    if(manual){
-      const btn=document.getElementById("syncBtn");
-      if(btn){btn.textContent="☁️ Sync";btn.disabled=false;}
-      setTimeout(()=>document.getElementById("syncBar").classList.add("hidden"),3000);
-    }
-  }
-}
-
-function showSync(m){ const b=document.getElementById("syncBar"); b.textContent=m; b.classList.remove("hidden"); }
-
-function closeModal(id){ document.getElementById(id)?.classList.add("hidden"); }
-["taskModal","scrumModal","bugModal","scratchModal","eodModal"].forEach(id=>{
-  document.getElementById(id)?.addEventListener("click",function(e){ if(e.target===this)this.classList.add("hidden"); });
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") ["taskModal","scrumModal","bugModal","scratchModal","eodModal"].forEach(id => closeModal(id));
+  });
 });
 
-document.addEventListener("keydown",e=>{
-  if(e.key==="Escape"){ ["taskModal","scrumModal","bugModal","scratchModal","eodModal"].forEach(id=>closeModal(id)); closeMobileMenu(); }
-  if(e.key==="Enter"&&document.activeElement?.id==="f_title")saveTask();
-});
-
-scheduleReminder();
+// Auto-sync every 30 seconds
+setInterval(() => saveToCloud(), 30000);
 </script>
 </body>
 </html>
