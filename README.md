@@ -137,7 +137,7 @@ JSON Data Store
 Your frontend uses:
 
 ```js
-const SHEET_URL = "https://qatracker.kunal-249.workers.dev";
+const SHEET_URL = "https://abcd.XXX.dev";
 ```
 
 To set up backend:
