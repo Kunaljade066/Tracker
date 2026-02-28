@@ -3,122 +3,82 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>QA Tracker - Cloud Storage</title>
+<title>QA Tracker Pro - Complete</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
 :root{--bg:#0f172a;--surface:#1e293b;--surface2:#162032;--border:#334155;--text:#e2e8f0;--muted:#94a3b8;--dim:#64748b}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .25s,color .25s}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 body.light{--bg:#f1f5f9;--surface:#ffffff;--surface2:#f8fafc;--border:#e2e8f0;--text:#1e293b;--muted:#475569;--dim:#94a3b8}
-::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--surface)}::-webkit-scrollbar-thumb{background:#475569;border-radius:3px}
 input,select,textarea{font-family:inherit;outline:none}
 .inp{background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;padding:9px 13px;color:var(--text);font-size:14px;width:100%;transition:border-color .2s}
 .inp:focus{border-color:#3b82f6}
-.btn{cursor:pointer;border:none;border-radius:8px;font-family:inherit;font-weight:600;transition:all .15s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.btn{cursor:pointer;border:none;border-radius:8px;font-family:inherit;font-weight:600;transition:all .15s;display:inline-flex;align-items:center;gap:5px}
 .btn:hover{filter:brightness(1.1);transform:translateY(-1px)}
-.btn:active{transform:translateY(0)}
 .hidden{display:none!important}
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:300;display:flex;align-items:center;justify-content:center;padding:16px}
-.modal{background:var(--surface);border-radius:16px;padding:26px;max-width:660px;width:100%;max-height:93vh;overflow-y:auto;border:1px solid var(--border);box-shadow:0 24px 64px rgba(0,0,0,.5)}
-.pb{height:5px;border-radius:3px;background:var(--border);overflow:hidden}
-.pb-fill{height:100%;border-radius:3px;transition:width .5s ease}
-.tcard{background:var(--surface2);border-radius:10px;padding:11px;border:1px solid var(--border);transition:all .18s;margin-bottom:8px}
-.tcard:hover{box-shadow:0 4px 18px rgba(0,0,0,.35);border-color:#475569}
-table{width:100%;border-collapse:collapse}
-th{padding:10px 13px;text-align:left;font-size:11px;color:var(--dim);font-weight:700;border-bottom:1px solid var(--border);background:var(--bg);letter-spacing:.5px;text-transform:uppercase}
-td{padding:9px 13px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle}
-.tpill{font-family:'Space Grotesk';font-size:12px;font-weight:700;padding:3px 9px;border-radius:20px;display:inline-flex;align-items:center;gap:4px}
-.tpill-idle{color:#64748b;background:#64748b18;border:1px solid #64748b33}
-.tpill-run{color:#059669;background:#05966918;border:1px solid #05966944}
-.tbtn{cursor:pointer;border:none;border-radius:6px;font-size:10px;font-weight:700;padding:2px 7px;font-family:inherit;transition:all .12s}
-.tbtn:hover{filter:brightness(1.15)}
-.tab-btn{cursor:pointer;padding:7px 14px;border-radius:7px;font-weight:500;font-size:13px;transition:all .18s;border:none;background:transparent;color:var(--muted);font-family:inherit}
+.modal{background:var(--surface);border-radius:16px;padding:26px;max-width:900px;width:100%;max-height:93vh;overflow-y:auto;border:1px solid var(--border);box-shadow:0 24px 64px rgba(0,0,0,.5)}
+.chart-container{position:relative;height:280px;margin-bottom:20px;background:var(--surface2);border-radius:10px;padding:15px;border:1px solid var(--border)}
+.chart-container.small{height:200px}
+.tab-btn{cursor:pointer;padding:7px 14px;border-radius:7px;font-weight:500;font-size:13px;border:none;background:transparent;color:var(--muted);font-family:inherit}
 .tab-btn.active{background:#1e40af;color:#fff}
-.tab-btn:hover:not(.active){background:var(--surface);color:var(--text)}
-.badge{display:inline-block;padding:1px 7px;border-radius:4px;font-size:10px;font-weight:500}
-.cloud-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:4px}
-.cloud-ok{background:#059669}.cloud-err{background:#dc2626}.cloud-sync{background:#d97706}
-.date-nav{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--surface);padding:12px;border-radius:10px;border:1px solid var(--border);margin-bottom:14px}
-
-@media(max-width:700px){.date-nav{flex-direction:column;align-items:stretch}}
-.board-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.tab-wrap{display:flex;gap:3px;background:var(--surface);border-radius:10px;padding:3px;flex-wrap:wrap}
 .stats-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+.board-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
 .form-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}
 .form-grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.tab-wrap{display:flex;gap:3px;background:var(--surface);border-radius:10px;padding:3px;flex-wrap:wrap}
-.filters-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.info-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.header-inner{display:flex;align-items:center;justify-content:space-between;height:58px;gap:8px;flex-wrap:wrap}
-.header-btns{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.header-left{display:flex;align-items:center;gap:10px;flex-shrink:0}
-
-@media(max-width:900px){.board-grid{grid-template-columns:repeat(2,1fr)!important}.stats-grid{grid-template-columns:repeat(3,1fr)!important}}
-@media(max-width:700px){.board-grid{grid-template-columns:1fr!important}.stats-grid{grid-template-columns:repeat(2,1fr)!important}.tab-wrap{width:100%;justify-content:center}.filters-row{flex-direction:column;align-items:stretch}.info-row{flex-direction:column;align-items:stretch}.header-inner{flex-direction:column;height:auto;padding:12px 0;gap:12px}.header-btns{width:100%;justify-content:center}.header-left{width:100%;justify-content:center}}
+@media(max-width:900px){.board-grid{grid-template-columns:repeat(2,1fr)}.stats-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:700px){.board-grid{grid-template-columns:1fr}.stats-grid{grid-template-columns:repeat(2,1fr)}.tab-wrap{width:100%;justify-content:center}}
+table{width:100%;border-collapse:collapse}
+th{padding:10px 13px;text-align:left;font-size:11px;color:var(--dim);font-weight:700;border-bottom:1px solid var(--border);background:var(--bg)}
+td{padding:9px 13px;border-bottom:1px solid var(--border);font-size:13px}
+.tcard{background:var(--surface2);border-radius:10px;padding:11px;border:1px solid var(--border);margin-bottom:8px}
+.tcard:hover{box-shadow:0 4px 18px rgba(0,0,0,.35);border-color:#475569}
+.badge{display:inline-block;padding:1px 7px;border-radius:4px;font-size:10px;font-weight:500}
+.time-badge{background:var(--surface2);border-radius:6px;padding:4px 8px;font-size:10px;color:var(--muted)}
+.activity-item{padding:8px;border-left:3px solid #3b82f6;margin-bottom:6px;background:var(--bg);border-radius:6px;font-size:11px}
+.leaderboard-row{display:flex;justify-content:space-between;align-items:center;background:var(--surface2);padding:10px 12px;border-radius:8px;margin-bottom:6px}
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
 <div style="background:var(--bg);border-bottom:1px solid var(--border);padding:0 18px;position:sticky;top:0;z-index:100">
-  <div class="header-inner" style="max-width:1340px;margin:0 auto">
-    <div class="header-left">
+  <div style="display:flex;align-items:center;justify-content:space-between;height:58px;gap:8px;max-width:1440px;margin:0 auto;flex-wrap:wrap">
+    <div style="display:flex;align-items:center;gap:10px">
       <div style="background:linear-gradient(135deg,#3b82f6,#06b6d4);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:18px">🧪</div>
       <div>
-        <div style="font-family:'Space Grotesk';font-weight:700;font-size:15px;color:var(--text)">QA Tracker</div>
-        <div style="display:flex;align-items:center;gap:6px">
-          <div id="todayLabel" style="font-size:12px;color:var(--muted)"></div>
-          <span style="font-size:11px;color:var(--dim);display:flex;align-items:center">
-            <span class="cloud-dot cloud-ok" id="cloudDot"></span><span id="cloudLabel">Cloud Ready</span>
-          </span>
-        </div>
+        <div style="font-family:'Space Grotesk';font-weight:700;font-size:15px;color:var(--text)">QA Tracker Pro</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dim)"><span id="cloudDot" style="width:8px;height:8px;border-radius:50%;background:#059669"></span><span id="cloudLabel">Cloud Ready</span></div>
       </div>
     </div>
     
-    <div class="header-btns">
-      <input id="myNameInput" class="inp" style="width:120px;font-size:12px;padding:5px 9px" placeholder="Your name…" oninput="saveToCloud()"/>
-      <button class="btn" id="themeBtn" onclick="toggleTheme()" style="background:var(--surface);color:var(--text);padding:7px 11px;font-size:12px;border:1px solid var(--border)">🌙 Dark</button>
+    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+      <input id="myNameInput" class="inp" style="width:120px;font-size:12px;padding:5px 9px" placeholder="Your name…" oninput="quickSync()"/>
+      <button class="btn" id="themeBtn" onclick="toggleTheme()" style="background:var(--surface);color:var(--text);padding:7px 11px;font-size:12px;border:1px solid var(--border)">🌙</button>
       <button class="btn" onclick="openTaskForm(null)" style="background:#1e40af;color:#fff;padding:7px 12px;font-size:12px">+ Task</button>
-      <button class="btn" onclick="openScrum()" style="background:#7c3aed;color:#fff;padding:7px 11px;font-size:12px">📋 Scrum</button>
-      <button class="btn" onclick="openBugModal()" style="background:#dc2626;color:#fff;padding:7px 11px;font-size:12px">🐛 Bugs</button>
-      <button class="btn" onclick="openScratch()" style="background:#0369a1;color:#fff;padding:7px 11px;font-size:12px">📝 Notes</button>
-      <button class="btn" onclick="syncNow()" id="syncBtn" style="background:#059669;color:#fff;padding:7px 11px;font-size:12px">☁️ Sync</button>
-      <button class="btn" onclick="loadFromCloud()" id="loadBtn" style="background:#0e7490;color:#fff;padding:7px 11px;font-size:12px">⬇️ Load</button>
-      <button class="btn" onclick="openEOD()" style="background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;padding:8px 15px;font-size:13px;border-radius:10px;font-weight:700">📤 EOD</button>
+      <button class="btn" onclick="openTemplates()" style="background:#8b5cf6;color:#fff;padding:7px 11px;font-size:12px">📋</button>
+      <button class="btn" onclick="openTimeTracking()" style="background:#0891b2;color:#fff;padding:7px 11px;font-size:12px">⏱️</button>
+      <button class="btn" onclick="openScrum()" style="background:#7c3aed;color:#fff;padding:7px 11px;font-size:12px">Scrum</button>
+      <button class="btn" onclick="openBugModal()" style="background:#dc2626;color:#fff;padding:7px 11px;font-size:12px">🐛</button>
+      <button class="btn" onclick="openScratch()" style="background:#0369a1;color:#fff;padding:7px 11px;font-size:12px">📝</button>
+      <button class="btn" onclick="quickSync()" style="background:#059669;color:#fff;padding:7px 11px;font-size:12px">☁️</button>
+      <button class="btn" onclick="openEOD()" style="background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;padding:8px 15px;font-size:13px;font-weight:700">📤</button>
     </div>
   </div>
 </div>
 
-<div id="syncBar" class="hidden" style="background:var(--surface);padding:6px 20px;text-align:center;font-size:13px;color:var(--muted);border-bottom:1px solid var(--border)"></div>
-
-<div style="max-width:1340px;margin:0 auto;padding:18px 18px 30px">
-  <!-- DATE FILTER SECTION -->
-  <div class="date-nav">
-    <div style="display:flex;align-items:center;gap:8px;flex:1">
-      <span style="font-size:12px;color:var(--dim);font-weight:600;white-space:nowrap">📅 Date:</span>
-      <input id="dateFilter" type="date" class="inp" style="width:140px;font-size:12px;padding:5px 9px" onchange="switchDate(this.value)"/>
-      <button class="btn" onclick="goToToday()" style="background:#1e40af;color:#fff;padding:5px 12px;font-size:11px;white-space:nowrap">Today</button>
-      <button class="btn" onclick="previousDay()" style="background:var(--surface2);color:var(--text);padding:5px 12px;font-size:11px;border:1px solid var(--border);white-space:nowrap">← Prev</button>
-      <button class="btn" onclick="nextDay()" style="background:var(--surface2);color:var(--text);padding:5px 12px;font-size:11px;border:1px solid var(--border);white-space:nowrap">Next →</button>
-    </div>
-    <div style="display:flex;align-items:center;gap:6px">
-      <span id="dateInfo" style="font-size:11px;color:var(--dim);white-space:nowrap"></span>
-      <span id="recordCount" style="font-size:11px;background:#1e40af22;color:#60a5fa;padding:3px 10px;border-radius:6px;font-weight:600"></span>
-    </div>
+<div style="max-width:1440px;margin:0 auto;padding:18px 18px 30px">
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--surface);padding:12px;border-radius:10px;border:1px solid var(--border);margin-bottom:14px">
+    <input id="dateFilter" type="date" class="inp" style="width:140px;font-size:12px;padding:5px 9px" onchange="switchDate(this.value)"/>
+    <button class="btn" onclick="goToToday()" style="background:#1e40af;color:#fff;padding:5px 12px;font-size:11px">Today</button>
+    <button class="btn" onclick="previousDay()" style="background:var(--surface2);color:var(--text);padding:5px 12px;font-size:11px;border:1px solid var(--border)">←</button>
+    <button class="btn" onclick="nextDay()" style="background:var(--surface2);color:var(--text);padding:5px 12px;font-size:11px;border:1px solid var(--border)">→</button>
+    <span id="dateInfo" style="font-size:11px;color:var(--dim);white-space:nowrap"></span>
+    <span id="recordCount" style="font-size:11px;background:#1e40af22;color:#60a5fa;padding:3px 10px;border-radius:6px;font-weight:600"></span>
   </div>
 
   <div id="statsRow" class="stats-grid" style="margin-bottom:16px"></div>
-
-  <div class="info-row" style="margin-bottom:14px">
-    <div style="display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:5px 12px">
-      <span style="font-size:11px;color:var(--dim)">🏷️ Sprint</span>
-      <input id="sprintInput" class="inp" style="width:110px;font-size:11px;padding:3px 8px" placeholder="Sprint 24" oninput="saveToCloud()"/>
-    </div>
-    <div style="display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:5px 12px">
-      <span style="font-size:11px;color:var(--dim)">🚀 Release</span>
-      <input id="releaseInput" class="inp" style="width:90px;font-size:11px;padding:3px 8px" placeholder="v2.4.1" oninput="saveToCloud()"/>
-    </div>
-    <div id="lastSyncInfo" style="font-size:11px;color:var(--dim);padding:5px 12px;background:var(--surface);border:1px solid var(--border);border-radius:9px"></div>
-  </div>
 
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
     <div class="tab-wrap">
@@ -126,8 +86,11 @@ td{padding:9px 13px;border-bottom:1px solid var(--border);font-size:13px;vertica
       <button class="tab-btn" id="tab-list" onclick="switchTab('list')">📋 List</button>
       <button class="tab-btn" id="tab-bugs" onclick="switchTab('bugs')">🐛 Bugs</button>
       <button class="tab-btn" id="tab-report" onclick="switchTab('report')">📈 Report</button>
+      <button class="tab-btn" id="tab-analytics" onclick="switchTab('analytics')">📊 Analytics</button>
+      <button class="tab-btn" id="tab-activity" onclick="switchTab('activity')">📜 Activity</button>
+      <button class="tab-btn" id="tab-leaderboard" onclick="switchTab('leaderboard')">🏆 Leaderboard</button>
     </div>
-    <div class="filters-row" style="gap:6px">
+    <div style="display:flex;gap:6px">
       <input class="inp" id="searchInput" style="width:175px;font-size:12px;padding:6px 10px" placeholder="🔍 Search…" oninput="renderCurrent()"/>
       <select class="inp" id="filterSel" style="width:130px;font-size:12px;padding:6px 9px" onchange="currentFilter=this.value;renderCurrent()">
         <option value="ALL">All Status</option><option value="TODO">To Do</option><option value="IN_PROGRESS">In Progress</option>
@@ -140,6 +103,9 @@ td{padding:9px 13px;border-bottom:1px solid var(--border);font-size:13px;vertica
   <div id="view-list" class="hidden"></div>
   <div id="view-bugs" class="hidden"></div>
   <div id="view-report" class="hidden"></div>
+  <div id="view-analytics" class="hidden"></div>
+  <div id="view-activity" class="hidden"></div>
+  <div id="view-leaderboard" class="hidden"></div>
 </div>
 
 <!-- TASK MODAL -->
@@ -159,9 +125,9 @@ td{padding:9px 13px;border-bottom:1px solid var(--border);font-size:13px;vertica
       </div>
       <div class="form-grid2">
         <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Environment</label>
-          <input id="f_env" class="inp" placeholder="Staging / QA / Prod"/></div>
-        <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Estimate</label>
-          <input id="f_est" class="inp" placeholder="2h"/></div>
+          <input id="f_env" class="inp" placeholder="QA / Staging / Prod"/></div>
+        <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Estimate (hrs)</label>
+          <input id="f_est" class="inp" type="number" placeholder="2" step="0.5"/></div>
       </div>
       <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">🚧 Blocker</label>
         <input id="f_blocker" class="inp" placeholder="What's blocking this?"/></div>
@@ -169,8 +135,51 @@ td{padding:9px 13px;border-bottom:1px solid var(--border);font-size:13px;vertica
         <textarea id="f_notes" class="inp" rows="2" placeholder="Steps, observations…"></textarea></div>
       <div style="display:flex;gap:9px;justify-content:flex-end">
         <button class="btn" onclick="closeModal('taskModal')" style="background:#334155;color:#e2e8f0;padding:9px 18px">Cancel</button>
-        <button class="btn" onclick="saveTask()" id="saveTaskBtn" style="background:#1e40af;color:#fff;padding:9px 18px">Add Task</button>
+        <button class="btn" onclick="saveTask()" id="saveTaskBtn" style="background:#1e40af;color:#fff;padding:9px 18px">Add</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- TIME TRACKING MODAL -->
+<div id="timeModal" class="modal-bg hidden">
+  <div class="modal" style="max-width:700px">
+    <div style="font-family:'Space Grotesk';font-weight:700;font-size:17px;color:var(--text);margin-bottom:16px">⏱️ Time Tracking</div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Select Task</label>
+        <select id="timeTaskSel" class="inp" onchange="updateTimeDisplay()"><option>Select a task...</option></select></div>
+      <div class="form-grid2">
+        <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Estimated Hours</label>
+          <input id="timeEst" type="number" class="inp" placeholder="0" min="0" step="0.5"/></div>
+        <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Actual Hours</label>
+          <input id="timeActual" type="number" class="inp" placeholder="0" min="0" step="0.5" oninput="updateTimeDisplay()"/></div>
+      </div>
+      <div id="timeAccuracy" style="background:var(--surface2);border-radius:8px;padding:12px;font-size:11px;color:var(--dim)">📊 Accuracy: —</div>
+      <div style="display:flex;gap:9px;justify-content:flex-end">
+        <button class="btn" onclick="closeModal('timeModal')" style="background:#334155;color:#e2e8f0;padding:9px 18px">Cancel</button>
+        <button class="btn" onclick="saveTimeTracking()" style="background:#0891b2;color:#fff;padding:9px 18px">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TEMPLATES MODAL -->
+<div id="templateModal" class="modal-bg hidden">
+  <div class="modal" style="max-width:700px">
+    <div style="font-family:'Space Grotesk';font-weight:700;font-size:17px;color:var(--text);margin-bottom:16px">📋 Task Templates</div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)">
+      <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Template Name</label>
+        <input id="templateName" class="inp" placeholder="e.g. Daily Smoke Test"/></div>
+      <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Description</label>
+        <textarea id="templateDesc" class="inp" rows="2" placeholder="What this template does..."></textarea></div>
+      <div style="display:flex;gap:9px;justify-content:flex-end">
+        <button class="btn" onclick="addTemplate()" style="background:#8b5cf6;color:#fff;padding:8px 16px;font-size:12px">+ Save</button>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--dim);font-weight:600;margin-bottom:10px">Your Templates:</div>
+    <div id="templatesList"></div>
+    <div style="margin-top:14px;display:flex;justify-content:flex-end">
+      <button class="btn" onclick="closeModal('templateModal')" style="background:#334155;color:#e2e8f0;padding:9px 18px">Close</button>
     </div>
   </div>
 </div>
@@ -191,7 +200,7 @@ td{padding:9px 13px;border-bottom:1px solid var(--border);font-size:13px;vertica
         <textarea id="s_blockers" class="inp" rows="2" placeholder="e.g. API not ready…"></textarea></div>
       <div style="display:flex;gap:9px;justify-content:flex-end">
         <button class="btn" onclick="closeModal('scrumModal')" style="background:#334155;color:#e2e8f0;padding:9px 18px">Cancel</button>
-        <button class="btn" onclick="saveScrumData()" style="background:#7c3aed;color:#fff;padding:9px 18px">Save Notes</button>
+        <button class="btn" onclick="saveScrumData()" style="background:#7c3aed;color:#fff;padding:9px 18px">Save</button>
       </div>
     </div>
   </div>
@@ -202,18 +211,18 @@ td{padding:9px 13px;border-bottom:1px solid var(--border);font-size:13px;vertica
   <div class="modal" style="max-width:700px">
     <div style="font-family:'Space Grotesk';font-weight:700;font-size:17px;color:var(--text);margin-bottom:3px">📝 Quick Notes</div>
     <div style="font-size:11px;color:var(--dim);margin-bottom:12px">Auto-saved to cloud.</div>
-    <textarea id="scratchText" class="scratchpad" rows="14" oninput="onScratchInput()" style="background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;padding:14px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);resize:vertical;min-height:160px;width:100%;line-height:1.75"></textarea>
+    <textarea id="scratchText" rows="14" oninput="onScratchInput()" style="background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;padding:14px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);resize:vertical;min-height:160px;width:100%;line-height:1.75;outline:none"></textarea>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px">
       <span id="scratchCount" style="font-size:11px;color:var(--dim)"></span>
       <div style="display:flex;gap:8px">
-        <button class="btn" onclick="clearScratch()" style="background:#334155;color:#e2e8f0;padding:7px 14px;font-size:12px">🗑 Clear</button>
-        <button class="btn" onclick="closeModal('scratchModal')" style="background:#0369a1;color:#fff;padding:7px 14px;font-size:12px">✓ Done</button>
+        <button class="btn" onclick="clearScratch()" style="background:#334155;color:#e2e8f0;padding:7px 14px;font-size:12px">🗑</button>
+        <button class="btn" onclick="closeModal('scratchModal')" style="background:#0369a1;color:#fff;padding:7px 14px;font-size:12px">✓</button>
       </div>
     </div>
   </div>
 </div>
 
-
+<!-- BUG MODAL -->
 <div id="bugModal" class="modal-bg hidden">
   <div class="modal" style="max-width:720px">
     <div style="font-family:'Space Grotesk';font-weight:700;font-size:17px;color:var(--text);margin-bottom:16px">🐛 Bug Log</div>
@@ -241,9 +250,9 @@ td{padding:9px 13px;border-bottom:1px solid var(--border);font-size:13px;vertica
 
 <!-- EOD MODAL -->
 <div id="eodModal" class="modal-bg hidden">
-  <div class="modal" style="max-width:700px">
+  <div class="modal" style="max-width:1000px;max-height:95vh">
     <div style="font-family:'Space Grotesk';font-weight:700;font-size:17px;color:var(--text);margin-bottom:16px">📤 EOD Report</div>
-    <div style="display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;flex-direction:column;gap:12px;max-height:calc(95vh - 150px);overflow-y:auto">
       <div class="form-grid2">
         <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Your Name</label>
           <input id="eod_name" class="inp" placeholder="Name" oninput="updateEOD()"/></div>
@@ -256,11 +265,25 @@ td{padding:9px 13px;border-bottom:1px solid var(--border);font-size:13px;vertica
         <button class="btn" id="btn-email" onclick="setEODFormat('email')" style="background:#1e40af;color:#fff;padding:6px 12px;font-size:11px">📧 Email</button>
         <button class="btn" id="btn-whatsapp" onclick="setEODFormat('whatsapp')" style="background:var(--surface2);color:var(--dim);padding:6px 12px;font-size:11px;border:1px solid var(--border)">💬 WhatsApp</button>
       </div>
-      <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:6px">Report Preview:</label>
-        <pre id="eodPreview" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;font-size:10px;color:var(--muted);max-height:300px;overflow-y:auto;white-space:pre-wrap;word-break:break-word;line-height:1.6"></pre>
+      
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0">
+        <div class="chart-container small">
+          <div style="font-size:11px;color:var(--dim);font-weight:700;margin-bottom:8px">📊 Status</div>
+          <div style="position:relative;height:100%"><canvas id="eodStatusChart"></canvas></div>
+        </div>
+        <div class="chart-container small">
+          <div style="font-size:11px;color:var(--dim);font-weight:700;margin-bottom:8px">🎯 Priority</div>
+          <div style="position:relative;height:100%"><canvas id="eodPriorityChart"></canvas></div>
+        </div>
       </div>
+      
+      <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:6px">Report Preview:</label>
+        <pre id="eodPreview" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;font-size:10px;color:var(--muted);max-height:250px;overflow-y:auto;white-space:pre-wrap;word-break:break-word;line-height:1.6;font-family:monospace"></pre>
+      </div>
+      
       <div style="display:flex;gap:8px;justify-content:flex-end">
-        <button class="btn" onclick="copyEOD()" style="background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;padding:10px 20px;font-size:12px;font-weight:700">📋 Copy Report</button>
+        <button class="btn" onclick="downloadEOD()" style="background:#059669;color:#fff;padding:10px 20px;font-size:12px;font-weight:700">📥 Download</button>
+        <button class="btn" onclick="copyEOD()" style="background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;padding:10px 20px;font-size:12px;font-weight:700">📋 Copy</button>
         <button class="btn" onclick="closeModal('eodModal')" style="background:#334155;color:#e2e8f0;padding:10px 18px">Close</button>
       </div>
     </div>
@@ -269,204 +292,86 @@ td{padding:9px 13px;border-bottom:1px solid var(--border);font-size:13px;vertica
 
 <script>
 const SHEET_URL = "https://qatracker.kunal-249.workers.dev";
-
-const STATUS = {
-  TODO:{label:"To Do",color:"#6b7280",bg:"#f3f4f6"},
-  IN_PROGRESS:{label:"In Progress",color:"#d97706",bg:"#fef3c7"},
-  TESTING:{label:"Testing",color:"#7c3aed",bg:"#ede9fe"},
-  BLOCKED:{label:"Blocked",color:"#dc2626",bg:"#fee2e2"},
-  DONE:{label:"Done",color:"#059669",bg:"#d1fae5"}
-};
+const STATUS = {TODO:{label:"To Do",color:"#6b7280",bg:"#f3f4f6"},IN_PROGRESS:{label:"In Progress",color:"#d97706",bg:"#fef3c7"},TESTING:{label:"Testing",color:"#7c3aed",bg:"#ede9fe"},BLOCKED:{label:"Blocked",color:"#dc2626",bg:"#fee2e2"},DONE:{label:"Done",color:"#059669",bg:"#d1fae5"}};
 const PRI = {HIGH:{c:"#dc2626"},MEDIUM:{c:"#d97706"},LOW:{c:"#059669"}};
 
-let allData = {}; // { "2025-01-15": {tasks, bugs, userData, scrum, scratch}, ... }
-let currentDate = new Date().toISOString().split("T")[0];
-let currentFilter = "ALL";
-let activeTab = "board";
-let isLight = false;
-let eodFormat = "email";
-let syncTimeout = null;
+let allData = {}, currentDate = new Date().toISOString().split("T")[0], currentFilter = "ALL", activeTab = "board", isLight = false, eodFormat = "email", activity = [], chartInstances = {};
 
 const dk = () => new Date().toISOString().split("T")[0];
 const esc = s => String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 
 function getDateData(date = currentDate) {
-  if (!allData[date]) {
-    allData[date] = { 
-      tasks: [], 
-      bugs: [], 
-      userData: { name: "", sprint: "", release: "" },
-      scrum: { yesterday: "", today: "", priority: "", blockers: "", mood: "😊" },
-      scratch: ""
-    };
-  }
+  if (!allData[date]) allData[date] = {tasks:[],bugs:[],userData:{name:"",sprint:"",release:""},scrum:{yesterday:"",today:"",priority:"",blockers:""},scratch:"",timeTracks:[],templates:[]};
   return allData[date];
 }
 
-function setCloud(state, msg) {
+function setCloud(state,msg) {
   const dot = document.getElementById("cloudDot");
   const lbl = document.getElementById("cloudLabel");
   if (!dot || !lbl) return;
-  dot.className = "cloud-dot " + (state === "ok" ? "cloud-ok" : state === "err" ? "cloud-err" : "cloud-sync");
+  dot.style.background = state === "ok" ? "#059669" : state === "err" ? "#dc2626" : "#d97706";
   lbl.textContent = msg;
 }
 
-function showSync(msg) {
-  const b = document.getElementById("syncBar");
-  b.textContent = msg;
-  b.classList.remove("hidden");
-  setTimeout(() => b.classList.add("hidden"), 3000);
+function logActivity(action) {
+  activity.push({action,time:new Date().toLocaleTimeString(),date:dk()});
+  if (activity.length > 50) activity.shift();
 }
 
-function scheduleSave() {
-  if (syncTimeout) clearTimeout(syncTimeout);
-  syncTimeout = setTimeout(() => saveToCloud(), 2000);
-}
-
-async function saveToCloud() {
-  // Save user data first
+async function quickSync() {
   const data = getDateData();
   data.userData.name = document.getElementById("myNameInput")?.value || "";
-  data.userData.sprint = document.getElementById("sprintInput")?.value || "";
-  data.userData.release = document.getElementById("releaseInput")?.value || "";
   
   setCloud("sync", "Saving...");
   try {
-    const payload = {
-      allData: allData,
-      lastModified: Date.now(),
-      timestamp: new Date().toISOString()
-    };
-    
     const response = await fetch(SHEET_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({allData,activity,lastModified:Date.now(),timestamp:new Date().toISOString()})
     });
     
     if (!response.ok) throw new Error("Save failed");
-    
-    const now = new Date().toLocaleTimeString();
-    document.getElementById("lastSyncInfo").textContent = "☁️ Saved: " + now;
     setCloud("ok", "Cloud ✓");
   } catch (e) {
-    console.error("Save error:", e);
-    setCloud("err", "Save failed");
-    showSync("❌ Save failed - will retry");
+    console.error("Sync error:", e);
+    setCloud("err", "Sync failed");
   }
 }
 
 async function loadFromCloud() {
-  const btn = document.getElementById("loadBtn");
-  if (btn) { btn.textContent = "⏳ Loading…"; btn.disabled = true; }
   setCloud("sync", "Loading...");
-  
   try {
-    // Try new endpoint first
     let response = await fetch(SHEET_URL + "?action=getAll&t=" + Date.now());
-    let data;
+    let data = await response.json();
     
-    if (!response.ok) {
-      // If new endpoint fails, try old endpoint (backward compatibility)
-      console.log("New endpoint failed, trying old format...");
-      response = await fetch(SHEET_URL + "?date=" + currentDate + "&t=" + Date.now());
-      if (!response.ok) throw new Error("Both endpoints failed");
-      data = await response.json();
-      
-      // Convert old format to new
-      if (data.tasks || data.bugs) {
-        allData[currentDate] = {
-          tasks: Array.isArray(data.tasks) ? data.tasks : [],
-          bugs: Array.isArray(data.bugs) ? data.bugs : [],
-          userData: data.userData || { name: "", sprint: "", release: "" },
-          scrum: data.scrum || {},
-          scratch: data.scratch || ""
-        };
-      }
-    } else {
-      data = await response.json();
-      
-      // Handle new format (allData with multiple dates)
-      if (data.allData && typeof data.allData === 'object') {
-        allData = data.allData;
-      } 
-      // Handle old single-date format
-      else if (data.tasks || data.bugs) {
-        allData[currentDate] = {
-          tasks: Array.isArray(data.tasks) ? data.tasks : [],
-          bugs: Array.isArray(data.bugs) ? data.bugs : [],
-          userData: data.userData || { name: "", sprint: "", release: "" },
-          scrum: data.scrum || {},
-          scratch: data.scratch || ""
-        };
-      }
-    }
+    if (data.allData) allData = data.allData;
+    if (data.activity) activity = data.activity;
     
     updateUIFromData();
-    const now = new Date().toLocaleTimeString();
-    document.getElementById("lastSyncInfo").textContent = "⬇️ Loaded: " + now;
     setCloud("ok", "Cloud ✓");
     renderAll();
-    showSync("✅ Data loaded!");
   } catch (err) {
-    console.log("Cloud unavailable:", err);
+    console.log("Load error:", err);
     setCloud("err", "Offline");
-    showSync("❌ Load failed");
-  } finally {
-    if (btn) { btn.textContent = "⬇️ Load"; btn.disabled = false; }
   }
 }
 
 function updateUIFromData() {
   const data = getDateData();
   document.getElementById("myNameInput").value = data.userData?.name || "";
-  document.getElementById("sprintInput").value = data.userData?.sprint || "";
-  document.getElementById("releaseInput").value = data.userData?.release || "";
 }
 
-function syncNow() {
-  loadFromCloud();
-}
-
-function goToToday() {
-  currentDate = dk();
-  document.getElementById("dateFilter").value = currentDate;
-  updateDateDisplay();
-  renderAll();
-}
-
-function previousDay() {
-  const d = new Date(currentDate);
-  d.setDate(d.getDate() - 1);
-  currentDate = d.toISOString().split("T")[0];
-  document.getElementById("dateFilter").value = currentDate;
-  updateDateDisplay();
-  renderAll();
-}
-
-function nextDay() {
-  const d = new Date(currentDate);
-  d.setDate(d.getDate() + 1);
-  currentDate = d.toISOString().split("T")[0];
-  document.getElementById("dateFilter").value = currentDate;
-  updateDateDisplay();
-  renderAll();
-}
-
-function switchDate(date) {
-  currentDate = date;
-  updateDateDisplay();
-  renderAll();
-}
+function goToToday() { currentDate = dk(); document.getElementById("dateFilter").value = currentDate; updateDateDisplay(); renderAll(); }
+function previousDay() { const d = new Date(currentDate); d.setDate(d.getDate() - 1); currentDate = d.toISOString().split("T")[0]; document.getElementById("dateFilter").value = currentDate; updateDateDisplay(); renderAll(); }
+function nextDay() { const d = new Date(currentDate); d.setDate(d.getDate() + 1); currentDate = d.toISOString().split("T")[0]; document.getElementById("dateFilter").value = currentDate; updateDateDisplay(); renderAll(); }
+function switchDate(date) { currentDate = date; updateDateDisplay(); renderAll(); }
 
 function updateDateDisplay() {
   const d = new Date(currentDate + "T00:00:00");
-  document.getElementById("dateInfo").textContent = d.toLocaleDateString("en-IN", {weekday:"short", month:"short", day:"numeric"});
+  document.getElementById("dateInfo").textContent = d.toLocaleDateString("en-IN", {weekday:"short",month:"short",day:"numeric"});
   document.getElementById("dateFilter").value = currentDate;
   const data = getDateData();
-  const taskCount = data.tasks?.length || 0;
-  const bugCount = data.bugs?.length || 0;
-  document.getElementById("recordCount").textContent = `${taskCount} tasks | ${bugCount} bugs`;
+  document.getElementById("recordCount").textContent = `${data.tasks?.length || 0} tasks | ${data.bugs?.length || 0} bugs`;
   updateUIFromData();
 }
 
@@ -475,185 +380,144 @@ function getBugs() { return getDateData().bugs || []; }
 
 function getStats() {
   const tasks = getTasks();
-  return {
-    total: tasks.length,
-    done: tasks.filter(t => t.status === "DONE").length,
-    prog: tasks.filter(t => t.status === "IN_PROGRESS" || t.status === "TESTING").length,
-    blocked: tasks.filter(t => t.blocker && t.status !== "DONE").length,
-    remaining: tasks.filter(t => t.status !== "DONE").length,
-    openBugs: getBugs().filter(b => b.status === "OPEN" || b.status === "IN_FIX").length
-  };
+  return {total:tasks.length,done:tasks.filter(t=>t.status==="DONE").length,prog:tasks.filter(t=>t.status==="IN_PROGRESS"||t.status==="TESTING").length,blocked:tasks.filter(t=>t.blocker&&t.status!=="DONE").length,remaining:tasks.filter(t=>t.status!=="DONE").length,openBugs:getBugs().filter(b=>b.status==="OPEN"||b.status==="IN_FIX").length};
 }
 
 function renderStats() {
   const s = getStats();
   const pct = s.total ? Math.round(s.done / s.total * 100) : 0;
-  document.getElementById("statsRow").innerHTML = [
-    {l:"Total",v:s.total,icon:"📝",c:"#3b82f6"},
-    {l:"In Progress",v:s.prog,icon:"⚡",c:"#d97706"},
-    {l:"Remaining",v:s.remaining,icon:"⏳",c:"#7c3aed"},
-    {l:"Blocked",v:s.blocked,icon:"🚧",c:"#dc2626"},
-    {l:"Done",v:s.done,icon:"✅",c:"#059669",pct},
-    {l:"Open Bugs",v:s.openBugs,icon:"🐛",c:"#f97316"}
-  ].map(x => `<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px 15px">
-    <div style="font-size:17px;margin-bottom:4px">${x.icon}</div>
-    <div style="font-size:22px;font-weight:700;color:${x.c};font-family:'Space Grotesk'">${x.v}</div>
-    <div style="font-size:10px;color:var(--dim);margin-top:1px">${x.l}</div>
-    ${x.pct != null && s.total > 0 ? `<div class="pb" style="margin-top:7px"><div class="pb-fill" style="background:#059669;width:${x.pct}%"></div></div><div style="font-size:9px;color:var(--dim);margin-top:2px">${x.pct}%</div>` : ""}
-  </div>`).join("");
+  document.getElementById("statsRow").innerHTML = [{l:"Total",v:s.total,icon:"📝",c:"#3b82f6"},{l:"In Progress",v:s.prog,icon:"⚡",c:"#d97706"},{l:"Remaining",v:s.remaining,icon:"⏳",c:"#7c3aed"},{l:"Blocked",v:s.blocked,icon:"🚧",c:"#dc2626"},{l:"Done",v:s.done,icon:"✅",c:"#059669",pct},{l:"Open Bugs",v:s.openBugs,icon:"🐛",c:"#f97316"}].map(x=>`<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px 15px"><div style="font-size:17px;margin-bottom:4px">${x.icon}</div><div style="font-size:22px;font-weight:700;color:${x.c};font-family:'Space Grotesk'">${x.v}</div><div style="font-size:10px;color:var(--dim);margin-top:1px">${x.l}</div>${x.pct!=null&&s.total>0?`<div style="height:5px;border-radius:3px;background:var(--border);overflow:hidden;margin-top:7px"><div style="height:100%;border-radius:3px;background:#059669;width:${x.pct}%"></div></div><div style="font-size:9px;color:var(--dim);margin-top:2px">${x.pct}%</div>`:""}</div>`).join("");
 }
 
 function getFiltered() {
   const q = (document.getElementById("searchInput")?.value || "").toLowerCase();
-  return getTasks().filter(t =>
-    (currentFilter === "ALL" || t.status === currentFilter) &&
-    (t.title.toLowerCase().includes(q) || (t.notes || "").toLowerCase().includes(q))
-  );
+  return getTasks().filter(t=>(currentFilter==="ALL"||t.status===currentFilter)&&(t.title.toLowerCase().includes(q)||(t.notes||"").toLowerCase().includes(q)));
 }
 
 function cardHTML(t) {
-  return `<div class="tcard" id="card_${t.id}">
-    <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:6px">
-      <span style="font-size:12px;font-weight:600;color:var(--text);flex:1">${esc(t.title)}</span>
-      <div style="display:flex;gap:3px;margin-left:5px">
-        <button class="btn" onclick="openTaskForm(${t.id})" style="background:#1e40af22;color:#60a5fa;padding:2px 6px;font-size:10px">✏️</button>
-        <button class="btn" onclick="delTask(${t.id})" style="background:#dc262622;color:#f87171;padding:2px 6px;font-size:10px">🗑</button>
-      </div>
-    </div>
-    <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px">
-      <span class="badge" style="background:var(--border);color:var(--muted)">${t.type}</span>
-      <span style="color:${PRI[t.priority]?.c};font-size:10px;font-weight:700">${t.priority}</span>
-      ${t.env ? `<span class="badge" style="background:var(--surface);color:var(--dim)">🌐 ${esc(t.env)}</span>` : ""}
-    </div>
-    ${t.blocker ? `<div style="background:#dc262611;border:1px solid #dc262633;border-radius:5px;padding:3px 7px;margin-bottom:5px;font-size:10px;color:#f87171">🚧 ${esc(t.blocker)}</div>` : ""}
-    ${t.notes ? `<div style="font-size:10px;color:var(--dim);margin-bottom:6px;line-height:1.4">${esc(t.notes.substring(0,70))}</div>` : ""}
-    <select onchange="updateStatus(${t.id}, this.value)" style="width:100%;background:${STATUS[t.status]?.bg}33;color:${STATUS[t.status]?.color};border:1px solid ${STATUS[t.status]?.color}55;border-radius:6px;padding:5px 8px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">
-      ${Object.entries(STATUS).map(([k,v]) => `<option value="${k}" ${t.status === k ? "selected" : ""}>${v.label}</option>`).join("")}
-    </select>
-  </div>`;
+  return `<div class="tcard"><div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:6px"><span style="font-size:12px;font-weight:600;color:var(--text);flex:1">${esc(t.title)}</span><div style="display:flex;gap:3px;margin-left:5px"><button class="btn" onclick="openTaskForm(${t.id})" style="background:#1e40af22;color:#60a5fa;padding:2px 6px;font-size:10px">✏️</button><button class="btn" onclick="delTask(${t.id})" style="background:#dc262622;color:#f87171;padding:2px 6px;font-size:10px">🗑</button></div></div><div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px"><span class="badge" style="background:var(--border);color:var(--muted)">${t.type}</span><span style="color:${PRI[t.priority]?.c};font-size:10px;font-weight:700">${t.priority}</span>${t.env?`<span class="badge" style="background:var(--surface);color:var(--dim)">🌐 ${esc(t.env)}</span>`:""}${t.estimate?`<span class="time-badge">⏱️ ${t.estimate}h</span>`:""}</div>${t.blocker?`<div style="background:#dc262611;border:1px solid #dc262633;border-radius:5px;padding:3px 7px;margin-bottom:5px;font-size:10px;color:#f87171">🚧 ${esc(t.blocker)}</div>`:""}${t.notes?`<div style="font-size:10px;color:var(--dim);margin-bottom:6px;line-height:1.4">${esc(t.notes.substring(0,70))}</div>`:""}<select onchange="updateStatus(${t.id},this.value)" style="width:100%;background:${STATUS[t.status]?.bg}33;color:${STATUS[t.status]?.color};border:1px solid ${STATUS[t.status]?.color}55;border-radius:6px;padding:5px 8px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">${Object.entries(STATUS).map(([k,v])=>`<option value="${k}" ${t.status===k?"selected":""}>${v.label}</option>`).join("")}</select></div>`;
 }
 
 function renderBoard() {
   const f = getFiltered();
-  document.getElementById("view-board").innerHTML = `<div class="board-grid">
-    ${Object.entries(STATUS).map(([k,s]) => {
-      const col = f.filter(t => t.status === k);
-      return `<div style="background:var(--surface);border-radius:11px;padding:12px;border:1px solid var(--border)">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-          <span style="font-weight:700;font-size:12px;color:${s.color}">${s.label}</span>
-          <span style="background:${s.bg}33;color:${s.color};border-radius:20px;padding:1px 8px;font-size:11px;font-weight:700">${col.length}</span>
-        </div>
-        ${col.map(t => cardHTML(t)).join("")}
-        ${!col.length ? `<div style="color:var(--border);font-size:11px;text-align:center;padding:14px 0">Empty</div>` : ""}
-      </div>`;
-    }).join("")}
-  </div>`;
+  document.getElementById("view-board").innerHTML = `<div class="board-grid">${Object.entries(STATUS).map(([k,s])=>{const col=f.filter(t=>t.status===k);return `<div style="background:var(--surface);border-radius:11px;padding:12px;border:1px solid var(--border)"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-weight:700;font-size:12px;color:${s.color}">${s.label}</span><span style="background:${s.bg}33;color:${s.color};border-radius:20px;padding:1px 8px;font-size:11px;font-weight:700">${col.length}</span></div>${col.map(t=>cardHTML(t)).join("")}${!col.length?`<div style="color:var(--border);font-size:11px;text-align:center;padding:14px 0">Empty</div>`:""}</div>`;}).join("")}</div>`;
 }
 
 function renderList() {
   const f = getFiltered();
-  document.getElementById("view-list").innerHTML = `<div style="background:var(--surface);border-radius:11px;border:1px solid var(--border);overflow:auto">
-    <table><thead><tr>${["Task","Type","Priority","Status","Env","Blocker","Actions"].map(h => `<th>${h}</th>`).join("")}</tr></thead>
-    <tbody>${!f.length ? `<tr><td colspan="7" style="padding:34px;text-align:center;color:var(--dim)">No tasks</td></tr>` :
-      f.map(t => `<tr>
-        <td style="max-width:200px"><div style="font-weight:500;color:var(--text)">${esc(t.title)}</div>${t.notes ? `<div style="font-size:10px;color:var(--dim)">${esc(t.notes.substring(0,50))}</div>` : ""}</td>
-        <td style="color:var(--muted);font-size:11px">${t.type}</td>
-        <td><span style="color:${PRI[t.priority]?.c};font-size:11px;font-weight:700">${t.priority}</span></td>
-        <td><select onchange="updateStatus(${t.id}, this.value)" style="background:${STATUS[t.status]?.bg}33;color:${STATUS[t.status]?.color};border:1px solid ${STATUS[t.status]?.color}55;border-radius:6px;padding:3px 7px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">${Object.entries(STATUS).map(([k,v]) => `<option value="${k}" ${t.status === k ? "selected" : ""}>${v.label}</option>`).join("")}</select></td>
-        <td style="font-size:11px;color:var(--muted)">${t.env || "—"}</td>
-        <td>${t.blocker ? `<span style="color:#f87171;font-size:10px">🚧</span>` : `<span style="color:var(--border)">—</span>`}</td>
-        <td><button class="btn" onclick="delTask(${t.id})" style="background:#dc262622;color:#f87171;padding:3px 8px;font-size:11px">Del</button></td>
-      </tr>`).join("")}</tbody></table></div>`;
+  document.getElementById("view-list").innerHTML = `<div style="background:var(--surface);border-radius:11px;border:1px solid var(--border);overflow:auto"><table><thead><tr>${["Task","Type","Priority","Status","Env","Time","Actions"].map(h=>`<th>${h}</th>`).join("")}</tr></thead><tbody>${!f.length?`<tr><td colspan="7" style="padding:34px;text-align:center;color:var(--dim)">No tasks</td></tr>`:f.map(t=>`<tr><td style="max-width:200px"><div style="font-weight:500;color:var(--text)">${esc(t.title)}</div></td><td style="color:var(--muted);font-size:11px">${t.type}</td><td><span style="color:${PRI[t.priority]?.c};font-size:11px;font-weight:700">${t.priority}</span></td><td><select onchange="updateStatus(${t.id},this.value)" style="background:${STATUS[t.status]?.bg}33;color:${STATUS[t.status]?.color};border:1px solid ${STATUS[t.status]?.color}55;border-radius:6px;padding:3px 7px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">${Object.entries(STATUS).map(([k,v])=>`<option value="${k}" ${t.status===k?"selected":""}>${v.label}</option>`).join("")}</select></td><td style="font-size:11px;color:var(--muted)">${t.env||"—"}</td><td style="font-size:10px;color:var(--muted)">${t.estimate?t.estimate+"h":"—"}</td><td><button class="btn" onclick="delTask(${t.id})" style="background:#dc262622;color:#f87171;padding:3px 8px;font-size:11px">Del</button></td></tr>`).join("")}</tbody></table></div>`;
 }
 
 function renderBugsView() {
   const bugs = getBugs();
-  document.getElementById("view-bugs").innerHTML = `
-    <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
-      <button class="btn" onclick="openBugModal()" style="background:#dc2626;color:#fff;padding:8px 16px;font-size:13px">+ New Bug</button>
-    </div>
-    ${!bugs.length ? `<div style="background:var(--surface);border-radius:11px;padding:38px;text-align:center;border:1px solid var(--border);color:var(--dim)">✅ No bugs!</div>` : `
-    <div style="background:var(--surface);border-radius:11px;border:1px solid var(--border);overflow:auto">
-      <table><thead><tr>${["Bug","Severity","Status","Steps","Actions"].map(h => `<th>${h}</th>`).join("")}</tr></thead>
-      <tbody>${bugs.map(b => `<tr>
-        <td style="font-weight:500;color:var(--text);max-width:200px">${esc(b.title)}</td>
-        <td style="color:${b.severity === "CRITICAL" ? "#dc2626" : b.severity === "HIGH" ? "#f97316" : "#d97706"};font-size:11px;font-weight:700">${b.severity}</td>
-        <td><select onchange="updBugStatus(${b.id}, this.value)" style="font-size:11px;font-weight:700;padding:3px 6px;border-radius:5px;border:1px solid var(--border);cursor:pointer;font-family:inherit">${["OPEN","IN_FIX","FIXED","CLOSED"].map(s => `<option ${b.status === s ? "selected" : ""}>${s}</option>`).join("")}</select></td>
-        <td style="font-size:10px;color:var(--muted);max-width:200px">${esc((b.steps || "").substring(0,60))}</td>
-        <td><button class="btn" onclick="delBug(${b.id})" style="background:#dc262622;color:#f87171;padding:2px 7px;font-size:11px">🗑</button></td>
-      </tr>`).join("")}</tbody></table></div>`}`;
+  document.getElementById("view-bugs").innerHTML = `<div style="display:flex;justify-content:flex-end;margin-bottom:12px"><button class="btn" onclick="openBugModal()" style="background:#dc2626;color:#fff;padding:8px 16px;font-size:13px">+ New Bug</button></div>${!bugs.length?`<div style="background:var(--surface);border-radius:11px;padding:38px;text-align:center;border:1px solid var(--border);color:var(--dim)">✅ No bugs!</div>`:`<div style="background:var(--surface);border-radius:11px;border:1px solid var(--border);overflow:auto"><table><thead><tr>${["Bug","Severity","Status","Steps","Actions"].map(h=>`<th>${h}</th>`).join("")}</tr></thead><tbody>${bugs.map(b=>`<tr><td style="font-weight:500;color:var(--text);max-width:200px">${esc(b.title)}</td><td style="color:${b.severity==="CRITICAL"?"#dc2626":"#f97316"};font-size:11px;font-weight:700">${b.severity}</td><td><select onchange="updBugStatus(${b.id},this.value)" style="font-size:11px;font-weight:700;padding:3px 6px;border-radius:5px;border:1px solid var(--border);cursor:pointer;font-family:inherit">${["OPEN","IN_FIX","FIXED","CLOSED"].map(s=>`<option ${b.status===s?"selected":""}>${s}</option>`).join("")}</select></td><td style="font-size:10px;color:var(--muted);max-width:200px">${esc((b.steps||"").substring(0,60))}</td><td><button class="btn" onclick="delBug(${b.id})" style="background:#dc262622;color:#f87171;padding:2px 7px;font-size:11px">🗑</button></td></tr>`).join("")}</tbody></table></div>`}`;
 }
 
 function renderReport() {
-  const tasks = getTasks();
-  const bugs = getBugs();
-  const s = getStats();
-  const done = tasks.filter(t => t.status === "DONE");
-  const progress = tasks.filter(t => t.status === "IN_PROGRESS" || t.status === "TESTING");
-  const todo = tasks.filter(t => t.status === "TODO");
-  const blocked = tasks.filter(t => t.blocker && t.status !== "DONE");
+  const tasks = getTasks(), bugs = getBugs(), s = getStats(), done = tasks.filter(t=>t.status==="DONE"), progress = tasks.filter(t=>t.status==="IN_PROGRESS"||t.status==="TESTING"), todo = tasks.filter(t=>t.status==="TODO"), blocked = tasks.filter(t=>t.blocker&&t.status!=="DONE");
   
-  document.getElementById("view-report").innerHTML = `
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
-      <div style="background:var(--surface);border-radius:11px;padding:18px;border:1px solid var(--border)">
-        <div style="font-family:'Space Grotesk';font-weight:700;font-size:13px;margin-bottom:14px;color:var(--text)">📊 Progress</div>
-        ${Object.entries(STATUS).map(([k,sv]) => {
-          const c = tasks.filter(t => t.status === k).length;
-          const p = tasks.length ? (c / tasks.length) * 100 : 0;
-          return `<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:12px;color:${sv.color};font-weight:600">${sv.label}</span><span style="font-size:11px;color:var(--muted)">${c}</span></div><div class="pb"><div class="pb-fill" style="background:${sv.color};width:${p}%"></div></div></div>`;
-        }).join("")}
-      </div>
-      <div style="background:var(--surface);border-radius:11px;padding:18px;border:1px solid var(--border)">
-        <div style="font-family:'Space Grotesk';font-weight:700;font-size:13px;margin-bottom:14px;color:var(--text)">🚧 Blockers</div>
-        ${!blocked.length ? `<div style="color:#059669;font-size:13px;text-align:center;padding:18px">✅ No blockers!</div>` :
-          blocked.map(t => `<div style="background:#dc262611;border:1px solid #dc262633;border-radius:8px;padding:9px;margin-bottom:7px"><div style="font-weight:600;font-size:11px;color:#f87171">${esc(t.title)}</div><div style="font-size:10px;color:var(--muted);margin-top:2px">${esc(t.blocker)}</div></div>`).join("")
-        }
-      </div>
-    </div>
-    <div style="background:var(--surface);border-radius:11px;padding:18px;border:1px solid var(--border)">
-      <div style="font-family:'Space Grotesk';font-weight:700;font-size:13px;margin-bottom:14px;color:var(--text)">📝 Summary</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:12px">
-        <div><span style="color:var(--dim)">✅ Done:</span> <span style="color:#059669;font-weight:700">${done.length}/${s.total}</span></div>
-        <div><span style="color:var(--dim)">⚡ Progress:</span> <span style="color:#d97706;font-weight:700">${progress.length}</span></div>
-        <div><span style="color:var(--dim)">📋 Remaining:</span> <span style="color:#7c3aed;font-weight:700">${todo.length}</span></div>
-        <div><span style="color:var(--dim)">🐛 Bugs:</span> <span style="color:#f97316;font-weight:700">${s.openBugs}</span></div>
-      </div>
-    </div>`;
+  document.getElementById("view-report").innerHTML = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px"><div class="chart-container"><div style="font-size:12px;color:var(--dim);font-weight:700;margin-bottom:10px">📊 Status</div><canvas id="statusChart"></canvas></div><div class="chart-container"><div style="font-size:12px;color:var(--dim);font-weight:700;margin-bottom:10px">🎯 Priority</div><canvas id="priorityChart"></canvas></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px"><div style="background:var(--surface);border-radius:11px;padding:18px;border:1px solid var(--border)"><div style="font-family:'Space Grotesk';font-weight:700;font-size:13px;margin-bottom:14px;color:var(--text)">📊 Progress</div>${Object.entries(STATUS).map(([k,sv])=>{const c=tasks.filter(t=>t.status===k).length;const p=tasks.length?(c/tasks.length)*100:0;return `<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:12px;color:${sv.color};font-weight:600">${sv.label}</span><span style="font-size:11px;color:var(--muted)">${c}</span></div><div style="height:5px;border-radius:3px;background:var(--border);overflow:hidden"><div style="height:100%;border-radius:3px;background:${sv.color};width:${p}%"></div></div></div>`;}).join("")}</div><div style="background:var(--surface);border-radius:11px;padding:18px;border:1px solid var(--border)"><div style="font-family:'Space Grotesk';font-weight:700;font-size:13px;margin-bottom:14px;color:var(--text)">🚧 Blockers</div>${!blocked.length?`<div style="color:#059669;font-size:13px;text-align:center;padding:18px">✅ No blockers!</div>`:blocked.map(t=>`<div style="background:#dc262611;border:1px solid #dc262633;border-radius:8px;padding:9px;margin-bottom:7px"><div style="font-weight:600;font-size:11px;color:#f87171">${esc(t.title)}</div><div style="font-size:10px;color:var(--muted);margin-top:2px">${esc(t.blocker)}</div></div>`).join("")}</div></div><div style="background:var(--surface);border-radius:11px;padding:18px;border:1px solid var(--border)"><div style="font-family:'Space Grotesk';font-weight:700;font-size:13px;margin-bottom:14px;color:var(--text)">📝 Summary</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:12px"><div><span style="color:var(--dim)">✅ Done:</span> <span style="color:#059669;font-weight:700">${done.length}/${s.total}</span></div><div><span style="color:var(--dim)">⚡ Progress:</span> <span style="color:#d97706;font-weight:700">${progress.length}</span></div><div><span style="color:var(--dim)">📋 Remaining:</span> <span style="color:#7c3aed;font-weight:700">${todo.length}</span></div><div><span style="color:var(--dim)">🐛 Bugs:</span> <span style="color:#f97316;font-weight:700">${s.openBugs}</span></div></div></div>`;
+  
+  setTimeout(() => renderReportCharts(), 100);
+}
+
+function renderAnalytics() {
+  const allTasks = Object.values(allData).flatMap(d=>d.tasks||[]);
+  const tasksByStatus = {};
+  const tasksByType = {};
+  
+  Object.keys(STATUS).forEach(s=>tasksByStatus[s]=allTasks.filter(t=>t.status===s).length);
+  ["Bug","Test Case","Regression","Smoke","UAT","Automation"].forEach(t=>{tasksByType[t]=allTasks.filter(x=>x.type===t).length;});
+  
+  const totalCompleted = allTasks.filter(t=>t.status==="DONE").length;
+  const avgPerDay = Object.keys(allData).length>0?(totalCompleted/Object.keys(allData).length).toFixed(1):0;
+  
+  document.getElementById("view-analytics").innerHTML = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px"><div class="chart-container"><div style="font-size:12px;color:var(--dim);font-weight:700;margin-bottom:10px">📈 Overall Progress</div><canvas id="analyticsChart"></canvas></div><div class="chart-container"><div style="font-size:12px;color:var(--dim);font-weight:700;margin-bottom:10px">🏷️ Task Types</div><canvas id="typesChart"></canvas></div></div><div style="background:var(--surface);border-radius:11px;padding:18px;border:1px solid var(--border)"><div style="font-family:'Space Grotesk';font-weight:700;font-size:13px;margin-bottom:14px;color:var(--text)">📊 Analytics</div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;font-size:12px"><div><span style="color:var(--dim)">Total Completed:</span> <span style="color:#059669;font-weight:700;font-size:16px">${totalCompleted}</span></div><div><span style="color:var(--dim)">Avg per Day:</span> <span style="color:#3b82f6;font-weight:700;font-size:16px">${avgPerDay}</span></div><div><span style="color:var(--dim)">Total Days:</span> <span style="color:#7c3aed;font-weight:700;font-size:16px">${Object.keys(allData).length}</span></div><div><span style="color:var(--dim)">Total Tasks:</span> <span style="color:#d97706;font-weight:700;font-size:16px">${allTasks.length}</span></div></div></div>`;
+  
+  setTimeout(() => renderAnalyticsCharts(tasksByStatus, tasksByType), 100);
+}
+
+function renderActivity() {
+  const todayActivity = activity.filter(a=>a.date===dk());
+  document.getElementById("view-activity").innerHTML = `<div style="background:var(--surface2);border-radius:10px;padding:12px;max-height:400px;overflow-y:auto">${!todayActivity.length?`<div style="text-align:center;color:var(--dim);padding:20px">No activity today</div>`:todayActivity.reverse().map(a=>`<div class="activity-item"><div style="color:var(--text);font-size:12px">${a.action}</div><div style="color:var(--dim);font-size:9px">${a.time}</div></div>`).join("")}</div>`;
+}
+
+function renderLeaderboard() {
+  const userStats = {};
+  Object.entries(allData).forEach(([date,data])=>{
+    const name = data.userData?.name||"You";
+    if (!userStats[name]) userStats[name]={done:0,total:0};
+    userStats[name].total += data.tasks?.length||0;
+    userStats[name].done += data.tasks?.filter(t=>t.status==="DONE").length||0;
+  });
+  
+  const sorted = Object.entries(userStats).map(([name,stats])=>({name,done:stats.done,total:stats.total,pct:stats.total?Math.round(stats.done/stats.total*100):0})).sort((a,b)=>b.pct-a.pct);
+  
+  document.getElementById("view-leaderboard").innerHTML = `<div style="background:var(--surface);border-radius:11px;padding:18px;border:1px solid var(--border)"><div style="font-family:'Space Grotesk';font-weight:700;font-size:13px;margin-bottom:14px;color:var(--text)">🏆 Leaderboard</div>${sorted.map((s,i)=>`<div class="leaderboard-row"><div style="display:flex;align-items:center;gap:10px;flex:1"><span style="font-size:18px">${i===0?"🥇":i===1?"🥈":i===2?"🥉":i+1}</span><div><div style="font-weight:600;color:var(--text);font-size:12px">${esc(s.name)}</div><div style="font-size:10px;color:var(--dim)">${s.done}/${s.total} completed</div></div></div><div style="text-align:right"><div style="font-weight:700;color:${s.pct>75?"#059669":s.pct>50?"#d97706":"#dc2626"};font-size:14px">${s.pct}%</div><div style="width:80px;margin-top:4px"><div style="height:5px;border-radius:3px;background:var(--border);overflow:hidden"><div style="height:100%;border-radius:3px;background:${s.pct>75?"#059669":s.pct>50?"#d97706":"#dc2626"};width:${s.pct}%"></div></div></div></div></div>`).join("")}</div>`;
+}
+
+function renderReportCharts() {
+  const tasks = getTasks();
+  if (chartInstances.statusChart) chartInstances.statusChart.destroy();
+  if (chartInstances.priorityChart) chartInstances.priorityChart.destroy();
+  
+  const ctxStatus = document.getElementById("statusChart");
+  const ctxPriority = document.getElementById("priorityChart");
+  if (!ctxStatus || !ctxPriority) return;
+  
+  const statusData = {TODO:tasks.filter(t=>t.status==="TODO").length,IN_PROGRESS:tasks.filter(t=>t.status==="IN_PROGRESS").length,TESTING:tasks.filter(t=>t.status==="TESTING").length,BLOCKED:tasks.filter(t=>t.status==="BLOCKED").length,DONE:tasks.filter(t=>t.status==="DONE").length};
+  const priorityData = {HIGH:tasks.filter(t=>t.priority==="HIGH").length,MEDIUM:tasks.filter(t=>t.priority==="MEDIUM").length,LOW:tasks.filter(t=>t.priority==="LOW").length};
+  
+  chartInstances.statusChart = new Chart(ctxStatus, {type:'doughnut',data:{labels:['To Do','In Progress','Testing','Blocked','Done'],datasets:[{data:[statusData.TODO,statusData.IN_PROGRESS,statusData.TESTING,statusData.BLOCKED,statusData.DONE],backgroundColor:['#6b7280','#d97706','#7c3aed','#dc2626','#059669'],borderColor:getComputedStyle(document.body).getPropertyValue('--surface').trim(),borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11},color:getComputedStyle(document.body).getPropertyValue('--text').trim(),padding:10}}}}});
+  
+  chartInstances.priorityChart = new Chart(ctxPriority, {type:'doughnut',data:{labels:['High','Medium','Low'],datasets:[{data:[priorityData.HIGH,priorityData.MEDIUM,priorityData.LOW],backgroundColor:['#dc2626','#d97706','#059669'],borderColor:getComputedStyle(document.body).getPropertyValue('--surface').trim(),borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11},color:getComputedStyle(document.body).getPropertyValue('--text').trim(),padding:10}}}}});
+}
+
+function renderAnalyticsCharts(tasksByStatus, tasksByType) {
+  if (chartInstances.analyticsChart) chartInstances.analyticsChart.destroy();
+  if (chartInstances.typesChart) chartInstances.typesChart.destroy();
+  
+  const ctxAnalytics = document.getElementById("analyticsChart");
+  const ctxTypes = document.getElementById("typesChart");
+  if (!ctxAnalytics || !ctxTypes) return;
+  
+  chartInstances.analyticsChart = new Chart(ctxAnalytics, {type:'bar',data:{labels:Object.keys(tasksByStatus),datasets:[{label:'Tasks by Status',data:Object.values(tasksByStatus),backgroundColor:['#6b7280','#d97706','#7c3aed','#dc2626','#059669']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{size:11},color:getComputedStyle(document.body).getPropertyValue('--text').trim()}}},scales:{y:{ticks:{color:getComputedStyle(document.body).getPropertyValue('--text').trim()},grid:{color:getComputedStyle(document.body).getPropertyValue('--border').trim()}},x:{ticks:{color:getComputedStyle(document.body).getPropertyValue('--text').trim()},grid:{color:getComputedStyle(document.body).getPropertyValue('--border').trim()}}}}});
+  
+  chartInstances.typesChart = new Chart(ctxTypes, {type:'doughnut',data:{labels:Object.keys(tasksByType),datasets:[{data:Object.values(tasksByType),backgroundColor:['#3b82f6','#8b5cf6','#ec4899','#f59e0b','#14b8a6','#0891b2']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},color:getComputedStyle(document.body).getPropertyValue('--text').trim()}}}}});
 }
 
 function renderCurrent() {
-  renderStats();
-  updateDateDisplay();
-  if (activeTab === "board") renderBoard();
-  else if (activeTab === "list") renderList();
-  else if (activeTab === "bugs") renderBugsView();
-  else if (activeTab === "report") renderReport();
+  renderStats(); updateDateDisplay();
+  if (activeTab==="board") renderBoard();
+  else if (activeTab==="list") renderList();
+  else if (activeTab==="bugs") renderBugsView();
+  else if (activeTab==="report") renderReport();
+  else if (activeTab==="analytics") renderAnalytics();
+  else if (activeTab==="activity") renderActivity();
+  else if (activeTab==="leaderboard") renderLeaderboard();
 }
 
 function renderAll() { renderCurrent(); }
 
 function switchTab(tab) {
   activeTab = tab;
-  ["board", "list", "bugs", "report"].forEach(t => {
-    document.getElementById("view-" + t)?.classList.toggle("hidden", t !== tab);
-    document.getElementById("tab-" + t)?.classList.toggle("active", t !== tab ? false : true);
-  });
+  ["board","list","bugs","report","analytics","activity","leaderboard"].forEach(t=>{document.getElementById("view-"+t)?.classList.toggle("hidden",t!==tab); document.getElementById("tab-"+t)?.classList.toggle("active",t!==tab?false:true);});
   renderCurrent();
 }
 
 function openTaskForm(id) {
-  const task = id ? getTasks().find(t => t.id == id) : null;
-  document.getElementById("taskModalTitle").textContent = id ? "✏️ Edit Task" : "➕ New Task";
-  document.getElementById("saveTaskBtn").textContent = id ? "Update" : "Add Task";
-  document.getElementById("f_title").value = task?.title || "";
-  document.getElementById("f_type").value = task?.type || "Bug";
-  document.getElementById("f_priority").value = task?.priority || "MEDIUM";
-  document.getElementById("f_status").value = task?.status || "TODO";
-  document.getElementById("f_env").value = task?.env || "";
-  document.getElementById("f_est").value = task?.estimate || "";
-  document.getElementById("f_blocker").value = task?.blocker || "";
-  document.getElementById("f_notes").value = task?.notes || "";
-  document.getElementById("taskModal").setAttribute("data-id", id || "");
+  const task = id?getTasks().find(t=>t.id==id):null;
+  document.getElementById("taskModalTitle").textContent = id?"✏️ Edit":"➕ New";
+  document.getElementById("saveTaskBtn").textContent = id?"Update":"Add";
+  document.getElementById("f_title").value = task?.title||"";
+  document.getElementById("f_type").value = task?.type||"Bug";
+  document.getElementById("f_priority").value = task?.priority||"MEDIUM";
+  document.getElementById("f_status").value = task?.status||"TODO";
+  document.getElementById("f_env").value = task?.env||"";
+  document.getElementById("f_est").value = task?.estimate||"";
+  document.getElementById("f_blocker").value = task?.blocker||"";
+  document.getElementById("f_notes").value = task?.notes||"";
+  document.getElementById("taskModal").setAttribute("data-id",id||"");
   document.getElementById("taskModal").classList.remove("hidden");
 }
 
@@ -661,45 +525,106 @@ function saveTask() {
   const title = document.getElementById("f_title").value.trim();
   if (!title) return alert("Task title required!");
   const id = document.getElementById("taskModal").getAttribute("data-id");
-  const task = {
-    id: id || Date.now(),
-    title,
-    type: document.getElementById("f_type").value,
-    priority: document.getElementById("f_priority").value,
-    status: document.getElementById("f_status").value,
-    env: document.getElementById("f_env").value.trim(),
-    estimate: document.getElementById("f_est").value.trim(),
-    blocker: document.getElementById("f_blocker").value.trim(),
-    notes: document.getElementById("f_notes").value.trim(),
-    date: currentDate
-  };
+  const task = {id:id||Date.now(),title,type:document.getElementById("f_type").value,priority:document.getElementById("f_priority").value,status:document.getElementById("f_status").value,env:document.getElementById("f_env").value.trim(),estimate:parseFloat(document.getElementById("f_est").value)||0,blocker:document.getElementById("f_blocker").value.trim(),notes:document.getElementById("f_notes").value.trim(),date:currentDate};
   const data = getDateData();
-  if (id) {
-    const idx = data.tasks.findIndex(t => t.id == id);
-    if (idx >= 0) data.tasks[idx] = task;
-  } else {
-    data.tasks.push(task);
-  }
-  saveToCloud();
+  if (id) {const idx=data.tasks.findIndex(t=>t.id==id); if (idx>=0) data.tasks[idx]=task;} else {data.tasks.push(task);}
+  logActivity(id?`Updated: ${title}`:`Created: ${title}`);
+  quickSync();
   closeModal("taskModal");
   renderAll();
 }
 
 function delTask(id) {
   if (!confirm("Delete task?")) return;
+  const task = getTasks().find(t=>t.id==id);
   const data = getDateData();
-  data.tasks = data.tasks.filter(t => t.id != id);
-  saveToCloud();
+  data.tasks = data.tasks.filter(t=>t.id!=id);
+  logActivity(`Deleted: ${task?.title}`);
+  quickSync();
   renderAll();
 }
 
 function updateStatus(id, status) {
-  const task = getTasks().find(t => t.id == id);
+  const task = getTasks().find(t=>t.id==id);
+  if (task) {task.status=status; logActivity(`${task.title} → ${STATUS[status]?.label}`); quickSync(); renderCurrent();}
+}
+
+function openTimeTracking() {
+  const tasks = getTasks();
+  const sel = document.getElementById("timeTaskSel");
+  sel.innerHTML = `<option>Select a task...</option>${tasks.map(t=>`<option value="${t.id}">${t.title}</option>`).join("")}`;
+  document.getElementById("timeEst").value = "";
+  document.getElementById("timeActual").value = "";
+  document.getElementById("timeAccuracy").textContent = "📊 Accuracy: —";
+  document.getElementById("timeModal").classList.remove("hidden");
+}
+
+function updateTimeDisplay() {
+  const est = parseFloat(document.getElementById("timeEst").value)||0;
+  const actual = parseFloat(document.getElementById("timeActual").value)||0;
+  if (est>0&&actual>0) {const acc=Math.round((actual/est)*100); const status=acc===100?"✅":acc>100?"⚠️":"🎯"; document.getElementById("timeAccuracy").textContent = `${status} Accuracy: ${acc}% ${actual>est?"(Over)":"(On track)"}`;  }
+}
+
+function saveTimeTracking() {
+  const taskId = document.getElementById("timeTaskSel").value;
+  const est = parseFloat(document.getElementById("timeEst").value)||0;
+  const actual = parseFloat(document.getElementById("timeActual").value)||0;
+  
+  if (taskId==="Select a task...") return alert("Select a task!");
+  if (est<=0||actual<=0) return alert("Enter valid hours!");
+  
+  const task = getTasks().find(t=>t.id==parseInt(taskId));
   if (task) {
-    task.status = status;
-    saveToCloud();
-    renderCurrent();
+    task.estimate = est;
+    const data = getDateData();
+    if (!data.timeTracks) data.timeTracks = [];
+    data.timeTracks.push({taskId,est,actual,date:dk()});
+    logActivity(`Logged time: ${task.title} (${actual}h/${est}h)`);
+    quickSync();
+    closeModal("timeModal");
+    renderAll();
   }
+}
+
+function openTemplates() {
+  renderTemplatesList();
+  document.getElementById("templateModal").classList.remove("hidden");
+}
+
+function renderTemplatesList() {
+  const data = getDateData();
+  const templates = data.templates||[];
+  document.getElementById("templatesList").innerHTML = !templates.length?`<div style="color:var(--dim);text-align:center;padding:12px">No templates yet</div>`:templates.map(t=>`<div style="background:var(--surface2);border-radius:8px;padding:10px;margin-bottom:8px;cursor:pointer;border:1px solid var(--border)" onclick="useTemplate(${t.id})"><div style="font-weight:600;color:var(--text);font-size:11px">${esc(t.name)}</div><div style="font-size:10px;color:var(--dim);margin-top:2px">${esc(t.desc)}</div><button class="btn" onclick="delTemplate(event,${t.id})" style="background:#dc262622;color:#f87171;padding:2px 6px;font-size:10px;margin-top:6px">Delete</button></div>`).join("");
+}
+
+function addTemplate() {
+  const name = document.getElementById("templateName").value.trim();
+  const desc = document.getElementById("templateDesc").value.trim();
+  if (!name) return alert("Template name required!");
+  
+  const data = getDateData();
+  if (!data.templates) data.templates = [];
+  data.templates.push({id:Date.now(),name,desc});
+  logActivity(`Created template: ${name}`);
+  quickSync();
+  
+  document.getElementById("templateName").value = "";
+  document.getElementById("templateDesc").value = "";
+  renderTemplatesList();
+}
+
+function useTemplate(id) {
+  const data = getDateData();
+  const template = data.templates?.find(t=>t.id==id);
+  if (template) {openTaskForm(null); document.getElementById("f_title").value = template.name; logActivity(`Used template: ${template.name}`);}
+}
+
+function delTemplate(e,id) {
+  e.stopPropagation();
+  const data = getDateData();
+  data.templates = data.templates?.filter(t=>t.id!=id)||[];
+  quickSync();
+  renderTemplatesList();
 }
 
 function openBugModal() {
@@ -714,34 +639,18 @@ function openBugModal() {
 function renderBugList() {
   const bugs = getBugs();
   const el = document.getElementById("bugListInModal");
-  if (!bugs.length) {
-    el.innerHTML = `<div style="color:var(--dim);text-align:center;padding:18px">No bugs yet</div>`;
-    return;
-  }
-  el.innerHTML = `<div style="background:var(--bg);border-radius:9px;border:1px solid var(--border);overflow:auto">
-    <table><thead><tr>${["Bug","Severity","Status","Steps"].map(h => `<th>${h}</th>`).join("")}</tr></thead>
-    <tbody>${bugs.map(b => `<tr>
-      <td style="color:var(--text);font-weight:500">${esc(b.title)}</td>
-      <td style="color:${b.severity === "CRITICAL" ? "#dc2626" : "#f97316"};font-size:11px;font-weight:700">${b.severity}</td>
-      <td><select onchange="updBugStatus(${b.id}, this.value)" style="font-size:10px;padding:2px 6px;border-radius:4px;border:1px solid var(--border);cursor:pointer;font-family:inherit">${["OPEN","IN_FIX","FIXED","CLOSED"].map(s => `<option ${b.status === s ? "selected" : ""}>${s}</option>`).join("")}</select></td>
-      <td style="font-size:10px;color:var(--muted)">${esc((b.steps || "").substring(0,50))}</td>
-    </tr>`).join("")}</tbody></table></div>`;
+  if (!bugs.length) {el.innerHTML = `<div style="color:var(--dim);text-align:center;padding:18px">No bugs yet</div>`;return;}
+  el.innerHTML = `<div style="background:var(--bg);border-radius:9px;border:1px solid var(--border);overflow:auto"><table><thead><tr>${["Bug","Severity","Status","Steps"].map(h=>`<th>${h}</th>`).join("")}</tr></thead><tbody>${bugs.map(b=>`<tr><td style="color:var(--text);font-weight:500">${esc(b.title)}</td><td style="color:${b.severity==="CRITICAL"?"#dc2626":"#f97316"};font-size:11px;font-weight:700">${b.severity}</td><td><select onchange="updBugStatus(${b.id},this.value)" style="font-size:10px;padding:2px 6px;border-radius:4px;border:1px solid var(--border);cursor:pointer;font-family:inherit">${["OPEN","IN_FIX","FIXED","CLOSED"].map(s=>`<option ${b.status===s?"selected":""}>${s}</option>`).join("")}</select></td><td style="font-size:10px;color:var(--muted)">${esc((b.steps||"").substring(0,50))}</td></tr>`).join("")}</tbody></table></div>`;
 }
 
 function addBug() {
   const title = document.getElementById("b_title").value.trim();
   if (!title) return alert("Bug title required!");
-  const bug = {
-    id: Date.now(),
-    title,
-    severity: document.getElementById("b_severity").value,
-    status: document.getElementById("b_status").value,
-    steps: document.getElementById("b_steps").value.trim(),
-    date: currentDate
-  };
+  const bug = {id:Date.now(),title,severity:document.getElementById("b_severity").value,status:document.getElementById("b_status").value,steps:document.getElementById("b_steps").value.trim(),date:currentDate};
   const data = getDateData();
   data.bugs.push(bug);
-  saveToCloud();
+  logActivity(`Logged bug: ${title}`);
+  quickSync();
   document.getElementById("b_title").value = "";
   document.getElementById("b_steps").value = "";
   renderBugList();
@@ -750,46 +659,44 @@ function addBug() {
 
 function delBug(id) {
   if (!confirm("Delete bug?")) return;
+  const bug = getBugs().find(b=>b.id==id);
   const data = getDateData();
-  data.bugs = data.bugs.filter(b => b.id != id);
-  saveToCloud();
+  data.bugs = data.bugs.filter(b=>b.id!=id);
+  logActivity(`Deleted bug: ${bug?.title}`);
+  quickSync();
   renderBugList();
   renderAll();
 }
 
 function updBugStatus(id, status) {
-  const bug = getBugs().find(b => b.id == id);
-  if (bug) {
-    bug.status = status;
-    saveToCloud();
-    renderBugsView();
-  }
+  const bug = getBugs().find(b=>b.id==id);
+  if (bug) {bug.status=status; logActivity(`Bug status: ${bug.title} → ${status}`); quickSync(); renderBugsView();}
 }
 
 function setEODFormat(fmt) {
   eodFormat = fmt;
-  document.getElementById("btn-email").style.background = fmt === "email" ? "#1e40af" : "var(--surface2)";
-  document.getElementById("btn-email").style.color = fmt === "email" ? "#fff" : "var(--dim)";
-  document.getElementById("btn-whatsapp").style.background = fmt === "whatsapp" ? "#059669" : "var(--surface2)";
-  document.getElementById("btn-whatsapp").style.color = fmt === "whatsapp" ? "#fff" : "var(--dim)";
+  document.getElementById("btn-email").style.background = fmt==="email"?"#1e40af":"var(--surface2)";
+  document.getElementById("btn-email").style.color = fmt==="email"?"#fff":"var(--dim)";
+  document.getElementById("btn-whatsapp").style.background = fmt==="whatsapp"?"#059669":"var(--surface2)";
+  document.getElementById("btn-whatsapp").style.color = fmt==="whatsapp"?"#fff":"var(--dim)";
   updateEOD();
 }
 
 function updateEOD() {
-  const name = document.getElementById("eod_name").value || "QA Engineer";
-  const mgr = document.getElementById("eod_mgr").value || "Team";
-  const note = document.getElementById("eod_notes").value || "";
+  const name = document.getElementById("eod_name").value||"QA Engineer";
+  const mgr = document.getElementById("eod_mgr").value||"Team";
+  const note = document.getElementById("eod_notes").value||"";
   const tasks = getTasks();
   const bugs = getBugs();
-  const done = tasks.filter(t => t.status === "DONE");
-  const prog = tasks.filter(t => t.status === "IN_PROGRESS" || t.status === "TESTING");
-  const todo = tasks.filter(t => t.status === "TODO");
-  const blocked = tasks.filter(t => t.blocker && t.status !== "DONE");
-  const openBugs = bugs.filter(b => b.status === "OPEN" || b.status === "IN_FIX");
-  const pct = tasks.length ? Math.round(done.length / tasks.length * 100) : 0;
+  const done = tasks.filter(t=>t.status==="DONE");
+  const prog = tasks.filter(t=>t.status==="IN_PROGRESS"||t.status==="TESTING");
+  const todo = tasks.filter(t=>t.status==="TODO");
+  const blocked = tasks.filter(t=>t.blocker&&t.status!=="DONE");
+  const openBugs = bugs.filter(b=>b.status==="OPEN"||b.status==="IN_FIX");
+  const pct = tasks.length?Math.round(done.length/tasks.length*100):0;
   
   let report = "";
-  if (eodFormat === "email") {
+  if (eodFormat==="email") {
     report = `Subject: EOD Report - ${new Date(currentDate).toLocaleDateString("en-IN")}
 
 Hi ${mgr},
@@ -808,22 +715,22 @@ Please find my EOD summary:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ✅ COMPLETED
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-${done.length ? done.map(t => `• [${t.type}] ${t.title}`).join("\n") : "• None"}
+${done.length?done.map(t=>`• [${t.type}] ${t.title}`).join("\n"):"• None"}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⚡ IN PROGRESS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-${prog.length ? prog.map(t => `• ${t.title}`).join("\n") : "• None"}
+${prog.length?prog.map(t=>`• ${t.title}`).join("\n"):"• None"}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📋 TOMORROW
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-${todo.length ? todo.map(t => `• ${t.title}`).join("\n") : "• All clear!"}
+${todo.length?todo.map(t=>`• ${t.title}`).join("\n"):"• All clear!"}
 
-🚧 Blockers: ${blocked.length ? blocked.map(t => `${t.title} - ${t.blocker}`).join(" | ") : "None"}
-🐛 Bugs: ${openBugs.length ? openBugs.map(b => `${b.title}`).join(" | ") : "None"}
+🚧 Blockers: ${blocked.length?blocked.map(t=>`${t.title} - ${t.blocker}`).join(" | "):"None"}
+🐛 Bugs: ${openBugs.length?openBugs.map(b=>`${b.title}`).join(" | "):"None"}
 
-${note ? `\nNotes: ${note}` : ""}
+${note?`\nNotes: ${note}`:""}
 
 Thanks,
 ${name}`;
@@ -838,24 +745,46 @@ ${name}`;
 🚧 Blocked: ${blocked.length} | 🐛 Bugs: ${openBugs.length}
 
 *✅ Completed*
-${done.length ? done.map(t => `• ${t.title}`).join("\n") : "• None"}
+${done.length?done.map(t=>`• ${t.title}`).join("\n"):"• None"}
 
 *⚡ In Progress*
-${prog.length ? prog.map(t => `• ${t.title}`).join("\n") : "• None"}
+${prog.length?prog.map(t=>`• ${t.title}`).join("\n"):"• None"}
 
 *📋 Tomorrow*
-${todo.length ? todo.map(t => `• ${t.title}`).join("\n") : "• All clear! 🎉"}
+${todo.length?todo.map(t=>`• ${t.title}`).join("\n"):"• All clear! 🎉"}
 
-${blocked.length ? `\n*🚧 Blockers*\n${blocked.map(t => t.blocker).join(" | ")}` : ""}
-${openBugs.length ? `\n*🐛 Bugs*\n${openBugs.map(b => b.title).join(" | ")}` : ""}
-${note ? `\n*📝 Notes*\n${note}` : ""}`;
+${blocked.length?`\n*🚧 Blockers*\n${blocked.map(t=>t.blocker).join(" | ")}`:""}
+${openBugs.length?`\n*🐛 Bugs*\n${openBugs.map(b=>b.title).join(" | ")}`:""}
+${note?`\n*📝 Notes*\n${note}`:""}`;
   }
   document.getElementById("eodPreview").textContent = report;
+  
+  setTimeout(() => renderEODCharts(), 100);
+}
+
+function renderEODCharts() {
+  const tasks = getTasks();
+  if (chartInstances.statusChartEOD) chartInstances.statusChartEOD.destroy();
+  if (chartInstances.priorityChartEOD) chartInstances.priorityChartEOD.destroy();
+  
+  const ctxStatus = document.getElementById("eodStatusChart");
+  const ctxPriority = document.getElementById("eodPriorityChart");
+  if (!ctxStatus || !ctxPriority) return;
+  
+  const statusData = {TODO:tasks.filter(t=>t.status==="TODO").length,IN_PROGRESS:tasks.filter(t=>t.status==="IN_PROGRESS").length,TESTING:tasks.filter(t=>t.status==="TESTING").length,BLOCKED:tasks.filter(t=>t.status==="BLOCKED").length,DONE:tasks.filter(t=>t.status==="DONE").length};
+  const priorityData = {HIGH:tasks.filter(t=>t.priority==="HIGH").length,MEDIUM:tasks.filter(t=>t.priority==="MEDIUM").length,LOW:tasks.filter(t=>t.priority==="LOW").length};
+  
+  const textColor = getComputedStyle(document.body).getPropertyValue('--text').trim();
+  const borderColor = getComputedStyle(document.body).getPropertyValue('--surface').trim();
+  
+  chartInstances.statusChartEOD = new Chart(ctxStatus, {type:'doughnut',data:{labels:['To Do','In Progress','Testing','Blocked','Done'],datasets:[{data:[statusData.TODO,statusData.IN_PROGRESS,statusData.TESTING,statusData.BLOCKED,statusData.DONE],backgroundColor:['#6b7280','#d97706','#7c3aed','#dc2626','#059669'],borderColor:borderColor,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},color:textColor,padding:8}}}}});
+  
+  chartInstances.priorityChartEOD = new Chart(ctxPriority, {type:'doughnut',data:{labels:['High','Medium','Low'],datasets:[{data:[priorityData.HIGH,priorityData.MEDIUM,priorityData.LOW],backgroundColor:['#dc2626','#d97706','#059669'],borderColor:borderColor,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},color:textColor,padding:8}}}}});
 }
 
 function openEOD() {
   const data = getDateData();
-  document.getElementById("eod_name").value = data.userData?.name || "";
+  document.getElementById("eod_name").value = data.userData?.name||"";
   document.getElementById("eod_mgr").value = "";
   document.getElementById("eod_notes").value = "";
   setEODFormat("email");
@@ -865,47 +794,41 @@ function openEOD() {
 
 function copyEOD() {
   const text = document.getElementById("eodPreview").textContent;
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(text).then(() => {
-      alert("✅ Copied to clipboard!");
-    });
-  } else {
-    const ta = document.createElement("textarea");
-    ta.value = text;
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand("copy");
-    document.body.removeChild(ta);
-    alert("✅ Copied!");
-  }
+  if (navigator.clipboard) {navigator.clipboard.writeText(text).then(()=>{alert("✅ Copied!");});} else {const ta=document.createElement("textarea"); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta); alert("✅ Copied!");}
+}
+
+function downloadEOD() {
+  const text = document.getElementById("eodPreview").textContent;
+  const blob = new Blob([text],{type:'text/plain'});
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `EOD_${dk()}.txt`;
+  a.click();
+  window.URL.revokeObjectURL(url);
 }
 
 function openScrum() {
   const data = getDateData();
-  document.getElementById("scrumDate").textContent = new Date(currentDate + "T00:00:00").toLocaleDateString("en-IN");
-  document.getElementById("s_yesterday").value = data.scrum?.yesterday || "";
-  document.getElementById("s_today").value = data.scrum?.today || "";
-  document.getElementById("s_priority").value = data.scrum?.priority || "";
-  document.getElementById("s_blockers").value = data.scrum?.blockers || "";
+  document.getElementById("scrumDate").textContent = new Date(currentDate+"T00:00:00").toLocaleDateString("en-IN");
+  document.getElementById("s_yesterday").value = data.scrum?.yesterday||"";
+  document.getElementById("s_today").value = data.scrum?.today||"";
+  document.getElementById("s_priority").value = data.scrum?.priority||"";
+  document.getElementById("s_blockers").value = data.scrum?.blockers||"";
   document.getElementById("scrumModal").classList.remove("hidden");
 }
 
 function saveScrumData() {
   const data = getDateData();
-  data.scrum = {
-    yesterday: document.getElementById("s_yesterday").value,
-    today: document.getElementById("s_today").value,
-    priority: document.getElementById("s_priority").value,
-    blockers: document.getElementById("s_blockers").value,
-    mood: data.scrum?.mood || "😊"
-  };
-  saveToCloud();
+  data.scrum = {yesterday:document.getElementById("s_yesterday").value,today:document.getElementById("s_today").value,priority:document.getElementById("s_priority").value,blockers:document.getElementById("s_blockers").value};
+  logActivity("Saved scrum notes");
+  quickSync();
   closeModal("scrumModal");
 }
 
 function openScratch() {
   const data = getDateData();
-  document.getElementById("scratchText").value = data.scratch || "";
+  document.getElementById("scratchText").value = data.scratch||"";
   updScratchCnt();
   document.getElementById("scratchModal").classList.remove("hidden");
 }
@@ -914,11 +837,11 @@ function onScratchInput() {
   const data = getDateData();
   data.scratch = document.getElementById("scratchText").value;
   updScratchCnt();
-  scheduleSave();
+  quickSync();
 }
 
 function updScratchCnt() {
-  const v = document.getElementById("scratchText")?.value || "";
+  const v = document.getElementById("scratchText")?.value||"";
   const el = document.getElementById("scratchCount");
   if (el) el.textContent = `${v.length} chars`;
 }
@@ -929,7 +852,7 @@ function clearScratch() {
   data.scratch = "";
   document.getElementById("scratchText").value = "";
   updScratchCnt();
-  saveToCloud();
+  quickSync();
 }
 
 function closeModal(id) {
@@ -938,34 +861,22 @@ function closeModal(id) {
 
 function toggleTheme() {
   isLight = !isLight;
-  document.body.classList.toggle("light", isLight);
-  document.getElementById("themeBtn").textContent = isLight ? "☀️ Light" : "🌙 Dark";
+  document.body.classList.toggle("light",isLight);
+  document.getElementById("themeBtn").textContent = isLight?"☀️":"🌙";
 }
 
-// Init
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded",()=>{
   isLight = window.matchMedia("(prefers-color-scheme: light)").matches;
-  if (isLight) {
-    document.body.classList.add("light");
-    document.getElementById("themeBtn").textContent = "☀️ Light";
-  }
-  document.getElementById("todayLabel").textContent = new Date().toLocaleDateString("en-IN", {weekday:"long",month:"long",day:"numeric"});
+  if (isLight) {document.body.classList.add("light"); document.getElementById("themeBtn").textContent="☀️";}
   document.getElementById("dateFilter").value = currentDate;
   updateDateDisplay();
   loadFromCloud();
   
-  ["taskModal","scrumModal","bugModal","scratchModal","eodModal"].forEach(id => {
-    document.getElementById(id).addEventListener("click", (e) => {
-      if (e.target.id === id) closeModal(id);
-    });
-  });
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") ["taskModal","scrumModal","bugModal","scratchModal","eodModal"].forEach(id => closeModal(id));
-  });
+  ["taskModal","scrumModal","bugModal","scratchModal","eodModal","timeModal","templateModal"].forEach(id=>{document.getElementById(id).addEventListener("click",(e)=>{if(e.target.id===id) closeModal(id);});});
+  document.addEventListener("keydown",(e)=>{if(e.key==="Escape") ["taskModal","scrumModal","bugModal","scratchModal","eodModal","timeModal","templateModal"].forEach(id=>closeModal(id));});
 });
 
-// Auto-sync every 30 seconds
-setInterval(() => saveToCloud(), 30000);
+setInterval(()=>quickSync(),30000);
 </script>
 </body>
 </html>
