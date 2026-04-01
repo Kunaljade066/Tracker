@@ -63,7 +63,8 @@ td{padding:9px 13px;border-bottom:1px solid var(--border);font-size:13px}
       <button class="btn" onclick="openBugModal()" style="background:#dc2626;color:#fff;padding:7px 11px;font-size:12px">🐛</button>
       <button class="btn" onclick="openScratch()" style="background:#0369a1;color:#fff;padding:7px 11px;font-size:12px">📝</button>
       <button class="btn" onclick="quickSync()" style="background:#059669;color:#fff;padding:7px 11px;font-size:12px">☁️</button>
-      <button class="btn" onclick="openEOD()" style="background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;padding:8px 15px;font-size:13px;font-weight:700">📤</button>
+      <button class="btn" onclick="openSettings()" style="background:#475569;color:#fff;padding:7px 11px;font-size:12px">⚙️</button>
+      <button class="btn" onclick="openEOD()" style="background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;padding:8px 15px;font-size:13px;font-weight:700">📤 EOD</button>
     </div>
   </div>
 </div>
@@ -281,10 +282,43 @@ td{padding:9px 13px;border-bottom:1px solid var(--border);font-size:13px}
         <pre id="eodPreview" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;font-size:10px;color:var(--muted);max-height:250px;overflow-y:auto;white-space:pre-wrap;word-break:break-word;line-height:1.6;font-family:monospace"></pre>
       </div>
       
-      <div style="display:flex;gap:8px;justify-content:flex-end">
+      <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
+        <button class="btn" onclick="sendEODEmail()" style="background:linear-gradient(135deg,#1e40af,#3b82f6);color:#fff;padding:10px 20px;font-size:12px;font-weight:700">📧 Send Email</button>
         <button class="btn" onclick="downloadEOD()" style="background:#059669;color:#fff;padding:10px 20px;font-size:12px;font-weight:700">📥 Download</button>
         <button class="btn" onclick="copyEOD()" style="background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;padding:10px 20px;font-size:12px;font-weight:700">📋 Copy</button>
         <button class="btn" onclick="closeModal('eodModal')" style="background:#334155;color:#e2e8f0;padding:10px 18px">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div id="settingsModal" class="modal-bg hidden">
+  <div class="modal" style="max-width:600px">
+    <div style="font-family:'Space Grotesk';font-weight:700;font-size:17px;color:var(--text);margin-bottom:16px">⚙️ Settings</div>
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <div style="background:var(--surface2);border-radius:10px;padding:16px;border:1px solid var(--border)">
+        <div style="font-size:12px;font-weight:700;color:#3b82f6;margin-bottom:12px">📧 Email Recipients (for EOD Send)</div>
+        <div id="recipientsList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px"></div>
+        <div style="display:flex;gap:8px">
+          <input id="newRecipient" class="inp" style="flex:1;font-size:13px" placeholder="Add email address…" type="email" onkeydown="if(event.key==='Enter')addRecipient()"/>
+          <button class="btn" onclick="addRecipient()" style="background:#1e40af;color:#fff;padding:8px 14px;font-size:12px">+ Add</button>
+        </div>
+        <div style="font-size:10px;color:var(--dim);margin-top:8px">💡 When you click "Send Email" in EOD, all recipients will be included automatically.</div>
+      </div>
+
+      <div style="background:var(--surface2);border-radius:10px;padding:16px;border:1px solid var(--border)">
+        <div style="font-size:12px;font-weight:700;color:#7c3aed;margin-bottom:12px">🔴 BugPulse Integration</div>
+        <div><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">BugPulse URL</label>
+          <input id="bugpulseUrl" class="inp" style="font-size:13px" placeholder="https://hitwicket-bugpulse.vercel.app/" value="https://hitwicket-bugpulse.vercel.app/"/></div>
+        <div style="margin-top:8px"><label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Your BugPulse Username / Team (optional filter)</label>
+          <input id="bugpulseUser" class="inp" style="font-size:13px" placeholder="e.g. your name or team"/></div>
+        <div style="font-size:10px;color:var(--dim);margin-top:8px">💡 Bugs logged today on BugPulse will appear in the Bugs tab and EOD report.</div>
+      </div>
+
+      <div style="display:flex;gap:9px;justify-content:flex-end">
+        <button class="btn" onclick="closeModal('settingsModal')" style="background:#334155;color:#e2e8f0;padding:9px 18px">Cancel</button>
+        <button class="btn" onclick="saveSettings()" style="background:#1e40af;color:#fff;padding:9px 20px">💾 Save</button>
       </div>
     </div>
   </div>
@@ -296,6 +330,212 @@ const STATUS = {TODO:{label:"To Do",color:"#6b7280",bg:"#f3f4f6"},IN_PROGRESS:{l
 const PRI = {HIGH:{c:"#dc2626"},MEDIUM:{c:"#d97706"},LOW:{c:"#059669"}};
 
 let allData = {}, currentDate = new Date().toISOString().split("T")[0], currentFilter = "ALL", activeTab = "board", isLight = false, eodFormat = "email", activity = [], chartInstances = {};
+
+// ─── TIMER SYSTEM ───
+let activeTimers = {}; // taskId -> {startMs}
+let taskTimeLogs = {}; // taskId -> totalMs accumulated
+
+function toggleTimer(taskId) {
+  if (activeTimers[taskId]) {
+    // Stop
+    const elapsed = Date.now() - activeTimers[taskId].startMs;
+    taskTimeLogs[taskId] = (taskTimeLogs[taskId]||0) + elapsed;
+    delete activeTimers[taskId];
+    logActivity(`⏹ Stopped timer for task ${taskId} (+${formatDuration(elapsed)})`);
+  } else {
+    // Stop all other running timers first
+    Object.keys(activeTimers).forEach(id => {
+      const e = Date.now() - activeTimers[id].startMs;
+      taskTimeLogs[id] = (taskTimeLogs[id]||0) + e;
+      delete activeTimers[id];
+    });
+    activeTimers[taskId] = {startMs: Date.now()};
+    logActivity(`▶ Started timer for task ${taskId}`);
+  }
+  renderCurrent();
+}
+
+function getElapsedTime(taskId) {
+  const base = taskTimeLogs[taskId]||0;
+  if (activeTimers[taskId]) return base + (Date.now() - activeTimers[taskId].startMs);
+  return base;
+}
+
+function formatDuration(ms) {
+  const totalSec = Math.floor(ms/1000);
+  const h = Math.floor(totalSec/3600);
+  const m = Math.floor((totalSec%3600)/60);
+  const s = totalSec%60;
+  if (h>0) return `${h}h ${m}m`;
+  if (m>0) return `${m}m ${s}s`;
+  return `${s}s`;
+}
+
+// Live timer tick — refresh board every 10s if any timer running
+setInterval(()=>{
+  if (Object.keys(activeTimers).length>0) {
+    Object.keys(activeTimers).forEach(id=>{
+      const btn = document.getElementById(`timer-btn-${id}`);
+      if (btn) {
+        const elapsed = getElapsedTime(parseInt(id));
+        btn.textContent = `⏹ Stop (${formatDuration(elapsed)})`;
+      }
+    });
+  }
+},5000);
+
+// ─── SETTINGS SYSTEM ───
+function getSettings() {
+  try { return JSON.parse(localStorage.getItem("qa_settings")||"{}"); } catch(e) { return {}; }
+}
+function saveSettingsData(s) { localStorage.setItem("qa_settings", JSON.stringify(s)); }
+
+function openSettings() {
+  const s = getSettings();
+  renderRecipientsList(s.recipients||[]);
+  document.getElementById("bugpulseUrl").value = s.bugpulseUrl||"https://hitwicket-bugpulse.vercel.app/";
+  document.getElementById("bugpulseUser").value = s.bugpulseUser||"";
+  document.getElementById("settingsModal").classList.remove("hidden");
+}
+
+function renderRecipientsList(recipients) {
+  const el = document.getElementById("recipientsList");
+  if (!recipients.length) { el.innerHTML=`<div style="color:var(--dim);font-size:12px">No recipients added yet.</div>`; return; }
+  el.innerHTML = recipients.map((r,i)=>`<div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg);border-radius:7px;padding:8px 12px;border:1px solid var(--border)"><span style="font-size:13px;color:var(--text)">📧 ${r}</span><button class="btn" onclick="removeRecipient(${i})" style="background:#dc262622;color:#f87171;padding:2px 8px;font-size:11px">✕</button></div>`).join("");
+}
+
+function addRecipient() {
+  const input = document.getElementById("newRecipient");
+  const email = input.value.trim();
+  if (!email || !email.includes("@")) { showToast("⚠️ Enter a valid email"); return; }
+  const s = getSettings();
+  const recipients = s.recipients||[];
+  if (recipients.includes(email)) { showToast("Already added!"); return; }
+  recipients.push(email);
+  s.recipients = recipients;
+  saveSettingsData(s);
+  renderRecipientsList(recipients);
+  input.value = "";
+}
+
+function removeRecipient(index) {
+  const s = getSettings();
+  const recipients = s.recipients||[];
+  recipients.splice(index,1);
+  s.recipients = recipients;
+  saveSettingsData(s);
+  renderRecipientsList(recipients);
+}
+
+function saveSettings() {
+  const s = getSettings();
+  s.bugpulseUrl = document.getElementById("bugpulseUrl").value.trim()||"https://hitwicket-bugpulse.vercel.app/";
+  s.bugpulseUser = document.getElementById("bugpulseUser").value.trim();
+  saveSettingsData(s);
+  showToast("✅ Settings saved!");
+  closeModal("settingsModal");
+}
+
+// ─── BUGPULSE INTEGRATION ───
+let bugPulseData = [];
+
+function getBugPulseBugs() { return bugPulseData; }
+
+async function fetchBugPulse() {
+  const btn = document.getElementById("bpFetchBtn");
+  const statusEl = document.getElementById("bpStatus");
+  const s = getSettings();
+  const url = s.bugpulseUrl||"https://hitwicket-bugpulse.vercel.app/";
+  
+  if (btn) { btn.textContent = "⏳ Syncing…"; btn.disabled = true; }
+  if (statusEl) statusEl.textContent = "Fetching from BugPulse…";
+  
+  try {
+    // Try fetching the BugPulse API — attempt common patterns
+    const apiUrls = [
+      url.replace(/\/$/, "") + "/api/bugs",
+      url.replace(/\/$/, "") + "/api/bugs?date=" + currentDate,
+      url.replace(/\/$/, "") + "/api/issues",
+    ];
+    
+    let bugs = null;
+    for (const apiUrl of apiUrls) {
+      try {
+        const resp = await fetch(apiUrl, {headers:{"Accept":"application/json"}});
+        if (resp.ok) {
+          const data = await resp.json();
+          if (Array.isArray(data)) { bugs = data; break; }
+          if (data.bugs && Array.isArray(data.bugs)) { bugs = data.bugs; break; }
+          if (data.issues && Array.isArray(data.issues)) { bugs = data.issues; break; }
+          if (data.data && Array.isArray(data.data)) { bugs = data.data; break; }
+        }
+      } catch(e) {}
+    }
+    
+    if (!bugs) throw new Error("Could not fetch bugs from BugPulse API");
+    
+    // Filter today's bugs
+    const today = currentDate;
+    const todayBugs = bugs.filter(b => {
+      const d = b.date||b.createdAt||b.created_at||b.loggedAt||b.logged_at||"";
+      return d.startsWith(today);
+    });
+    
+    // Filter by user if set
+    const user = (s.bugpulseUser||"").toLowerCase();
+    bugPulseData = user ? todayBugs.filter(b=>{
+      const r = (b.reporter||b.createdBy||b.assignee||"").toLowerCase();
+      return r.includes(user);
+    }) : todayBugs;
+    
+    if (statusEl) statusEl.textContent = `✅ ${bugPulseData.length} bug${bugPulseData.length!==1?"s":""} from today`;
+    logActivity(`BugPulse sync: ${bugPulseData.length} bugs found`);
+  } catch(e) {
+    // Fallback: fetch HTML and try to parse visible bug data
+    if (statusEl) statusEl.textContent = `⚠️ API unreachable. Open BugPulse manually and use Import.`;
+    bugPulseData = [];
+    console.warn("BugPulse fetch failed:", e);
+  }
+  
+  if (btn) { btn.textContent = "🔴 Sync BugPulse"; btn.disabled = false; }
+  renderBugsView();
+  updateEOD();
+}
+
+function importBugPulseBug(bugData) {
+  let b = bugData;
+  if (typeof b === "string") { try { b = JSON.parse(b); } catch(e) { return; } }
+  const bug = {
+    id: Date.now(),
+    title: b.title||b.name||b.summary||"BugPulse Bug",
+    severity: (b.severity||b.priority||"MEDIUM").toUpperCase(),
+    status: "OPEN",
+    steps: b.steps||b.description||b.stepsToReproduce||"",
+    date: currentDate,
+    source: "BugPulse"
+  };
+  const data = getDateData();
+  data.bugs.push(bug);
+  logActivity(`Imported from BugPulse: ${bug.title}`);
+  quickSync();
+  renderBugsView();
+  showToast("✅ Bug imported!");
+}
+
+function importAllBugPulse() {
+  const bp = getBugPulseBugs();
+  if (!bp.length) return;
+  const data = getDateData();
+  let count = 0;
+  bp.forEach(b=>{
+    const bug = {id:Date.now()+Math.random(),title:b.title||b.name||b.summary||"BugPulse Bug",severity:(b.severity||b.priority||"MEDIUM").toUpperCase(),status:"OPEN",steps:b.steps||b.description||"",date:currentDate,source:"BugPulse"};
+    data.bugs.push(bug); count++;
+  });
+  logActivity(`Imported ${count} bugs from BugPulse`);
+  quickSync();
+  renderBugsView();
+  showToast(`✅ ${count} bugs imported!`);
+}
 
 const dk = () => new Date().toISOString().split("T")[0];
 const esc = s => String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
@@ -395,7 +635,17 @@ function getFiltered() {
 }
 
 function cardHTML(t) {
-  return `<div class="tcard"><div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:6px"><span style="font-size:12px;font-weight:600;color:var(--text);flex:1">${esc(t.title)}</span><div style="display:flex;gap:3px;margin-left:5px"><button class="btn" onclick="openTaskForm(${t.id})" style="background:#1e40af22;color:#60a5fa;padding:2px 6px;font-size:10px">✏️</button><button class="btn" onclick="delTask(${t.id})" style="background:#dc262622;color:#f87171;padding:2px 6px;font-size:10px">🗑</button></div></div><div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px"><span class="badge" style="background:var(--border);color:var(--muted)">${t.type}</span><span style="color:${PRI[t.priority]?.c};font-size:10px;font-weight:700">${t.priority}</span>${t.env?`<span class="badge" style="background:var(--surface);color:var(--dim)">🌐 ${esc(t.env)}</span>`:""}${t.estimate?`<span class="time-badge">⏱️ ${t.estimate}h</span>`:""}</div>${t.blocker?`<div style="background:#dc262611;border:1px solid #dc262633;border-radius:5px;padding:3px 7px;margin-bottom:5px;font-size:10px;color:#f87171">🚧 ${esc(t.blocker)}</div>`:""}${t.notes?`<div style="font-size:10px;color:var(--dim);margin-bottom:6px;line-height:1.4">${esc(t.notes.substring(0,70))}</div>`:""}<select onchange="updateStatus(${t.id},this.value)" style="width:100%;background:${STATUS[t.status]?.bg}33;color:${STATUS[t.status]?.color};border:1px solid ${STATUS[t.status]?.color}55;border-radius:6px;padding:5px 8px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">${Object.entries(STATUS).map(([k,v])=>`<option value="${k}" ${t.status===k?"selected":""}>${v.label}</option>`).join("")}</select></div>`;
+  const isRunning = activeTimers[t.id];
+  const elapsed = getElapsedTime(t.id);
+  const timerColor = isRunning ? "#059669" : "#3b82f6";
+  const timerLabel = isRunning ? "⏹ Stop" : "▶ Start";
+  const elapsedStr = elapsed > 0 ? ` (${formatDuration(elapsed)})` : "";
+  return `<div class="tcard"><div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:6px"><span style="font-size:12px;font-weight:600;color:var(--text);flex:1">${esc(t.title)}</span><div style="display:flex;gap:3px;margin-left:5px"><button class="btn" onclick="openTaskForm(${t.id})" style="background:#1e40af22;color:#60a5fa;padding:2px 6px;font-size:10px">✏️</button><button class="btn" onclick="delTask(${t.id})" style="background:#dc262622;color:#f87171;padding:2px 6px;font-size:10px">🗑</button></div></div><div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px"><span class="badge" style="background:var(--border);color:var(--muted)">${t.type}</span><span style="color:${PRI[t.priority]?.c};font-size:10px;font-weight:700">${t.priority}</span>${t.env?`<span class="badge" style="background:var(--surface);color:var(--dim)">🌐 ${esc(t.env)}</span>`:""}${t.estimate?`<span class="time-badge">⏱️ ${t.estimate}h</span>`:""}</div>${t.blocker?`<div style="background:#dc262611;border:1px solid #dc262633;border-radius:5px;padding:3px 7px;margin-bottom:5px;font-size:10px;color:#f87171">🚧 ${esc(t.blocker)}</div>`:""}${t.notes?`<div style="font-size:10px;color:var(--dim);margin-bottom:6px;line-height:1.4">${esc(t.notes.substring(0,70))}</div>`:""}
+  <div style="display:flex;gap:6px;margin-bottom:7px;align-items:center">
+    <button class="btn" id="timer-btn-${t.id}" onclick="toggleTimer(${t.id})" style="background:${timerColor}22;color:${timerColor};border:1px solid ${timerColor}44;padding:3px 9px;font-size:10px;font-weight:700">${timerLabel}${elapsedStr}</button>
+    ${isRunning?`<span id="timer-live-${t.id}" style="font-size:10px;color:#059669;font-weight:700">🟢 Running</span>`:""}
+  </div>
+  <select onchange="updateStatus(${t.id},this.value)" style="width:100%;background:${STATUS[t.status]?.bg}33;color:${STATUS[t.status]?.color};border:1px solid ${STATUS[t.status]?.color}55;border-radius:6px;padding:5px 8px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">${Object.entries(STATUS).map(([k,v])=>`<option value="${k}" ${t.status===k?"selected":""}>${v.label}</option>`).join("")}</select></div>`;
 }
 
 function renderBoard() {
@@ -410,7 +660,28 @@ function renderList() {
 
 function renderBugsView() {
   const bugs = getBugs();
-  document.getElementById("view-bugs").innerHTML = `<div style="display:flex;justify-content:flex-end;margin-bottom:12px"><button class="btn" onclick="openBugModal()" style="background:#dc2626;color:#fff;padding:8px 16px;font-size:13px">+ New Bug</button></div>${!bugs.length?`<div style="background:var(--surface);border-radius:11px;padding:38px;text-align:center;border:1px solid var(--border);color:var(--dim)">✅ No bugs!</div>`:`<div style="background:var(--surface);border-radius:11px;border:1px solid var(--border);overflow:auto"><table><thead><tr>${["Bug","Severity","Status","Steps","Actions"].map(h=>`<th>${h}</th>`).join("")}</tr></thead><tbody>${bugs.map(b=>`<tr><td style="font-weight:500;color:var(--text);max-width:200px">${esc(b.title)}</td><td style="color:${b.severity==="CRITICAL"?"#dc2626":"#f97316"};font-size:11px;font-weight:700">${b.severity}</td><td><select onchange="updBugStatus(${b.id},this.value)" style="font-size:11px;font-weight:700;padding:3px 6px;border-radius:5px;border:1px solid var(--border);cursor:pointer;font-family:inherit">${["OPEN","IN_FIX","FIXED","CLOSED"].map(s=>`<option ${b.status===s?"selected":""}>${s}</option>`).join("")}</select></td><td style="font-size:10px;color:var(--muted);max-width:200px">${esc((b.steps||"").substring(0,60))}</td><td><button class="btn" onclick="delBug(${b.id})" style="background:#dc262622;color:#f87171;padding:2px 7px;font-size:11px">🗑</button></td></tr>`).join("")}</tbody></table></div>`}`;
+  const bp = getBugPulseBugs();
+  let bpSection = "";
+  if (bp.length) {
+    bpSection = `<div style="background:var(--surface);border-radius:11px;border:1px solid #dc262644;padding:18px;margin-bottom:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div style="font-family:'Space Grotesk';font-weight:700;font-size:13px;color:#f87171">🔴 BugPulse — Logged Today (${bp.length})</div>
+        <button class="btn" onclick="importAllBugPulse()" style="background:#dc2626;color:#fff;padding:5px 12px;font-size:11px">⬇️ Import All</button>
+      </div>
+      <div style="overflow:auto"><table><thead><tr>${["ID","Title","Severity","Status","Reporter","Actions"].map(h=>`<th>${h}</th>`).join("")}</tr></thead><tbody>
+      ${bp.map(b=>`<tr><td style="font-size:10px;color:var(--dim)">#${b.id||"—"}</td><td style="font-weight:500;color:var(--text);max-width:220px">${esc(b.title||b.name||b.summary||"")}</td><td style="color:${(b.severity||b.priority||"").toUpperCase()==="CRITICAL"?"#dc2626":(b.severity||b.priority||"").toUpperCase()==="HIGH"?"#f97316":"#d97706"};font-size:11px;font-weight:700">${b.severity||b.priority||"—"}</td><td style="font-size:11px;color:var(--muted)">${b.status||"—"}</td><td style="font-size:11px;color:var(--muted)">${b.reporter||b.createdBy||"—"}</td><td><button class="btn" onclick='importBugPulseBug(${JSON.stringify(b).replace(/'/g,"&#39;")})' style="background:#dc262622;color:#f87171;padding:2px 7px;font-size:10px">Import</button></td></tr>`).join("")}
+      </tbody></table></div>
+    </div>`;
+  }
+  document.getElementById("view-bugs").innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn" onclick="openBugModal()" style="background:#dc2626;color:#fff;padding:8px 16px;font-size:13px">+ New Bug</button>
+      <button class="btn" onclick="fetchBugPulse()" id="bpFetchBtn" style="background:#7c3aed;color:#fff;padding:8px 16px;font-size:13px">🔴 Sync BugPulse</button>
+    </div>
+    <span id="bpStatus" style="font-size:11px;color:var(--muted)"></span>
+  </div>
+  ${bpSection}
+  ${!bugs.length?`<div style="background:var(--surface);border-radius:11px;padding:38px;text-align:center;border:1px solid var(--border);color:var(--dim)">✅ No local bugs!</div>`:`<div style="background:var(--surface);border-radius:11px;border:1px solid var(--border);overflow:auto"><table><thead><tr>${["Bug","Severity","Status","Steps","Actions"].map(h=>`<th>${h}</th>`).join("")}</tr></thead><tbody>${bugs.map(b=>`<tr><td style="font-weight:500;color:var(--text);max-width:200px">${esc(b.title)}</td><td style="color:${b.severity==="CRITICAL"?"#dc2626":"#f97316"};font-size:11px;font-weight:700">${b.severity}</td><td><select onchange="updBugStatus(${b.id},this.value)" style="font-size:11px;font-weight:700;padding:3px 6px;border-radius:5px;border:1px solid var(--border);cursor:pointer;font-family:inherit">${["OPEN","IN_FIX","FIXED","CLOSED"].map(s=>`<option ${b.status===s?"selected":""}>${s}</option>`).join("")}</select></td><td style="font-size:10px;color:var(--muted);max-width:200px">${esc((b.steps||"").substring(0,60))}</td><td><button class="btn" onclick="delBug(${b.id})" style="background:#dc262622;color:#f87171;padding:2px 7px;font-size:11px">🗑</button></td></tr>`).join("")}</tbody></table></div>`}`;
 }
 
 function renderReport() {
@@ -683,82 +954,107 @@ function setEODFormat(fmt) {
 }
 
 function updateEOD() {
+  const settings = getSettings();
   const name = document.getElementById("eod_name").value||"QA Engineer";
-  const mgr = document.getElementById("eod_mgr").value||"Team";
+  const mgr = document.getElementById("eod_mgr").value||(settings.recipients.length?settings.recipients[0]:"Team");
   const note = document.getElementById("eod_notes").value||"";
   const tasks = getTasks();
   const bugs = getBugs();
+  const bpBugs = getBugPulseBugs();
   const done = tasks.filter(t=>t.status==="DONE");
   const prog = tasks.filter(t=>t.status==="IN_PROGRESS"||t.status==="TESTING");
   const todo = tasks.filter(t=>t.status==="TODO");
   const blocked = tasks.filter(t=>t.blocker&&t.status!=="DONE");
   const openBugs = bugs.filter(b=>b.status==="OPEN"||b.status==="IN_FIX");
   const pct = tasks.length?Math.round(done.length/tasks.length*100):0;
-  
+  const dateStr = new Date(currentDate+"T00:00:00").toLocaleDateString("en-IN",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+
+  // Helper: format task detail line with time
+  const taskLine = (t, prefix="•") => {
+    const parts = [`${prefix} [${t.type}] ${t.title}`];
+    const elapsed = getElapsedTime(t.id);
+    if (elapsed > 0) parts.push(`(${formatDuration(elapsed)} logged)`);
+    else if (t.estimate) parts.push(`(Est: ${t.estimate}h)`);
+    if (t.env) parts.push(`| Env: ${t.env}`);
+    if (t.notes) parts.push(`\n    ↳ ${t.notes}`);
+    return parts.join(" ");
+  };
+
   let report = "";
   if (eodFormat==="email") {
-    report = `Subject: EOD Report - ${new Date(currentDate).toLocaleDateString("en-IN")}
+    const recipientName = mgr || "Team";
+    report = `Subject: EOD Report — ${dateStr}
 
-Hi ${mgr},
+Hi ${recipientName},
 
-Please find my EOD summary:
+Please find below my End-of-Day report for ${dateStr}.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📊 SUMMARY
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✅ Done: ${done.length}/${tasks.length} (${pct}%)
-⚡ In Progress: ${prog.length}
-📋 Remaining: ${todo.length}
-🚧 Blocked: ${blocked.length}
-🐛 Open Bugs: ${openBugs.length}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📊 DAILY SUMMARY — ${pct}% Complete
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ✅ Completed   : ${done.length} task${done.length!==1?"s":""}
+  ⚡ In Progress  : ${prog.length} task${prog.length!==1?"s":""}
+  📋 Pending      : ${todo.length} task${todo.length!==1?"s":""}
+  🚧 Blocked      : ${blocked.length} task${blocked.length!==1?"s":""}
+  🐛 Open Bugs    : ${openBugs.length}${bpBugs.length?`\n  🔴 BugPulse     : ${bpBugs.length} logged today`:""}
+  📝 Total Tasks  : ${tasks.length}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✅ COMPLETED
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-${done.length?done.map(t=>`• [${t.type}] ${t.title}`).join("\n"):"• None"}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ COMPLETED TODAY (${done.length})
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${done.length ? done.map(t=>taskLine(t)).join("\n") : "  • No tasks completed today."}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚡ IN PROGRESS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-${prog.length?prog.map(t=>`• ${t.title}`).join("\n"):"• None"}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚡ IN PROGRESS / TESTING (${prog.length})
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${prog.length ? prog.map(t=>taskLine(t)).join("\n") : "  • None currently in progress."}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📋 TOMORROW
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-${todo.length?todo.map(t=>`• ${t.title}`).join("\n"):"• All clear!"}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 PLANNED FOR TOMORROW (${todo.length})
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${todo.length ? todo.map(t=>`  • [${t.type}] ${t.title}${t.priority==="HIGH"?" 🔴 HIGH":""}`).join("\n") : "  • All tasks cleared! 🎉"}
 
-🚧 Blockers: ${blocked.length?blocked.map(t=>`${t.title} - ${t.blocker}`).join(" | "):"None"}
-🐛 Bugs: ${openBugs.length?openBugs.map(b=>`${b.title}`).join(" | "):"None"}
+${blocked.length ? `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🚧 BLOCKERS (${blocked.length})
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${blocked.map(t=>`  • ${t.title}\n    ↳ Blocker: ${t.blocker}`).join("\n")}
 
-${note?`\nNotes: ${note}`:""}
+` : ""}${openBugs.length ? `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🐛 OPEN BUGS (${openBugs.length})
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${openBugs.map(b=>`  • [${b.severity}] ${b.title} — Status: ${b.status}${b.steps?`\n    ↳ Steps: ${b.steps.substring(0,80)}`:""}`).join("\n")}
 
-Thanks,
-${name}`;
+` : ""}${bpBugs.length ? `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔴 BUGPULSE — LOGGED TODAY (${bpBugs.length})
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${bpBugs.map(b=>`  • [${b.severity||b.priority||"—"}] ${b.title||b.name||b.summary||""} — ${b.status||"Open"}`).join("\n")}
+
+` : ""}${note ? `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📝 ADDITIONAL NOTES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${note}
+
+` : ""}Thanks & Regards,
+${name}
+QA Engineer`;
   } else {
-    report = `*📋 EOD Report - ${new Date(currentDate).toLocaleDateString("en-IN")}*
-
-*QA: ${name}*
+    report = `*📋 EOD — ${new Date(currentDate+"T00:00:00").toLocaleDateString("en-IN")}*
+*QA: ${name}* | Progress: ${pct}%
 
 *📊 Summary*
-✅ Done: ${done.length}/${tasks.length} (${pct}%)
-⚡ Progress: ${prog.length} | Remaining: ${todo.length}
-🚧 Blocked: ${blocked.length} | 🐛 Bugs: ${openBugs.length}
+✅ Done: ${done.length} | ⚡ WIP: ${prog.length} | 📋 Pending: ${todo.length} | 🚧 Blocked: ${blocked.length} | 🐛 Bugs: ${openBugs.length}${bpBugs.length?` | 🔴 BugPulse: ${bpBugs.length}`:""}
 
 *✅ Completed*
-${done.length?done.map(t=>`• ${t.title}`).join("\n"):"• None"}
+${done.length?done.map(t=>`• [${t.type}] ${t.title}${getElapsedTime(t.id)>0?" ("+formatDuration(getElapsedTime(t.id))+")":""}`).join("\n"):"• None"}
 
 *⚡ In Progress*
-${prog.length?prog.map(t=>`• ${t.title}`).join("\n"):"• None"}
+${prog.length?prog.map(t=>`• ${t.title} (${t.env||"—"})`).join("\n"):"• None"}
 
 *📋 Tomorrow*
-${todo.length?todo.map(t=>`• ${t.title}`).join("\n"):"• All clear! 🎉"}
-
-${blocked.length?`\n*🚧 Blockers*\n${blocked.map(t=>t.blocker).join(" | ")}`:""}
-${openBugs.length?`\n*🐛 Bugs*\n${openBugs.map(b=>b.title).join(" | ")}`:""}
-${note?`\n*📝 Notes*\n${note}`:""}`;
+${todo.length?todo.map(t=>`• ${t.title}${t.priority==="HIGH"?" 🔴":""}`).join("\n"):"• All clear! 🎉"}
+${blocked.length?`\n*🚧 Blockers*\n${blocked.map(t=>`• ${t.title}: ${t.blocker}`).join("\n")}`:""}${openBugs.length?`\n*🐛 Bugs*\n${openBugs.map(b=>`• [${b.severity}] ${b.title}`).join("\n")}`:""}${bpBugs.length?`\n*🔴 BugPulse Today*\n${bpBugs.map(b=>`• ${b.title||b.name||""}`).join("\n")}`:""}${note?`\n*📝 Notes*\n${note}`:""}`;
   }
   document.getElementById("eodPreview").textContent = report;
-  
   setTimeout(() => renderEODCharts(), 100);
 }
 
@@ -784,8 +1080,9 @@ function renderEODCharts() {
 
 function openEOD() {
   const data = getDateData();
+  const settings = getSettings();
   document.getElementById("eod_name").value = data.userData?.name||"";
-  document.getElementById("eod_mgr").value = "";
+  document.getElementById("eod_mgr").value = settings.recipients.length ? settings.recipients[0] : "";
   document.getElementById("eod_notes").value = "";
   setEODFormat("email");
   updateEOD();
@@ -793,8 +1090,40 @@ function openEOD() {
 }
 
 function copyEOD() {
-  const text = document.getElementById("eodPreview").textContent;
-  if (navigator.clipboard) {navigator.clipboard.writeText(text).then(()=>{alert("✅ Copied!");});} else {const ta=document.createElement("textarea"); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta); alert("✅ Copied!");}
+  const el = document.getElementById("eodPreview");
+  const text = el.innerText || el.textContent || "";
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(()=>{showToast("✅ Copied to clipboard!");}).catch(()=>fallbackCopy(text));
+  } else { fallbackCopy(text); }
+}
+
+function fallbackCopy(text) {
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  ta.style.cssText = "position:fixed;left:-9999px;top:0;opacity:0";
+  document.body.appendChild(ta);
+  ta.focus(); ta.select();
+  try { document.execCommand("copy"); showToast("✅ Copied!"); } catch(e) { showToast("⚠️ Copy failed. Please select manually."); }
+  document.body.removeChild(ta);
+}
+
+function showToast(msg) {
+  let t = document.getElementById("toastMsg");
+  if (!t) { t = document.createElement("div"); t.id="toastMsg"; t.style.cssText="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1e293b;color:#e2e8f0;padding:10px 22px;border-radius:10px;font-size:13px;font-weight:600;z-index:9999;border:1px solid #334155;box-shadow:0 4px 24px rgba(0,0,0,.5);transition:opacity .3s"; document.body.appendChild(t); }
+  t.textContent = msg; t.style.opacity = "1";
+  setTimeout(()=>{ t.style.opacity="0"; }, 2200);
+}
+
+function sendEODEmail() {
+  const settings = getSettings();
+  const text = document.getElementById("eodPreview").innerText || document.getElementById("eodPreview").textContent || "";
+  const lines = text.split("\n");
+  const subjectLine = lines.find(l=>l.startsWith("Subject:"))||"";
+  const subject = subjectLine.replace(/^Subject:\s*/,"") || `EOD Report — ${currentDate}`;
+  const body = lines.filter((_,i)=>i>1).join("\n");
+  const to = settings.recipients.join(",");
+  const mailtoUrl = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  window.open(mailtoUrl, "_blank");
 }
 
 function downloadEOD() {
@@ -872,8 +1201,8 @@ document.addEventListener("DOMContentLoaded",()=>{
   updateDateDisplay();
   loadFromCloud();
   
-  ["taskModal","scrumModal","bugModal","scratchModal","eodModal","timeModal","templateModal"].forEach(id=>{document.getElementById(id).addEventListener("click",(e)=>{if(e.target.id===id) closeModal(id);});});
-  document.addEventListener("keydown",(e)=>{if(e.key==="Escape") ["taskModal","scrumModal","bugModal","scratchModal","eodModal","timeModal","templateModal"].forEach(id=>closeModal(id));});
+  ["taskModal","scrumModal","bugModal","scratchModal","eodModal","timeModal","templateModal","settingsModal"].forEach(id=>{document.getElementById(id).addEventListener("click",(e)=>{if(e.target.id===id) closeModal(id);});});
+  document.addEventListener("keydown",(e)=>{if(e.key==="Escape") ["taskModal","scrumModal","bugModal","scratchModal","eodModal","timeModal","templateModal","settingsModal"].forEach(id=>closeModal(id));});
 });
 
 setInterval(()=>quickSync(),30000);
